@@ -1,0 +1,16 @@
+@font-face {
+	font-family: 'Shabnam';
+	src: 	url("Shabnam-persian-digits-overwrite.woff") format("woff");  /* IE6–8 */
+	src: 	url("Shabnam-persian-digits-overwrite.eot?#ie6") format("eot"),  /* IE6–8 */
+			url("Shabnam-persian-digits-overwrite.ttf") format("truetype");
+	font-weight:normal;
+	font-style:normal;
+}
+@font-face {
+	font-family: 'Shabnam';
+	src: 	url("Shabnam-Bold-persian-digits-overwrite.woff") format("woff");  /* IE6–8 */
+	src: 	url("Shabnam-Bold-persian-digits-overwrite.eot?#ie6") format("eot"),  /* IE6–8 */
+			url("Shabnam-Bold-persian-digits-overwrite.ttf") format("truetype");
+	font-weight:bold;
+	font-style:normal;
+}

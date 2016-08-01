@@ -1,0 +1,15 @@
+<div class="nai-navbar">
+	<div class="title"> آشنایان </div>
+	<div class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></div>
+	<div class="nai-nav-icon left glyphicon glyphicon-search" ng-click="searchbar = true"></div>
+</div>
+	
+<div>
+	<ul class="list-group">
+		<li class="list-group-item" ng-repeat="contact in contacts">
+			<span class="badge" ng-bind="contact.phone"></span>
+			{{contact.name}}
+		</li>
+	</ul>
+</div>
+<searchbar open="searchbar" callback="search($text)"></searchbar>

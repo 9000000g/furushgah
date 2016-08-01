@@ -1,0 +1,148 @@
+<div class="nai-navbar">
+	<div class="title"> نصب جدید - بازدید از محل </div>
+	<div class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></div>
+</div>
+<div class="nai-page-container">
+	<div class="form-group col-sm-5">
+		<label class="control-label">بازدیدکننده</label>
+		<select class="form-control" selectize="{}" options="users" ng-model="inputs.userName"></select>
+	</div>
+	<div class="form-group col-sm-5">
+		<label class="control-label">تاریخ بازدید</label>
+		<div class="form-control" ng-jalaali-flat-datepicker datepicker-config="datepickerConfig" ng-model="inputs.date" ng-bind="inputs.date"></div>
+	</div>
+	<div class="form-group col-sm-2">
+		<label class="control-label">روستایی</label>
+		<div>
+			<switch ng-model="inputs.rustayi"><switch>
+		</div>
+	</div>
+	<div class="col-sm-12"><hr/></div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">تعداد طبقات</label>
+		<input type="number" class="form-control" ng-model="inputs.tabaghat"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">تعداد کل واحدها</label>
+		<input type="number" class="form-control" ng-model="inputs.vahedz"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">تعداد خانوار</label>
+		<input type="number" class="form-control" ng-model="inputs.vahedz"/>
+	</div>
+	<div class="form-group col-sm-2">
+		<label class="control-label">آسانسور</label>
+		<div>
+			<switch ng-model="inputs.asansor"><switch>
+		</div>
+	</div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">زیربنا</label>
+		<input type="number" class="form-control" ng-model="inputs.tabaghat"/>
+	</div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">طول جغرافیایی</label>
+		<input type="number" class="form-control" ng-model="inputs.x"/>
+	</div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">عرض جغرافیایی</label>
+		<input type="number" class="form-control" ng-model="inputs.y"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">محدوده جغرافیایی</label>
+		<select class="form-control" selectize="{}" options="places" ng-model="inputs.place"></select>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">موقعیت ساختمان</label>
+		<select class="form-control" selectize="{}" options="places2" ng-model="inputs.place2"></select>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">بخش</label>
+		<select class="form-control" selectize="{}" options="places3" ng-model="inputs.place3"></select>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">روستا</label>
+		<select class="form-control" selectize="{}" options="places4" ng-model="inputs.place4"></select>
+	</div>
+	<div class="col-sm-12"><hr/></div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">کد ولتاژ</label>
+		<select class="form-control" selectize="{}" options="options" ng-model="inputs.selected" disabled="true"></select>
+	</div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">فیدر</label>
+		<select class="form-control" selectize="{}" options="feeders" ng-model="inputs.fider"></select>
+	</div>
+	<div class="form-group col-sm-4">
+		<label class="control-label">نیرو رسانی</label>
+		<select class="form-control" selectize="{}" options="bys" ng-model="inputs.by"></select>
+	</div>
+
+	<div class="col-sm-12"><hr/></div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">اشتراک مجاور سمت راست</label>
+		<input type="number" class="form-control" ng-model="inputs.rightId"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">شناسایی مجاور سمت راست</label>
+		<input type="number" class="form-control" ng-model="inputs.rightId2"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">اشتراک مجاور سمت چپ</label>
+		<input type="number" class="form-control" ng-model="inputs.leftId"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">شناسایی مجاور سمت چپ</label>
+		<input type="number" class="form-control" ng-model="inputs.leftId2"/>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">غیر مجاز</label>
+		<div>
+			<switch ng-model="inputs.notAllowed"><switch>
+		</div>
+	</div>
+	<div class="form-group col-sm-3">
+		<label class="control-label">تصویه حساب مصرفی</label>
+		<div>
+			<switch ng-model="inputs.bedehi"><switch>
+		</div>
+	</div>
+	<div class="form-group col-sm-2">
+		<label class="control-label"></label>
+		<button class="btn btn-default full-width">ثبت</button>
+	</div>
+	<div class="form-group col-sm-2">
+		<label class="control-label"></label>
+		<button class="btn btn-default full-width">جدید</button>
+	</div>
+	<div class="form-group col-sm-2">
+		<label class="control-label"></label>
+		<button class="btn btn-default full-width">حذف</button>
+	</div>
+
+	<div class="col-sm-12"><hr/></div>
+	<div class="form-group col-sm-6">
+		<label class="control-label">نوع منطقه</label>
+		<select class="form-control" selectize="{}" options="feeders" ng-model="inputs.fider"></select>
+	</div>
+	<div class="form-group col-sm-6">
+		<label class="control-label">نوع فروش</label>
+		<select class="form-control" selectize="{}" options="bys" ng-model="inputs.by"></select>
+	</div>
+	<div class="col-sm-12"><hr/></div>
+
+	
+	<div class="form-group col-sm-3">
+		<button class="btn btn-primary full-width" ng-click="save()">چاپ فرم</button>
+	</div>
+	<div class="form-group col-sm-3">
+		<button class="btn btn-danger full-width">مدارک ضمیمه</button>
+	</div>
+	<div class="form-group col-sm-3">
+		<button class="btn btn-warning full-width">چاپ فرم نصب</button>
+	</div>
+	<div class="form-group col-sm-3">
+		<button class="btn btn-info full-width">محاسبه هزینه</button>
+	</div>
+</div>
+

@@ -1,0 +1,76 @@
+html, body{
+	font-family: Shabnam, Tahoma;
+	min-height: 100%;
+	width: 100%;
+	font-size: 0.9em;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.nai-navbar, .nai-searchbar, .badge{
+	background-color: #5f6f7b;
+}
+/*
+.page-animation, .page-animation .nai-navbar{
+	transition: all 600ms;
+}
+.page-animation.ng-enter,
+.page-animation.ng-enter-active{
+	opacity:1;
+}
+.page-animation.ng-enter  .nai-navbar{
+	transform: translateY(-100%);
+}
+
+.page-animation.ng-enter-active .nai-navbar{
+	transform: translateY(0);
+}
+
+.page-animation.ng-leave,
+.page-animation.ng-leave-active{
+	opacity:0;
+}
+*/
+
+.page-animation{
+	transition: all 750ms;
+}
+.page-animation.ng-enter{
+	transform: translateX(100%);
+}
+.page-animation.ng-enter-active{
+	transform: translateX(0);
+}
+
+.page-animation.ng-leave{
+	transform: translateX(0%);
+}
+.page-animation.ng-leave-active{
+	transform: translateX(-100%);
+	opacity: 0.4;
+}
+
+
+.post{
+	transition: all 300ms;
+}
+
+.post.low-score{
+	opacity: 0.7;
+}
+.post.low-score:hover{
+	opacity: 1;
+}
+
+.post .panel-heading{
+	display: table;
+	width: 100%;
+}
+
+
+
+.post .panel-heading .cell{
+	display: table-cell;
+}
+.post .panel-heading .cell .text{
+	vertical-align: middle;
+}
