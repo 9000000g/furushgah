@@ -1,5 +1,6 @@
 angular.module('app.controllers', [])
-.run(function($rootScope, $location, $window){
+.run(function($rootScope, $location, $window, $http, $server){
+
 	$rootScope.currentPage = function(input){
 		if( typeof input == 'undefined' )
 			return $location.url();
@@ -23,72 +24,254 @@ angular.module('app.controllers', [])
 		else
 			$location.url( url );
 	}
+	$rootScope.server = 'http://127.0.0.1:3001';
+	$rootScope.reqUrl = function(url){
+		url = typeof url == 'undefined'? '': url.toString();
+		return $rootScope.server + (url.indexOf(0) == '/' ? '' : '/') + url;
+	}
+	$rootScope.getc = function(){ //arguments
+
+	}
+	$rootScope.me = false;
+
+	$rootScope.displayPrice = function(item){
+		if( item.type == 'sale' ){
+			return item.totalPrice + ' ریال';
+		}
+		else{
+			var periodTexts = {
+				year: 'سالانه',
+				month: 'ماهانه',
+				week: 'هفتگی',
+				day: 'روزانه',
+				hour: 'هر ساعت'
+			}
+			return item.mortgagePrice + ' ودیعه و ' + item.periodPrice + ' ریال ' + periodTexts[ item.period ];
+		}
+	}
+
+	$rootScope._loading = false;
+	$rootScope.loading = function(val){
+		val = typeof val == 'undefined'? true: val;
+		$rootScope._loading = val;
+	}
+	$rootScope.go('/deside');
+})
+.controller('DesideCtrl', function($scope, $rootScope, $server){
+	$rootScope.loading();
+	$server.emit( 'users/:id', {id:'me'}, function(err,res){
+		var page = 'login';
+		if( !err && res !== false ){
+			page = 'main';
+			$rootScope.me = res;
+		}
+		$rootScope.go('/'+page);
+		$rootScope.loading(false);
+	});
 })
 .controller('MainCtrl', function($scope){
 	$scope.sidebar = false;
 })
-.controller('LoginCtrl', function($scope, $rootScope){
+.controller('LoginCtrl', function($scope, $rootScope, $server){
+	$rootScope.me = false;
 	$scope.inputs = {};
-	$scope.userTypes = [
-		{text: 'بازدید', value: 1},
-		{text: 'نصب', value: 2}
-	];
 	$scope.login = function(){
-		$rootScope.go('/main');
+		$rootScope.loading();
+		$server.emit( 'login', $scope.inputs, function(err,res){
+			if( !err ){
+				$rootScope.go('/main');
+				$rootScope.me = res;
+			}
+			else{
+				alert('نام کاربری یا رمز عبور اشتباه است.');
+			}
+			$rootScope.loading(false);
+		});
+	}
+
+	$server.emit( 'logout' );
+
+})
+.controller('FollowersCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.items = [];
+	$scope.fetch = function(){
+		$rootScope.loading();
+		$server.emit( 'users/:id/followers', {id: $routeParams.id}, function(err, res){
+			$scope.items = res;
+			$rootScope.loading(false);
+		});
+	}
+	$scope.searchbar = false;
+	$scope.search = function(text){
+		alert(text);
+	}
+	$scope.fetch();
+})
+.controller('FollowingCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.items = [];
+	$scope.fetch = function(){
+		$rootScope.loading();
+		$server.emit( 'users/:id/following', {id: $routeParams.id}, function(err, res){
+			$scope.items = res;
+			$rootScope.loading(false);
+		});
+	}
+	$scope.searchbar = false;
+	$scope.search = function(text){
+		alert(text);
+	}
+	$scope.fetch();
+})
+.controller('ProfileCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.item = [];
+	$scope.sales = [];
+	$scope.amIFollow = false;
+
+	$scope.followToggle = function(){
+		if( $scope.amIFollow ){
+			$server.emit( 'users/:id/unfollow', {id: $routeParams.id}, function(err, res){
+				console.log(err,res);
+				$scope.amIFollow = false;
+			});
+		}
+		else{
+			$server.emit( 'users/:id/follow', {id: $routeParams.id}, function(err, res){
+				console.log(err,res);
+				$scope.amIFollow = true;
+			});
+		}
+	}
+	$scope.fetch = function(){
+		$rootScope.loading();
+		$server.emit( 'users/:id', {id: $routeParams.id}, function(err, res){
+			$scope.item = res;
+			$server.emit( 'users/:id/sales', {id: $routeParams.id}, function(err, res){
+				for( var i = 0; i < res.length; i++ ){
+					res[i].thumbnail = $server.address+'/sales/'+res[i].id+'/thumbnail.jpg';
+				}
+				$scope.sales = res;
+				$server.emit( 'users/:id/checkFollow', {id: $routeParams.id}, function(err, res){
+					$scope.amIFollow = res;
+				});
+				$rootScope.loading(false);
+			});
+		});
+	}
+	$scope.fetch();
+})
+.controller('TimelineCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.searchbar = false;
+	$scope.items = [];
+	$scope.fetch = function(){
+		$rootScope.loading();
+		$server.emit( 'timeline', {}, function(err, res){
+			for( var i = 0; i < res.length; i++ ){
+				res[i].thumbnail = $server.address+'/sales/'+res[i].id+'/thumbnail.jpg';
+			}
+			$scope.items = res;
+			$rootScope.loading(false);
+		});
+	}
+	$scope.fetch();
+})
+.controller('SaleCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.canIComment = false;
+	$scope.inputs = {};
+	$scope.item = {};
+	$scope.fetch = function(){
+		$rootScope.loading();
+		$server.emit( 'sales/:id', {id: $routeParams.id}, function(err, res){
+			res.thumbnail = $server.address+'/sales/'+res.id+'/thumbnail.jpg';
+			$scope.item = res;
+			$server.emit( 'sales/:id/comments', {id: $routeParams.id}, function(err, res){
+				$scope.item.comments = res;
+				$server.emit( 'sales/:id/checkComment', {id: $routeParams.id}, function(err, res){
+					$scope.canIComment = !res;
+					$rootScope.loading(false);
+				});
+			});
+		});
+	}
+	$scope.newComment = function(){
+		$rootScope.loading();
+		$server.emit( 'sales/:id/comments/new', {id: $routeParams.id, body: $scope.inputs.body}, function(err, res){
+			$rootScope.loading(false);
+			console.log(err,res);
+			if( !err ) {
+				$scope.fetch();
+			}
+		});
+	}
+	$scope.delete = function(){
+		$rootScope.loading();
+		$server.emit( 'sales/:id/delete', {id: $routeParams.id}, function(err, res){
+			$rootScope.loading(false);
+			if( !err ) {
+				$rootScope.go('timeline');
+			}
+		});
+	}
+
+	$scope.fetch();
+})
+.controller('NewSaleCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.inputs = {
+		type: 'sale',
+		period: 'month'
+	};
+	$scope.file = null;
+
+	$scope.saleTypes = [
+		{text: 'فروش', value: 'sale'},
+		{text: 'رهن یا اجاره', value: 'rent'}
+	];
+	$scope.periodTypes = [
+		{text: 'سالانه', value: 'year'},
+		{text: 'ماهانه', value: 'month'},
+		{text: 'هفتگی', value: 'week'},
+		{text: 'روزانه', value: 'day'},
+		{text: 'ساعتی', value: 'hour'}
+	];
+	$scope.categoryTypes = [
+		{text: 'خانه', value: 1},
+		{text: 'ماشین', value: 2},
+		{text: 'لپتاپ', value: 3},
+		{text: 'تبلت', value: 4},
+		{text: 'موبایل', value: 5}
+	];
+	$scope.submit = function(){
+		$rootScope.loading();
+		var stream = ss.createStream();
+		ss($server).emit( 'sales/new', stream, $scope.inputs, function(err, res){
+			$rootScope.loading(false);
+			//console.log(err, res);
+			if( err ) {
+				console.log(err);
+			}
+			else{
+				$rootScope.go('timeline');
+			}
+		});
+		ss.createBlobReadStream( $scope.file ).pipe( stream );
 	}
 })
-.controller('TimelineCtrl', function($scope, localStorageService, $routeParams){
-	$scope.searchbar = false;
-	$scope.posts = [
-		{
-			user: {
-				id: 2,
-				name: 'امیربهادر میرمیرانی',
-				avatar: 'http://1.gravatar.com/avatar/e6edc120f5ba1e925f466d4a771c9207?size=35'
-			},
-			id: 2,
-			image: './images/2.jpg',
-			body: 'تیشرت نخی عالی همین هفته از ترکیه برام آوردن. فقط یه بار پوشیدمش باهاش رفتم از سر کوچه ماست خریدم.',
-			price: '۲۵۰،۰۰۰',
-			score: 3
-		},
-		{
-			user: {
-				id: 1,
-				name: 'سالار کابلی',
-				avatar: 'http://0.gravatar.com/avatar/148d9d168a85e36d09b20585e15e0feb?size=35'
-			},
-			id: 1,
-			image: './images/1.jpg',
-			body: 'پراید مدل ۸۲ سالم، فقط یه بار چپ کرده، ولی بدون رنگه. به خریدار واقعی تخفیف میدم.',
-			price: '۳۵۰،۰۰۰،۰۰۰',
-			score: 5
-		},
-		{
-			user: {
-				id: 3,
-				name: 'سیامک عبدالقادری',
-				avatar: 'http://0.gravatar.com/avatar/d01f3e82b2b741532475b451e939c062?size=35'
-			},
-			id: 3,
-			image: './images/3.jpg',
-			body: 'خدایی این توپارو داییم برام از بانه آورده، یه قرون زیر قیمت نمیدم. اصن نمیخوام، نمیفروشم. خدافس.',
-			price: '۸۰۰،۰۰۰،۰۰۰',
-			score: 3
-		},
-		{
-			user: {
-				id: 4,
-				name: 'علی پریشان‌احوال',
-				avatar: 'http://1.gravatar.com/avatar/0f744ca6fd6417e13ab1d8f370a59aca?size=35'
-			},
-			id: 4,
-			image: './images/4.jpg',
-			body: 'کیف اصل فدرال. خدایی جنس و کیفیتشو ببین، اگه پسند کردی ببر.',
-			price: '۳۳۰،۰۰۰',
-			score: 2
-		}
-	];
+.controller('NewUserCtrl', function($scope, $rootScope, $server, $routeParams){
+	$scope.inputs = {};
+
+	$scope.submit = function(){
+		$rootScope.loading();
+		var stream = ss.createStream();
+		$server.emit( 'users/new', $scope.inputs, function(err, res){
+			$rootScope.loading(false);
+			if( err ) {
+				console.log(res);
+			}
+			else{
+				alert('کاربر '+$scope.inputs.mobile+' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
+				$rootScope.go('login');
+			}
+		});
+	}
 })
 .controller('RelativesCtrl', function($scope, localStorageService){
 	$scope.searchbar = false;

@@ -1,5 +1,5 @@
 
-<div class="nai-page-container">
+<form class="nai-page-container" ng-submit="login()">
 	<div class="col-sm-6 col-sm-offset-3">
 		<p>
 			برای استفاده از برنامه، لطفا وارد شوید!
@@ -14,12 +14,11 @@
 		</div>
 		<div class="form-group col-sm-12">
 			<label class="control-label"></label>
-			<button class="btn btn-primary col-xs-12" ng-disabled="!inputs.username || !inputs.password || inputs.password.length < 6" ng-click="login()"> ورود </button>
+			<button class="btn btn-primary col-xs-12" ng-disabled="!inputs.username || !inputs.password || inputs.password.length < 6"> ورود </button>
 		</div>
 		<div class="form-group col-sm-12 text-align-center">
 			<label class="control-label"></label>
-			<button class="btn btn-link btn-sm full-width"> رمز عبور را فراموش کرده‌ام </button>
-			<button class="btn btn-link btn-sm"> ثبت نام کنید </button>
+			<button class="btn btn-link btn-sm" ng-click="go('/users/new')"> ثبت نام کنید </button>
 		</div>
 	</div>
-</div>
+</form>

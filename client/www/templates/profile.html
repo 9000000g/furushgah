@@ -1,12 +1,17 @@
 <div class="nai-navbar">
-	<div class="title"> <i class="glyphicon glyphicon-blackboard"></i> محصولات اخیر </div>
+	<div class="title"> <i class="glyphicon glyphicon-user"></i> {{item.alias}} </div>
 	<button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
 	<button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
+	<button class="nai-nav-icon left glyphicon" ng-if="item.id != me.id" ng-class="{'glyphicon-star': amIFollow, 'glyphicon-star-empty': !amIFollow}" ng-click="followToggle()"></button>
 </div>
-<searchbar open="searchbar" callback="search($text)"></searchbar>
 <div class="nai-page-container">
+	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center">
+		<div class="col-xs-6" ng-click="go('users/'+item.id+'/followers')"> <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان <span class="badge baseline" ng-bind="item.followers"></span></div>
+		<div class="col-xs-6"  ng-click="go('users/'+item.id+'/following')"> <i class="glyphicon glyphicon-copy"></i> لیست <span class="badge baseline" ng-bind="item.following"></span></div>
+	</div>
+	<div class="col-xs-12"><hr/></div>
 	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-		<div class="panel panel-default post" ng-repeat="item in items" ng-classz="{'low-score': post.score < 3}">
+		<div class="panel panel-default post" ng-repeat="item in sales">
 			<div class="panel-heading">
 				<div class="cell text-right">
 					<span class="caption">

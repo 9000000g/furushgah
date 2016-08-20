@@ -1,25 +1,31 @@
 <div class="nai-navbar">
 	<div class="title">
 		<i class="glyphicon glyphicon-plane"></i>
-		کارپی‌سی
+		فروشگاه
 	</div>
-	<div class="nai-nav-icon left glyphicon glyphicon-menu-hamburger" ng-click="panels.sidebar = true"></div>
+	<button class="nai-nav-icon left glyphicon glyphicon-menu-hamburger" ng-click="panels.sidebar = true"></button>
 </div>
 <div>
 	<ul class="list-group">
+		<li class="list-group-item" ng-click="go('/sales/new')">
+			<i class="glyphicon glyphicon-plane"></i>
+			فروش جدید
+		</li>
 		<li class="list-group-item" ng-click="go('/timeline')">
-			اتفاقات اخیر
-			<span class="badge">۱۲</span>
+			<i class="glyphicon glyphicon-blackboard"></i> محصولات اخیر
 		</li>
-		<li class="list-group-item" ng-click="go('/relatives')">
-			آشنایان
+		<li class="list-group-item" ng-click="go('/users/me')">
+			<i class="glyphicon glyphicon-user"></i>
+			{{ me.alias }}
 		</li>
-		<li class="list-group-item" ng-click="go('/messages')">
-			پیام‌ها
-			<span class="badge">12</span>
+		<li class="list-group-item" ng-click="go('users/me/followers')">
+			<i class="glyphicon glyphicon-paste"></i> دنبال کنندگان من <span class="badge" ng-bind="me.followers"></span>
+		</li>
+		<li class="list-group-item" ng-click="go('users/me/following')">
+			<i class="glyphicon glyphicon-copy"></i> لیست من <span class="badge" ng-bind="me.following"></span>
 		</li>
 		<li class="list-group-item" ng-click="go('/login')">
-			خروج
+			<i class="glyphicon glyphicon-log-out"></i> خروج
 		</li>
 	</ul>
 </div>

@@ -1,0 +1,16 @@
+<div class="nai-navbar">
+	<div class="title"> دنبال کنندگان {{item.alias}} </div>
+	<button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
+	<button class="nai-nav-icon left glyphicon glyphicon-search" ng-click="searchbar = true"></button>
+</div>
+<searchbar open="searchbar" callback="search($text)"></searchbar>
+
+<div>
+	<ul class="list-group">
+		<li class="list-group-item" ng-repeat="item in items" ng-click="go('users/'+item.id)">
+			<span class="badge" ng-bind="item.mobile"></span>
+			{{item.alias}}
+		</li>
+	</ul>
+</div>
+

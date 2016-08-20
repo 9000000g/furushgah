@@ -9,6 +9,10 @@
 		<!-- Angular Nai Framework -->
 		<link rel="stylesheet" href="lib/angular-nai-framework/angular-nai-framework.pack.css">
 		<script src="lib/angular-nai-framework/angular-nai-framework.pack.js"></script>
+		<!-- SocketIo -->
+		<script src="lib/socket-io/socket.io-1.4.5.js"></script>
+		<script src="lib/socket-io.stream/socket.io-stream.js"></script>
+		<script src="lib/socket-io/socket.min.js"></script>
 		<!-- Font -->
 		<link rel="stylesheet" href="fonts/Shabnam.css">
 		<!-- App -->
@@ -19,5 +23,9 @@
     </head>
     <body ng-app="app" ng-controller="MainCtrl">
 		<div ng-view class="nai-view page-animation"></div>
+		<div class="nai-loading slide-top" ng-show="_loading">
+			لطفا صبر کنید...
+		</div>
+
     </body>
 </html>

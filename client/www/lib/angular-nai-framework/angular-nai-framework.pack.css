@@ -1,6 +1,6 @@
 
 /*-------------------------------*/
-/* angular-nai-framework ver 0.1 */
+/* angular-nai-framework ver 0.3 */
 /*-------------------------------*/
 
 
@@ -1140,6 +1140,23 @@ html{direction:rtl}body{direction:rtl}.list-unstyled{padding-right:0;padding-lef
 /*-----------------------*/
 /*lib/angular-nai-framework/angular-nai-framework.css*/
 /*-----------------------*/
+*{
+	-webkit-overflow-scrolling: touch;
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+*:not(input):not(textarea) {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+*:focus{
+    outline: none !important;
+}
+a:hover, a:focus{
+	text-decoration: blink;
+}
+
+
 .nai-navbar{
 	z-index: 19999;
 	position: fixed;
@@ -1275,5 +1292,9 @@ html{direction:rtl}body{direction:rtl}.list-unstyled{padding-right:0;padding-lef
 	margin: 8px;
 }
 	
+	
+/* animations, spin */
+@-webkit-keyframes spin{from{-o-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-o-transform:rotate(359deg);-webkit-transform:rotate(359deg);transform:rotate(359deg)}}@-o-keyframes spin{from{-o-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-o-transform:rotate(359deg);-webkit-transform:rotate(359deg);transform:rotate(359deg)}}@keyframes spin{from{-o-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-o-transform:rotate(359deg);-webkit-transform:rotate(359deg);transform:rotate(359deg)}}
+
 	
 	
