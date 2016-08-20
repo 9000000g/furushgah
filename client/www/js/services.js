@@ -1,6 +1,6 @@
 angular.module('app.services', ['btford.socket-io'])
 .factory('$server', function(socketFactory) {
-    var address = 'http://23.227.201.9:3001';
+    var address = 'http://127.0.0.1:3001';
     var session = localStorage.getItem('session');
     if( !session ){
         session = '';
