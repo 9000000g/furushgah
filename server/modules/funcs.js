@@ -61,7 +61,6 @@ module.exports.fetchUser = (by = 'id', data = {}, cb = new Function())=>{
     .where( where )
     .groupBy('t1.id')
     .val();
-    console.log(query);
     db.query( query, (err, result)=>{
         cb( err || result.length == 0? true: false, !err && result.length == 1? result[0]: false );
     });

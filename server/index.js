@@ -26,7 +26,6 @@ io.on('connection', (socket)=>{
 					return;
 				}
 				let by = data.username.length < 9? 'id': 'mobile';
-				console.log(data);
 				funcs.fetchUser( by, data, (err, result)=>{
 					session.me = result;
 					cb( err, result );
