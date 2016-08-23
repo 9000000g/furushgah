@@ -85,7 +85,7 @@ CREATE TABLE `sales` (
   `body` text CHARACTER SET utf8,
   `user` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
-INSERT INTO `sales` VALUES (1,'پراید سال ۸۳',NULL,'2016-08-07 05:45:01','sale',NULL,3000000,NULL,NULL,'پراید مشتی خوبیه. خودم تازه خریدم. کلا ۱۰ کیلومتر کار کرده. خانومم یه بار کوبونده تو دیوار، ولی بدون رنگ دادم داییم درش آورد. خلاصه اگه بخری رفته تو پاچت.',1),(2,'خونه نقلی',NULL,'2016-08-08 07:35:20','rent','month',NULL,700000,'15000000','یه خونه نقلی داریم. آدرسش سر نواب، کوچه 42، پلاک 22',3),(3,'لپی مپی',3,'2016-08-08 14:25:30','sale','month',750000,NULL,NULL,'لپتاپ باسه خودم بوده :( اما بابا جونم میگه باید بلفوشمش :(',1),(4,'Dell 8900',3,'2016-08-09 06:28:24','sale','month',800000,NULL,NULL,'اینو عمم خریده داده به من. منم خوشم نیومد میخوام بفروشم.',1),(7,'کرایه کامپیوتر مشتی',3,'2016-08-09 12:58:12','rent','day',NULL,30000,'1000000','این کامپیوتر خیلی خفنه جاجی. بیا گرو بیگیر جون بچت ضرر نمیکنی',3),(8,'شرت خونی',3,'2016-08-09 13:33:57','rent','day',NULL,50000,'500000','توضیح موضیح یوخدی',1),(9,'دستگاه قند آرکری',4,'2016-08-13 11:05:48','sale','month',150000,NULL,NULL,'خیلی مشتیه به جون بچم. خدایی بیا بخر دیگه ناموسا. می‌خری؟',2),(10,'کامپیوتر خفن',3,'2016-08-13 11:34:06','sale','month',750000,NULL,NULL,'این کامپیوتر خیلی خوفه. همه چیش عالیه.',4),(11,'لپتاپ',3,'2016-08-13 16:27:37','rent','week',NULL,15000,'30000','این لپتاپ خوبیه',1);
+INSERT INTO `sales` VALUES (1,'پراید سال ۸۳',NULL,'2016-08-07 05:45:01','sale',NULL,3000000,NULL,NULL,'پراید مشتی خوبیه. خودم تازه خریدم. کلا ۱۰ کیلومتر کار کرده. خانومم یه بار کوبونده تو دیوار، ولی بدون رنگ دادم داییم درش آورد. خلاصه اگه بخری رفته تو پاچت.',1),(2,'خونه نقلی',NULL,'2016-08-08 07:35:20','rent','month',NULL,700000,'15000000','یه خونه نقلی داریم. آدرسش سر نواب، کوچه 42، پلاک 22',3),(3,'لپی مپی',3,'2016-08-08 14:25:30','sale','month',750000,NULL,NULL,'لپتاپ باسه خودم بوده :( اما بابا جونم میگه باید بلفوشمش :(',1),(4,'Dell 8900',3,'2016-08-09 06:28:24','sale','month',800000,NULL,NULL,'اینو عمم خریده داده به من. منم خوشم نیومد میخوام بفروشم.',1),(7,'کرایه کامپیوتر مشتی',3,'2016-08-09 12:58:12','rent','day',NULL,30000,'1000000','این کامپیوتر خیلی خفنه جاجی. بیا گرو بیگیر جون بچت ضرر نمیکنی',3),(8,'شرت خونی',3,'2016-08-09 13:33:57','rent','day',NULL,50000,'500000','توضیح موضیح یوخدی',1),(9,'دستگاه قند آرکری',4,'2016-08-13 11:05:48','sale','month',150000,NULL,NULL,'خیلی مشتیه به جون بچم. خدایی بیا بخر دیگه ناموسا. می‌خری؟',2),(10,'کامپیوتر خفن',3,'2016-08-13 11:34:06','sale','month',750000,NULL,NULL,'این کامپیوتر خیلی خوفه. همه چیش عالیه.',4),(11,'لپتاپ',3,'2016-08-13 16:27:37','rent','week',NULL,15000,'30000','این لپتاپ خوبیه',1),(13,'خربزه درشت مشدی',5,'2016-08-23 11:40:42','sale','month',1500,NULL,NULL,'خربزه درشت مشدی بدم فقط هزااااار',1),(14,'گومبا گومبا',2,'2016-08-23 11:55:06','sale','month',0,NULL,NULL,'این نسخه قدیمی تره',1),(15,'sad',1,'2016-08-23 11:56:29','sale','month',9,NULL,NULL,'asdasdasd',1),(16,'aasd',2,'2016-08-23 11:58:13','sale','month',2,NULL,NULL,'sdfdsfdsf',1),(17,'zxc',1,'2016-08-23 12:05:50','sale','month',12,NULL,NULL,'dsfsdfsd',1);
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `sessions` (
 
 LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES ('9yhsw5ruaitthylo4cl4svs74nfghn_1470351986227','{}'),('aqlj0k7u8lb6poy5x2ym8ft9s170qd_1470749068785','{\"me\":{\"id\":1,\"mobile\":\"00989365586015\",\"alias\":\"امیر مومنیان\"}}'),('hgongvlry5p6iw3l66s0zb8nqjvnnu_1471105201446','{\"me\":{\"id\":9,\"mobile\":\"09333612035\",\"alias\":\"مریم امینی\",\"following\":0,\"followers\":0}}'),('kupppgv4fv1cssoslfq8lo1ca70uz6_1470242261196','{\"me\":{\"id\":1,\"mobile\":\"00989365586015\",\"alias\":\"امیر مومنیان\",\"following\":3,\"followers\":3}}'),('zysnqck09xbw0smlnn5c3l6opszonz_1471105269210','{\"me\":{\"id\":2,\"mobile\":\"00989125529011\",\"alias\":\"حسن جوهرچی\",\"following\":1,\"followers\":2}}');
+INSERT INTO `sessions` VALUES ('9yhsw5ruaitthylo4cl4svs74nfghn_1470351986227','{}'),('aqlj0k7u8lb6poy5x2ym8ft9s170qd_1470749068785','{\"me\":{\"id\":1,\"mobile\":\"00989365586015\",\"alias\":\"امیر مومنیان\"}}'),('hgongvlry5p6iw3l66s0zb8nqjvnnu_1471105201446','{\"me\":{\"id\":1,\"mobile\":\"00989365586015\",\"alias\":\"امیر مومنیان\",\"following\":3,\"followers\":3}}'),('kupppgv4fv1cssoslfq8lo1ca70uz6_1470242261196','{\"me\":{\"id\":1,\"mobile\":\"00989365586015\",\"alias\":\"امیر مومنیان\",\"following\":3,\"followers\":3}}'),('zysnqck09xbw0smlnn5c3l6opszonz_1471105269210','{\"me\":{\"id\":2,\"mobile\":\"00989125529011\",\"alias\":\"حسن جوهرچی\",\"following\":1,\"followers\":2}}');
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -135,7 +135,7 @@ CREATE TABLE `users` (
   `mobile` varchar(20) CHARACTER SET utf8 NOT NULL,
   `alias` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -144,7 +144,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'qazwsx','00989365586015','امیر مومنیان'),(2,'qazwsx','00989125529011','حسن جوهرچی'),(3,'qazwsx','00989398882340','نگار جواهریان'),(4,'qazwsx','00989114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','00989128905858','علیرضا رضایی'),(6,'qazwsx','00989117904783','لوک خوش‌شانس'),(7,'qazwsx','00989337890059','رامی مالک'),(8,'qazwsx','00989366621020','عباس بنفشی'),(9,'qazwsx','09333612035','مریم امینی');
+INSERT INTO `users` VALUES (1,'qazwsx','09365586015','امیر مومنیان'),(2,'qazwsx','09125529011','حسن جوهرچی'),(3,'qazwsx','09398882340','نگار جواهریان'),(4,'qazwsx','09114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','09128905858','علیرضا رضایی'),(6,'qazwsx','09117904783','لوک خوش‌شانس'),(7,'qazwsx','09337890059','رامی مالک'),(8,'qazwsx','09366621020','عباس بنفشی'),(9,'qazwsx','09334612035','مریم امینی'),(10,'qazwsx','09365586017','abbas jadidi');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -157,4 +157,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-08-20 19:48:22
+-- Dump completed on 2016-08-23 17:01:36

@@ -27,7 +27,7 @@
 		</div>
 		<div class="row">
 			<div class="form-group col-xs-6">
-				<button class="btn btn-primary full-width" type="submit" ng-disabled="!inputs.mobile || !inputs.password || inputs.password.length < 6 || !inputs.alias" ng-click="login()">ایجاد</button>
+				<button class="btn btn-primary full-width" type="submit" ng-disabled="!checkForm()" ng-click="login()">ایجاد</button>
 			</div>
 			<div class="form-group col-xs-6">
 				<button class="btn btn-default full-width" type="reset">انصراف</button>

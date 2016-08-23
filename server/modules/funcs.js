@@ -1,11 +1,7 @@
 const mysql = require('mysql');
 const qc = require('query-creator');
-const db = mysql.createConnection({
-    host     : '127.0.0.1',
-    user     : 'nai',
-    password : '1qaz@WSX',
-    database : 'furushgah'
-});
+const fs = require('fs');
+const db = mysql.createConnection(require(`${__dirname}mysqlConfig.json`));
 db.connect();
 
 module.exports.db = db;
@@ -30,7 +26,51 @@ module.exports.mysqlDate = function (dt) {
     function pad(n) { return n < 10 ? '0' + n : n }
     return dt.getFullYear() + "-" + pad(1 + dt.getMonth()) + "-" + pad(dt.getDate()) + " " + pad(dt.getHours()) + ":" + pad(dt.getMinutes()) + ":" + pad(dt.getSeconds());
 };
-
+module.exports.checkExists = function(file, type){
+	type = typeof type != 'string'? 'file': type;
+	type = ['dir','file'].indexOf( type ) === -1? 'file': type;
+	var func = {
+		file: 'isFile',
+		dir: 'isDirectory'
+	}
+	try{
+		return fs.statSync(file)[ func[type] ]();
+	}
+	catch (err)
+	{
+		return false;
+	}
+}
+module.exports.parsePhone = function(tel){
+    //var cc = '0098';
+    tel = tel.toString();
+    tel = tel.split('+').join('00');
+    tel = tel.replace(/[^\/\d]/g, '');
+    if( tel == '' ) return false;
+    if( tel.substr(0,1) == '0' && tel.substr(1,1) != '0' ){ // like 0912
+        tel = tel;
+    }
+    if( tel.substr(0,1) != '0' ){ // like 912
+        tel = '0' + tel;
+    }
+    if( tel.substr(0,2) == '00' ){ // like 0098912
+        tel = '0' + tel.substr(4);
+    }
+    var reg = /(09)(\d{9})$/;
+    if( reg.test(tel) !== true ){
+        return false; 
+    }
+    return tel;
+}
+module.exports.uniqueName = function(){
+    let sid = '';
+    let possible = "abcdefghijklmnopqrstuvwxyz";
+    for( let i=0; i < 5; i++ ){
+        sid += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    sid += '' + Date.now();
+    return sid;
+}
 /*
     Users
 */
@@ -79,7 +119,10 @@ module.exports.editUser = (id = 1, data = {}, cb = new Function())=>{
     });
 }
 
-module.exports.fetchTimeline = (id = 1, cb = new Function())=>{
+module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function())=>{
+    let limit = 8;
+    let limitStart = limit * page - limit;
+
     let query = qc.new().select([
         't1.*',
         't3.alias AS user_alias'
@@ -89,12 +132,17 @@ module.exports.fetchTimeline = (id = 1, cb = new Function())=>{
     .where('t2.follower = ? OR t1.`user` = ?', [id,id])
     .groupBy('t1.id')
     .orderBy('t1.date','desc')
+    .limit(limitStart, limit)
     .val();
+
     db.query( query, (err, result)=>{
         cb( err? err: false, result? result: false );
     });
 }
-module.exports.fetchSales = (id = 1, cb = new Function())=>{
+module.exports.fetchSales = (id = 1, page = 1, cb = new Function())=>{
+    let limit = 8;
+    let limitStart = limit * page - limit;
+
     let query = qc.new().select([
         't1.*',
         't2.alias AS user_alias'
@@ -102,6 +150,7 @@ module.exports.fetchSales = (id = 1, cb = new Function())=>{
     .leftJoin('`users` t2', 't1.`user` = t2.id')
     .where('t1.`user` = ?', [id])
     .orderBy('t1.date','desc')
+    .limit(limitStart, limit)
     .val();
     db.query( query, (err, result)=>{
         cb( err? err: false, result? result: false );

@@ -13,10 +13,6 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.controllers'])
 		templateUrl: 'templates/main.html',
 		controller: 'MainCtrl'
 	})
-	.when('/timeline', {
-		templateUrl: 'templates/timeline.html',
-		controller: 'TimelineCtrl'
-	})
 	.when('/users/new', {
 		templateUrl: 'templates/new-user.html',
 		controller: 'NewUserCtrl'

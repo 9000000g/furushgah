@@ -1,5 +1,9 @@
 angular.module('app.controllers', [])
-.run(function($rootScope, $location, $window, $http, $server){
+.run(function($rootScope, $location, $window, $http){
+	
+
+
+
 
 	$rootScope.currentPage = function(input){
 		if( typeof input == 'undefined' )
@@ -24,14 +28,7 @@ angular.module('app.controllers', [])
 		else
 			$location.url( url );
 	}
-	$rootScope.server = 'http://127.0.0.1:3001';
-	$rootScope.reqUrl = function(url){
-		url = typeof url == 'undefined'? '': url.toString();
-		return $rootScope.server + (url.indexOf(0) == '/' ? '' : '/') + url;
-	}
-	$rootScope.getc = function(){ //arguments
 
-	}
 	$rootScope.me = false;
 
 	$rootScope.displayPrice = function(item){
@@ -55,29 +52,82 @@ angular.module('app.controllers', [])
 		val = typeof val == 'undefined'? true: val;
 		$rootScope._loading = val;
 	}
-	$rootScope.go('/deside');
+	$rootScope.desided = false;
 })
-.controller('DesideCtrl', function($scope, $rootScope, $server){
+.controller('DesideCtrl', function($scope, $rootScope, server){
 	$rootScope.loading();
-	$server.emit( 'users/:id', {id:'me'}, function(err,res){
+	server.get( '/users/me').then( function(res){
+		err = res.data.error;
+		res = res.data.result;
 		var page = 'login';
 		if( !err && res !== false ){
 			page = 'main';
 			$rootScope.me = res;
 		}
+		$rootScope.desided = true;
 		$rootScope.go('/'+page);
 		$rootScope.loading(false);
 	});
 })
-.controller('MainCtrl', function($scope){
+.controller('MainCtrl', function($scope, $rootScope, $routeParams, server){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.sidebar = false;
+	$scope.searchbar = false;
+	$scope.items = [];
+	$scope.currentPage = 1;
+	$scope.btnVisible = false;
+	$scope.fetch = function(next){
+		$rootScope.loading();
+		next = typeof next == 'undefined'? false: next;
+		if( next ) {
+			$scope.currentPage++;
+		}
+		else{
+			$scope.currentPage = 1;
+		}
+		
+		server.get( '/timeline/'+ $scope.currentPage).then( function(res){
+			err = res.data.error;
+			res = res.data.result;
+			for( var i = 0; i < res.length; i++ ){
+				res[i].thumbnail = server.address+'/sales/'+res[i].id+'/thumbnail';
+			}
+			if( !next ) {
+				$scope.items = res;
+			}
+			else{
+				$scope.items = $scope.items.concat( res );
+			}
+			if( res.length < 8 ){
+				$scope.btnVisible = false;
+			}
+			else{
+				$scope.btnVisible = true;
+			}
+			$rootScope.loading(false);
+		});
+	}
+	$scope.fetch(false);
 })
-.controller('LoginCtrl', function($scope, $rootScope, $server){
+.controller('LoginCtrl', function($scope, $rootScope, server, funcs){
 	$rootScope.me = false;
 	$scope.inputs = {};
+	$scope.checkForm = function(){
+		if( !$scope.inputs.username ||
+			funcs.parsePhone( $scope.inputs.username ) === false ||
+			!$scope.inputs.password ||
+			$scope.inputs.password.length < 6
+		) return false;
+		return true;
+	}
 	$scope.login = function(){
 		$rootScope.loading();
-		$server.emit( 'login', $scope.inputs, function(err,res){
+		server.post( '/login', $scope.inputs ).then( function(res){
+			err = res.data.error;
+			res = res.data.result;
 			if( !err ){
 				$rootScope.go('/main');
 				$rootScope.me = res;
@@ -89,14 +139,20 @@ angular.module('app.controllers', [])
 		});
 	}
 
-	$server.emit( 'logout' );
+	server.post( '/logout' );
 
 })
-.controller('FollowersCtrl', function($scope, $rootScope, $server, $routeParams){
+.controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.items = [];
 	$scope.fetch = function(){
 		$rootScope.loading();
-		$server.emit( 'users/:id/followers', {id: $routeParams.id}, function(err, res){
+		server.get( '/users/'+$routeParams.id+'/followers').then( function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$scope.items = res;
 			$rootScope.loading(false);
 		});
@@ -107,11 +163,17 @@ angular.module('app.controllers', [])
 	}
 	$scope.fetch();
 })
-.controller('FollowingCtrl', function($scope, $rootScope, $server, $routeParams){
+.controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.items = [];
 	$scope.fetch = function(){
 		$rootScope.loading();
-		$server.emit( 'users/:id/following', {id: $routeParams.id}, function(err, res){
+		server.get( '/users/'+$routeParams.id+'/following').then( function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$scope.items = res;
 			$rootScope.loading(false);
 		});
@@ -122,35 +184,67 @@ angular.module('app.controllers', [])
 	}
 	$scope.fetch();
 })
-.controller('ProfileCtrl', function($scope, $rootScope, $server, $routeParams){
+.controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.item = [];
 	$scope.sales = [];
 	$scope.amIFollow = false;
-
+	$scope.currentPage = 1;
+	$scope.btnVisible = false;
 	$scope.followToggle = function(){
 		if( $scope.amIFollow ){
-			$server.emit( 'users/:id/unfollow', {id: $routeParams.id}, function(err, res){
-				console.log(err,res);
+			server.post( '/users/'+$routeParams.id+'/unfollow', {}).then( function(res){
+				err = res.data.error;
+				res = res.data.result;
 				$scope.amIFollow = false;
 			});
 		}
 		else{
-			$server.emit( 'users/:id/follow', {id: $routeParams.id}, function(err, res){
-				console.log(err,res);
+			server.post( '/users/'+$routeParams.id+'/follow', {}).then( function(res){
+				err = res.data.error;
+				res = res.data.result;
 				$scope.amIFollow = true;
 			});
 		}
 	}
-	$scope.fetch = function(){
+	$scope.fetch = function(next){
 		$rootScope.loading();
-		$server.emit( 'users/:id', {id: $routeParams.id}, function(err, res){
+		next = typeof next == 'undefined'? false: next;
+		if( next ) {
+			$scope.currentPage++;
+		}
+		else{
+			$scope.currentPage = 1;
+		}
+		server.get( '/users/'+$routeParams.id).then(function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$scope.item = res;
-			$server.emit( 'users/:id/sales', {id: $routeParams.id}, function(err, res){
+			server.get( '/users/'+$routeParams.id+'/sales/'+$scope.currentPage).then( function(res){
+				err = res.data.error;
+				res = res.data.result;
 				for( var i = 0; i < res.length; i++ ){
-					res[i].thumbnail = $server.address+'/sales/'+res[i].id+'/thumbnail.jpg';
+					res[i].thumbnail = server.address+'/sales/'+res[i].id+'/thumbnail';
 				}
-				$scope.sales = res;
-				$server.emit( 'users/:id/checkFollow', {id: $routeParams.id}, function(err, res){
+				if( !next ) {
+					$scope.sales = res;
+				}
+				else{
+					$scope.sales = $scope.sales.concat( res );
+				}
+				if( res.length < 8 ){
+					$scope.btnVisible = false;
+				}
+				else{
+					$scope.btnVisible = true;
+				}
+
+				server.get( '/users/'+$routeParams.id+'/checkFollow').then(function(res){
+					err = res.data.error;
+					res = res.data.result;
 					$scope.amIFollow = res;
 				});
 				$rootScope.loading(false);
@@ -159,33 +253,28 @@ angular.module('app.controllers', [])
 	}
 	$scope.fetch();
 })
-.controller('TimelineCtrl', function($scope, $rootScope, $server, $routeParams){
-	$scope.searchbar = false;
-	$scope.items = [];
-	$scope.fetch = function(){
-		$rootScope.loading();
-		$server.emit( 'timeline', {}, function(err, res){
-			for( var i = 0; i < res.length; i++ ){
-				res[i].thumbnail = $server.address+'/sales/'+res[i].id+'/thumbnail.jpg';
-			}
-			$scope.items = res;
-			$rootScope.loading(false);
-		});
+.controller('SaleCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
 	}
-	$scope.fetch();
-})
-.controller('SaleCtrl', function($scope, $rootScope, $server, $routeParams){
 	$scope.canIComment = false;
 	$scope.inputs = {};
 	$scope.item = {};
 	$scope.fetch = function(){
 		$rootScope.loading();
-		$server.emit( 'sales/:id', {id: $routeParams.id}, function(err, res){
-			res.thumbnail = $server.address+'/sales/'+res.id+'/thumbnail.jpg';
+		server.get( '/sales/'+$routeParams.id).then( function(res){
+			err = res.data.error;
+			res = res.data.result;
+			res.thumbnail = server.address+'/sales/'+res.id+'/thumbnail';
 			$scope.item = res;
-			$server.emit( 'sales/:id/comments', {id: $routeParams.id}, function(err, res){
+			server.get( '/sales/'+$routeParams.id+'/comments').then(function(res){
+				err = res.data.error;
+				res = res.data.result;
 				$scope.item.comments = res;
-				$server.emit( 'sales/:id/checkComment', {id: $routeParams.id}, function(err, res){
+				server.get( '/sales/'+$routeParams.id+'/checkComment').then(function(res){
+					err = res.data.error;
+					res = res.data.result;
 					$scope.canIComment = !res;
 					$rootScope.loading(false);
 				});
@@ -194,9 +283,10 @@ angular.module('app.controllers', [])
 	}
 	$scope.newComment = function(){
 		$rootScope.loading();
-		$server.emit( 'sales/:id/comments/new', {id: $routeParams.id, body: $scope.inputs.body}, function(err, res){
+		server.post( '/sales/'+$routeParams.id+'/comments/new', {body: $scope.inputs.body}).then(function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$rootScope.loading(false);
-			console.log(err,res);
 			if( !err ) {
 				$scope.fetch();
 			}
@@ -204,7 +294,9 @@ angular.module('app.controllers', [])
 	}
 	$scope.delete = function(){
 		$rootScope.loading();
-		$server.emit( 'sales/:id/delete', {id: $routeParams.id}, function(err, res){
+		server.post( '/sales/'+$routeParams.id+'/delete').then( function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$rootScope.loading(false);
 			if( !err ) {
 				$rootScope.go('timeline');
@@ -214,7 +306,11 @@ angular.module('app.controllers', [])
 
 	$scope.fetch();
 })
-.controller('NewSaleCtrl', function($scope, $rootScope, $server, $routeParams){
+.controller('NewSaleCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.inputs = {
 		type: 'sale',
 		period: 'month'
@@ -241,39 +337,53 @@ angular.module('app.controllers', [])
 	];
 	$scope.submit = function(){
 		$rootScope.loading();
-		var stream = ss.createStream();
-		ss($server).emit( 'sales/new', stream, $scope.inputs, function(err, res){
+		console.log( $scope.inputs );
+		server.file('/sales/new', $scope.inputs).then(function(res){
 			$rootScope.loading(false);
-			//console.log(err, res);
-			if( err ) {
-				console.log(err);
-			}
-			else{
+			err = res.data.error;
+			res = res.data.result;
+			if( !err ){
 				$rootScope.go('timeline');
 			}
+			else{
+				alert( res );
+			}
 		});
-		ss.createBlobReadStream( $scope.file ).pipe( stream );
 	}
 })
-.controller('NewUserCtrl', function($scope, $rootScope, $server, $routeParams){
+.controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.inputs = {};
-
+	$scope.checkForm = function(){
+		if( !$scope.inputs.username ||
+			funcs.parsePhone( $scope.inputs.mobile ) === false ||
+			!$scope.inputs.password ||
+			$scope.inputs.password.length < 6 ||
+			!$scope.alias ||
+			$scope.alias.length < 4
+		) return false;
+		return true;
+	}
 	$scope.submit = function(){
 		$rootScope.loading();
-		var stream = ss.createStream();
-		$server.emit( 'users/new', $scope.inputs, function(err, res){
+		//var stream = ss.createStream();
+		server.post( '/users/new', $scope.inputs).then( function(res){
+			err = res.data.error;
+			res = res.data.result;
 			$rootScope.loading(false);
-			if( err ) {
-				console.log(res);
-			}
-			else{
-				alert('کاربر '+$scope.inputs.mobile+' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
-				$rootScope.go('login');
-			}
+			alert('کاربر '+$scope.inputs.mobile+' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
+			$rootScope.go('login');
 		});
 	}
 })
 .controller('RelativesCtrl', function($scope, localStorageService){
+	if( !$rootScope.desided ){
+		$rootScope.go('/deside');
+		return;
+	}
 	$scope.searchbar = false;
 	$scope.contacts = new Array();
 
