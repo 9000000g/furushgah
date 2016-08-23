@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const qc = require('query-creator');
 const fs = require('fs');
-const db = mysql.createConnection(require(`${__dirname}mysqlConfig.json`));
+const db = mysql.createConnection(require(`../mysqlConfig.json`));
 db.connect();
 
 module.exports.db = db;
