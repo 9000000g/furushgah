@@ -1,62 +1,10 @@
 <div class="nai-navbar">
-	<div class="title"> {{item.title}} </div>
-	<button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-	<button class="nai-nav-icon left glyphicon glyphicon-remove" ng-click="delete()" ng-if="item.user == me.id"></button>
+    <div class="title"> {{item.title}} </div>
+    <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
+    <button class="nai-nav-icon left glyphicon glyphicon-remove" ng-click="delete()" ng-if="item.user == me.id"></button>
 </div>
-<div class="nai-page-container  col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-	<div class="panel panel-default post">
-		<div class="panel-heading">
-			<div class="cell text-right">
-				<span class="caption">
-					<a ng-click="go('users/'+item.user)" class="caption text"><i class="glyphicon glyphicon-user"></i> {{ item.user_alias }} </a>
-				</span>
-			</div>
-			<div class="cell text-left">
-				<i class="glyphicon glyphicon-credit-card text"></i>
-				<span class="caption text">{{ displayPrice(item) }} </span>
-			</div>
-		</div>
-		<div class="image" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }"></div>
-		<div class="body">
-			{{ item.body }}
-		</div>
-		<div class="panel-footer text-primary text-align-center">
-			<button ng-click="go('sales/'+item.id)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-sunglasses"></span> مشاهده جزئیات </button>
-			<button ng-click="go('users/'+item.user)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-comment"></span> تماس با فرستنده </button>
-			<div style="clear: both"></div>
-		</div>
-	</div>
-	<form class="panel panel-default post" ng-if="canIComment" ng-submit="newComment()">
-		<div class="panel-heading">
-			<div class="cell text-right">
-				<span class="caption">
-					<a ng-click="go('users/'+me.id)" class="caption text"><i class="glyphicon glyphicon-user"></i> {{ me.alias }} </a>
-				</span>
-			</div>
-		</div>
-		<div class="body">
-			<div class="row">
-				<div class="form-group col-xs-12">
-					<textarea class="form-control input-sm textarea-height" placeholder="نظر خود را درباره این محصول بنویسید..." ng-model="inputs.body"></textarea>
-				</div>
-			</div>
-			<div class="row">
-				<div class="form-group col-xs-4 col-xs-offset-8">
-					<button class="btn btn-sm btn-primary full-width" type="submit">ارسال</button>
-				</div>
-			</div>
-		</div>
-	</form>
-	<div class="panel panel-default post" ng-repeat="comment in item.comments">
-		<div class="panel-heading">
-			<div class="cell text-right">
-				<span class="caption">
-					<a ng-click="go('users/'+comment.user)" class="caption text"><i class="glyphicon glyphicon-user"></i> {{ comment.user_alias }} </a>
-				</span>
-			</div>
-		</div>
-		<div class="body">
-			{{ comment.body }}
-		</div>
-	</div>
+<div class="nai-page-container">
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+        <sale-directive details="true" item="item"></sale-directive>
+    </div>
 </div>

@@ -1,38 +1,18 @@
 <div class="nai-navbar">
-	<div class="title"> <i class="glyphicon glyphicon-user"></i> {{item.alias}} </div>
-	<button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-	<button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
-	<button class="nai-nav-icon left glyphicon" ng-if="item.id != me.id" ng-class="{'glyphicon-star': amIFollow, 'glyphicon-star-empty': !amIFollow}" ng-click="followToggle()"></button>
+    <div class="title"> <i class="glyphicon glyphicon-user"></i> {{item.alias}} </div>
+    <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
+    <button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
+    <button class="nai-nav-icon left glyphicon" ng-if="item.id != me.id" ng-class="{'glyphicon-star': amIFollow, 'yellow': amIFollow, 'glyphicon-star-empty': !amIFollow}" ng-click="followToggle()"></button>
 </div>
 <div class="nai-page-container">
-	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center">
-		<div class="col-xs-6" ng-click="go('users/'+item.id+'/followers')"> <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان <span class="badge baseline" ng-bind="item.followers"></span></div>
-		<div class="col-xs-6"  ng-click="go('users/'+item.id+'/following')"> <i class="glyphicon glyphicon-copy"></i> لیست <span class="badge baseline" ng-bind="item.following"></span></div>
-	</div>
-	<div class="col-xs-12"><hr/></div>
-	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-		<div class="panel panel-default post" ng-repeat="item in sales">
-			<div class="panel-heading">
-				<div class="cell text-right">
-					<span class="caption">
-						<a ng-click="go('users/'+item.user)" class="caption text"><i class="glyphicon glyphicon-user"></i> {{ item.user_alias }}: </a>
-						<span class="caption text">{{ item.title }}</span>
-					</span>
-				</div>
-				<div class="cell text-left">
-					<i class="glyphicon glyphicon-credit-card text"></i>
-					<span class="caption text">{{ displayPrice(item) }} </span>
-				</div>
-			</div>
-			<div class="image" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }"></div>
-			<div class="body">
-				{{ item.body }}
-			</div>
-			<div class="panel-footer text-primary text-align-center">
-				<button ng-click="go('sales/'+item.id)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-sunglasses"></span> مشاهده جزئیات </button>
-				<button ng-click="go('users/'+item.user)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-comment"></span> تماس با فرستنده </button>
-				<div style="clear: both"></div>
-			</div>
-		</div>
-	</div>
-	<button class="btn btn-link col-xs-12 slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center">
+        <div class="col-xs-6" ng-click="go('users/'+item.id+'/followers')"> <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان <span class="badge baseline" ng-bind="item.followers"></span></div>
+        <div class="col-xs-6" ng-click="go('users/'+item.id+'/following')"> <i class="glyphicon glyphicon-copy"></i> لیست <span class="badge baseline" ng-bind="item.following"></span></div>
+    </div>
+    <div class="col-xs-12">
+        <hr/>
+    </div>
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+        <sale-directive ng-repeat="item in sales" details="true" item="item"></sale-directive>
+    </div>
+    <button class="btn btn-link col-xs-12 slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>

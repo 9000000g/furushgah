@@ -1,60 +1,36 @@
 <div class="nai-navbar">
-	<div class="title">
-		<i class="glyphicon glyphicon-plane"></i>
-		فروشگاه
-	</div>
-	<button class="nai-nav-icon left glyphicon glyphicon-menu-hamburger" ng-click="sidebar = true"></button>
-	<button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
+    <div class="title">
+        <i class="glyphicon glyphicon-plane"></i> فروشگاه
+    </div>
+    <button class="nai-nav-icon left glyphicon glyphicon-menu-hamburger" ng-click="sidebar = true"></button>
+    <button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
 </div>
 <sidebar open="sidebar" ng-swipe-left="sidebar = false">
-	<ul class="list-group main-sidebar">
-		<li class="list-group-item profile" ng-click="go('/users/me')">
-			<i class="glyphicon glyphicon-user"></i><br>
-			<h5 class="spin-toggle" ng-show="sidebar"> {{ me.alias }} </h5>
-		</li>
+    <ul class="list-group main-sidebar">
+        <li class="list-group-item profile" ng-click="go('/users/me')">
+            <i class="glyphicon glyphicon-user"></i><br>
+            <h5 class="spin-toggle" ng-show="sidebar"> {{ me.alias }} </h5>
+        </li>
 
-		<li class="list-group-item" ng-click="go('/sales/new')">
-			<i class="glyphicon glyphicon-plus"></i>
-			فروش جدید
-		</li>
+        <li class="list-group-item" ng-click="go('/sales/new')">
+            <i class="glyphicon glyphicon-plus"></i> فروش جدید
+        </li>
 
-		<li class="list-group-item" ng-click="go('users/me/followers')">
-			<i class="glyphicon glyphicon-paste"></i> دنبال کنندگان من <span class="badge monospace" ng-bind="me.followers"></span>
-		</li>
-		<li class="list-group-item" ng-click="go('users/me/following')">
-			<i class="glyphicon glyphicon-copy"></i> لیست من <span class="badge monospace" ng-bind="me.following"></span>
-		</li>
-		<li class="list-group-item" ng-click="go('/login')">
-			<i class="glyphicon glyphicon-log-out"></i> خروج
-		</li>
-	</ul>
+        <li class="list-group-item" ng-click="go('users/me/followers')">
+            <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان من <span class="badge monospace" ng-bind="me.followers"></span>
+        </li>
+        <li class="list-group-item" ng-click="go('users/me/following')">
+            <i class="glyphicon glyphicon-copy"></i> لیست من <span class="badge monospace" ng-bind="me.following"></span>
+        </li>
+        <li class="list-group-item" ng-click="go('/login')">
+            <i class="glyphicon glyphicon-log-out"></i> خروج
+        </li>
+    </ul>
 </sidebar>
 
 <div ng-swipe-right="sidebar = true" ng-swipe-left="sidebar = false" class="nai-page-container">
-	<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-		<div class="panel panel-default post" ng-repeat="item in items">
-			<div class="panel-heading">
-				<div class="cell text-right">
-					<span class="caption">
-						<a ng-click="go('users/'+item.user)" class="caption text"><i class="glyphicon glyphicon-user"></i> {{ item.user_alias }}: </a>
-						<span class="caption text">{{ item.title }}</span>
-					</span>
-				</div>
-				<div class="cell text-left">
-					<i class="glyphicon glyphicon-credit-card text"></i>
-					<span class="caption text">{{ displayPrice(item) }} </span>
-				</div>
-			</div>
-			<div class="image" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }"></div>
-			<div class="body">
-				{{ item.body }}
-			</div>
-			<div class="panel-footer text-primary text-align-center">
-				<button ng-click="go('sales/'+item.id)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-sunglasses"></span> مشاهده جزئیات </button>
-				<button ng-click="go('users/'+item.user)" class="btn btn-sm btn-link col-xs-6"> <span class="glyphicon glyphicon-comment"></span> تماس با فرستنده </button>
-				<div style="clear: both"></div>
-			</div>
-		</div>
-	</div>
-	<button class="btn btn-link col-xs-12 slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+        <sale-directive ng-repeat="item in items" details="false" item="item"></sale-directive>
+    </div>
+    <button class="btn btn-link col-xs-12 slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
 </div>

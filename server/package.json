@@ -10,10 +10,10 @@
     "express": "^4.14.0",
     "express-tools": "git+https://github.com/nainemom/express-tools.git",
     "glob": "^7.0.5",
-    "gm": "^1.23.0",
+    "jimp": "^0.2.27",
     "multer": "^1.2.0",
     "mysql": "^2.11.1",
-    "query-creator": "0.0.3",
+    "query-creator": "0.0.4",
     "se-session": "git+https://github.com/nainemom/se-session.git",
     "socket.io": "^1.4.8",
     "socket.io-stream": "^0.9.0"

@@ -1,4 +1,4 @@
-angular.module('app', ['ngNaiFramework', 'app.services', 'app.controllers'])
+angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.controllers'])
 .config(function($routeProvider, localStorageServiceProvider) {
 	$routeProvider
 	.when('/deside', {
