@@ -77,9 +77,27 @@ module.exports.uniqueName = function() {
 module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;
     let limitStart = limit * page - limit;
-    let query = qc.new().select('s.*', 'sales s')
-        .innerJoin('followers f', 's.user = f.following')
-        .where('f.follower = ?', [id])
+
+    let queryDirect = qc.new().select('following', 'followers').where('follower = ?', [id]).val(false);
+    let queryLvl = qc.new().select([
+        'following AS user',
+        'follower AS connection',
+        'IF( follower = 1, 1, 0) AS connection_level'
+    ], 'followers').where(`follower IN( ${queryDirect} )`).val(false);
+    let queryList = qc.new().select([
+            'f.user',
+            'COUNT(f.connection) AS connections',
+            'IF( SUM(f.connection_level), "direct", "fof" ) AS connection_type'
+        ], `( ${queryLvl} ) f`)
+        .groupBy('f.user').val(false);
+
+
+    let query = qc.new().select([
+            's.*',
+            'f.connection_type',
+            'f.connections'
+        ], 'sales s')
+        .innerJoin(`(${queryList}) f`, 's.user = f.user')
         .groupBy('s.id')
         .orderBy('s.date', 'desc')
         .limit(limitStart, limit)

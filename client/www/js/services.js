@@ -30,7 +30,7 @@ angular.module('app.services', [])
     })
     .filter('pDate', function() {
         return function(dt) {
-            return moment(dt).format('jYYYY-jM-jD ساعت HH:mm');
+            return moment(dt).format('jYYYY-jM-jD');
         }
     })
     .filter('fPrice', function() {

@@ -7,28 +7,56 @@
 					<span class="caption text ">{{ itemF.title }}</span>
                 </span>
             </div>
-            <div class="cell text-left" ng-if="itemF.user == $root.me.id ">
+            <div class="cell text-left" ng-if="false && itemF.user == $root.me.id ">
                 <span class="caption ">
 					<span ng-click="del()" class="caption text red"> <i class="glyphicon glyphicon-trash "></i> حذف </span>
                 </span>
             </div>
+            <div class="cell text-left" ng-if="item.connection_type && item.connection_type == 'fof'">
+                <span class="caption text label label-info"> دنبال شده توسط {{item.connections}} نفر از لیست من</span>
+            </div>
+
+
+            <div class="cell text-left" ng-if="itemF.user == $root.me.id">
+                <span class="caption ">
+					<span ng-click="dropdown()" class="caption text"> <i class="glyphicon glyphicon-option-vertical"></i> </span>
+                </span>
+
+            </div>
+            <ul class="dropdown-menu" ng-if="_dropdown">
+                <li ng-click="del()">
+                    <a>
+                        <i class="glyphicon glyphicon-trash "></i> حذف
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a>
+                        <i class="glyphicon glyphicon-edit"></i> ویرایش
+                    </a>
+                </li>
+            </ul>
+
         </div>
+
         <div class="image " ng-style="{ 'background-image': 'url('+itemF.thumbnail+ ')' } " ng-click="$root.go( 'sales/'+itemF.id) "></div>
         <div class="body ">
             {{ itemF.body }}
-            <hr>
-            <div class="text-right">
-                <i class="glyphicon glyphicon-credit-card text "></i>
-                <span class="caption text ">{{ itemF | fPrice }} </span>
-            </div>
-            <div class="text-right">
-                <i class="glyphicon glyphicon-calendar text"></i>
-                <span class="caption text">{{ itemF.date | pDate }} </span>
-            </div>
         </div>
         <div class="panel-footer text-align-center ">
-            <span ng-click="favoriteToggle() " class="btn btn-sm btn-link col-xs-6 " ng-class="{ 'red': itemF.i_favorite} "> <span class="glyphicon glyphicon-star "></span> <span class="monospace "> {{itemF.favorites_count}} </span> </span>
-            <span ng-click="$root.go( 'sales/'+itemF.id)" class="btn btn-sm btn-link col-xs-6 "> <span class="glyphicon glyphicon-comment "></span> <span class="monospace "> {{itemF.comments_count}} </span> </span>
+            <span ng-click="favoriteToggle()" class="btn btn-sm btn-link col-xs-2 text-center" ng-class="{ 'red': itemF.i_favorite} ">
+                <span class="glyphicon glyphicon-star "></span> <span class="monospace "> {{itemF.favorites_count}} </span>
+            </span>
+            <span ng-click="$root.go( 'sales/'+itemF.id)" class="btn btn-sm btn-link col-xs-2 text-center">
+                <span class="glyphicon glyphicon-comment "></span> <span class="monospace "> {{itemF.comments_count}} </span>
+            </span>
+            <span class="btn btn-sm btn-link col-xs-4 text-center">
+                <i class="glyphicon glyphicon-calendar"></i>
+                <span>{{ itemF.date | pDate }} </span>
+            </span>
+            <span class="btn btn-sm btn-link col-xs-4 text-center">
+                <i class="glyphicon glyphicon-credit-card"></i>
+                <span>{{ itemF | fPrice }} </span>
+            </span>
             <div style="clear: both "></div>
         </div>
     </div>

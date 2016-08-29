@@ -1,24 +1,31 @@
-
 <form class="nai-page-container" ng-submit="login()">
-	<div class="col-sm-6 col-sm-offset-3">
-		<p>
-			برای استفاده از برنامه، لطفا وارد شوید!
-		</p>
-		<div class="form-group col-sm-12">
-			<label class="control-label">نام کاربری</label>
-			<input type="text" class="form-control" ng-model="inputs.username"/>
-		</div>
-		<div class="form-group col-sm-12">
-			<label class="control-label">رمز عبور</label>
-			<input type="text" class="form-control" ng-model="inputs.password"/>
-		</div>
-		<div class="form-group col-sm-12">
-			<label class="control-label"></label>
-			<button class="btn btn-primary col-xs-12" ng-disabled="!checkForm()"> ورود </button>
-		</div>
-		<div class="form-group col-sm-12 text-align-center">
-			<label class="control-label"></label>
-			<a ng-click="go('/users/new')"> ثبت نام کنید </a>
-		</div>
-	</div>
+    <div class="col-sm-6 col-sm-offset-3">
+        <p class="row">
+            برای استفاده از برنامه، لطفا وارد شوید!
+        </p>
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <label class="control-label">نام کاربری</label>
+                <input type="number" class="form-control" ng-model="inputs.username" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <label class="control-label">رمز عبور</label>
+                <input type="password" class="form-control" ng-model="inputs.password" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <label class="control-label"></label>
+                <button class="btn btn-primary col-xs-12" ng-disabled="!checkForm()"> ورود </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-12 text-align-center">
+                <label class="control-label"></label>
+                <a ng-click="go('/users/new')"> ثبت نام کنید </a>
+            </div>
+        </div>
+    </div>
 </form>

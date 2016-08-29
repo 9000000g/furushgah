@@ -8,9 +8,28 @@ angular.module('app.directives', [])
                 item: '=',
                 details: '='
             },
-            link: function(scope) {
+            link: function(scope, element) {
                 scope.details = typeof scope.details == 'boolean' ? scope.details : false;
                 scope.inputs = {};
+                scope._dropdown = false;
+                scope.dropdown = function() {
+                    scope._dropdown = !scope._dropdown;
+                }
+                element.bind('click', function(e) {
+                    angular.element(e.target).siblings('#upload').trigger('click');
+                });
+                angular.element(document).bind('click', function(event) {
+                    var isClickedElementChildOfPopup = element
+                        .find(event.target)
+                        .length > 0;
+                    if (isClickedElementChildOfPopup) {
+                        return;
+                    }
+                    scope.$apply(function() {
+                        scope._dropdown = false;
+                    });
+                });
+
                 scope.itemF = {};
                 scope.del = function() {
                     if (!confirm('آیا از حذف "' + scope.itemF.title + '" مطمئن هستید؟')) {

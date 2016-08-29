@@ -1,10 +1,14 @@
 angular.module('app.controllers', [])
     .run(function($rootScope, $location, $window, $http) {
         $rootScope.go = function(url) {
-            if (url == 'back')
+            if (url == 'back') {
+                url = '/main';
+            }
+            if (url == 'back') {
                 $window.history.back();
-            else
+            } else {
                 $location.url(url);
+            }
         }
 
         $rootScope.me = false;
@@ -42,24 +46,28 @@ angular.module('app.controllers', [])
         }
         $rootScope.desided = false;
     })
-    .controller('DesideCtrl', function($scope, $rootScope, server) {
+    .controller('DesideCtrl', function($scope, $rootScope, server, $routeParams) {
+        var redirect = '/main';
+        if ($routeParams.redirect) {
+            redirect = atob($routeParams.redirect);
+        }
         $rootScope.loading();
         server.get('/users/me').then(function(res) {
             err = res.data.error;
             res = res.data.result;
-            var page = 'login';
             if (!err && res !== false) {
-                page = 'main';
                 $rootScope.me = res;
+            } else {
+                redirect = '/login';
             }
             $rootScope.desided = true;
-            $rootScope.go('/' + page);
+            $rootScope.go(redirect);
             $rootScope.loading(false);
         });
     })
-    .controller('MainCtrl', function($scope, $rootScope, $routeParams, server) {
+    .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.sidebar = false;
@@ -98,7 +106,11 @@ angular.module('app.controllers', [])
         }
         $scope.fetch(false);
     })
-    .controller('LoginCtrl', function($scope, $rootScope, server, funcs) {
+    .controller('LoginCtrl', function($scope, $rootScope, server, funcs, $location) {
+        if (!$rootScope.desided) {
+            $rootScope.go('/deside/' + btoa($location.$$path));
+            return;
+        }
         $rootScope.me = false;
         $scope.inputs = {};
         $scope.checkForm = function() {
@@ -127,9 +139,9 @@ angular.module('app.controllers', [])
         server.post('/logout');
 
     })
-    .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.items = [];
@@ -148,9 +160,9 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.items = [];
@@ -169,9 +181,9 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.item = [];
@@ -232,9 +244,9 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('SaleCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('SaleCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.inputs = {};
@@ -243,9 +255,9 @@ angular.module('app.controllers', [])
         };
 
     })
-    .controller('NewSaleCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('NewSaleCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.inputs = {
@@ -287,9 +299,9 @@ angular.module('app.controllers', [])
             });
         }
     })
-    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.inputs = {};
@@ -315,9 +327,9 @@ angular.module('app.controllers', [])
             });
         }
     })
-    .controller('RelativesCtrl', function($scope, localStorageService) {
+    .controller('RelativesCtrl', function($scope, localStorageService, $location) {
         if (!$rootScope.desided) {
-            $rootScope.go('/deside');
+            $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.searchbar = false;
