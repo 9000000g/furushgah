@@ -286,7 +286,6 @@ angular.module('app.controllers', [])
         ];
         $scope.submit = function() {
             $rootScope.loading('در حال ارسال اطلاعات');
-            console.log($scope.inputs);
             server.file('/sales/new', $scope.inputs).then(function(res) {
                 $rootScope.loading(false);
                 err = res.data.error;

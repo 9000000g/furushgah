@@ -12,6 +12,12 @@
         },
         "cordova-plugin-contacts": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "io.nainemom.furushgah"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "io.nainemom.furushgah"
         }
     },
     "dependent_plugins": {

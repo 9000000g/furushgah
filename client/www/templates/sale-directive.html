@@ -13,15 +13,14 @@
                 </span>
             </div>
             <div class="cell text-left" ng-if="item.connection_type && item.connection_type == 'fof'">
-                <span class="caption text label label-info"> دنبال شده توسط {{item.connections}} نفر از لیست من</span>
+                <span class="caption text label label-info"> دنبال شده توسط {{item.connections}} آشنا </span>
             </div>
 
 
             <div class="cell text-left" ng-if="itemF.user == $root.me.id">
                 <span class="caption ">
-					<span ng-click="dropdown()" class="caption text"> <i class="glyphicon glyphicon-option-vertical"></i> </span>
+					<span ng-click="dropdown()" class="caption text"> <i class="glyphicon glyphicon-option-vertical"></i> ویرایش </span>
                 </span>
-
             </div>
             <ul class="dropdown-menu" ng-if="_dropdown">
                 <li ng-click="del()">
@@ -37,8 +36,7 @@
             </ul>
 
         </div>
-
-        <div class="image " ng-style="{ 'background-image': 'url('+itemF.thumbnail+ ')' } " ng-click="$root.go( 'sales/'+itemF.id) "></div>
+        <image class="image" ng-src="{{itemF.thumbnail}}" ng-click="$root.go( 'sales/'+itemF.id) " />
         <div class="body ">
             {{ itemF.body }}
         </div>

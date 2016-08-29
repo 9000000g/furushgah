@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const qc = require('query-creator');
 const fs = require('fs');
+const jimp = require('jimp')
 const config = require('../config.json');
 const db = mysql.createConnection(config.mysql);
 db.connect();
@@ -72,7 +73,26 @@ module.exports.uniqueName = function() {
     sid += '' + Date.now();
     return sid;
 }
+module.exports.b64toFile = function(b64, path) {
+    return new Promise((resolve, reject) => {
+        let temp = `./tmp/${module.exports.uniqueName()}`;
+        b64 = b64.replace(/^data:image\/jpg;base64,/, "");
+        fs.writeFile(temp, b64, 'base64', function(err) {
+            jimp.read(temp).then((lenna) => {
+                lenna.resize(600, jimp.AUTO) // resize
+                    .quality(50) // set JPEG quality 
+                    .write(path, () => {
+                        fs.unlinkSync(temp);
+                        resolve(true);
+                    }); // save 
+            }).catch((errj) => {
+                fs.unlinkSync(temp);
+                reject(errj.code);
+            });
+        });
 
+    });
+}
 
 module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;

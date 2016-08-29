@@ -1,75 +1,83 @@
 <div class="nai-navbar">
-	<div class="title"> فروش جدید </div>
-	<div class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></div>
+    <div class="title"> فروش جدید </div>
+    <div class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></div>
 </div>
 <form class="nai-page-container" ng-submit="submit()">
-	<div class="container-fluid">
-		<div class="row">
-			<div class="form-group col-xs-9">
-				<label class="control-label">عنوان</label>
-				<input type="text" class="form-control" ng-model="inputs.title" required/>
-			</div>
-			<div class="form-group col-xs-3">
-				<label class="control-label"> تصویر </label>
-				<div class="btn btn-sm btn-info full-width" nai-file value="inputs.thumbnail"> <i class="glyphicon glyphicon-paperclip"></i> انتخاب</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-group col-xs-12">
-				<label class="control-label">توضیحات</label>
-				<textarea class="form-control" ng-model="inputs.body" required></textarea>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-12"><hr/></div>
-		</div>
-		<div class="row">
-			<div class="form-group col-sm-6">
-				<label class="control-label">دسته‌بندی فروش</label>
-				<select class="form-control" selectize="{}" options="categoryTypes" ng-model="inputs.category" required></select>
-			</div>
-			<div class="form-group col-sm-6">
-				<label class="control-label">نوع فروش</label>
-				<select class="form-control" selectize="{}" options="saleTypes" ng-model="inputs.type" required></select>
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-group col-sm-12" ng-if="inputs.type == 'sale'">
-				<label class="control-label">مبلغ کل</label>
-				<input type="number" class="form-control" ng-model="inputs.totalPrice" required/>
-			</div>
-			<div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
-				<label class="control-label">مبلغ گرو</label>
-				<input type="number" class="form-control" ng-model="inputs.mortgagePrice" required/>
-			</div>
-			<div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
-				<label class="control-label">دوره دریافت اجاره</label>
-				<select class="form-control" selectize="{}" options="periodTypes" ng-model="inputs.period" required></select>
-			</div>
-			<div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
-				<label class="control-label">مبلغ اجاره</label>
-				<input type="number" class="form-control" ng-model="inputs.periodPrice" required/>
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-group col-sm-4">
-				<label class="control-label">خصوصی</label>
-				<div>
-					<switch ng-model="inputs.rustayi"><switch>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12"><hr/></div>
-		</div>
-		<div class="row">
-			<div class="form-group col-xs-6">
-				<button class="btn btn-primary full-width" type="submit">ارسال</button>
-			</div>
-			<div class="form-group col-xs-6">
-				<button class="btn btn-default full-width" type="reset">انصراف</button>
-			</div>
-		</div>
-	</div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="form-group col-xs-9">
+                <label class="control-label">عنوان</label>
+                <input type="text" class="form-control" ng-model="inputs.title" required/>
+            </div>
+            <div class="form-group col-xs-3" style="display: none">
+                <label class="control-label"> تصویر </label>
+                <div class="btn btn-sm btn-info full-width" nai-file value="inputs.thumbnail"> <i class="glyphicon glyphicon-paperclip"></i> انتخاب</div>
+            </div>
+            <div class="form-group col-xs-3">
+                <label class="control-label"> تصویر </label>
+                <div class="btn btn-sm btn-primary full-width" image-picker value="inputs.thumbnail"> <i class="glyphicon glyphicon-paperclip"></i> </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12">
+                <label class="control-label">توضیحات</label>
+                <textarea class="form-control" ng-model="inputs.body" required></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label class="control-label">دسته‌بندی فروش</label>
+                <select class="form-control" selectize="{}" options="categoryTypes" ng-model="inputs.category" required></select>
+            </div>
+            <div class="form-group col-sm-6">
+                <label class="control-label">نوع فروش</label>
+                <select class="form-control" selectize="{}" options="saleTypes" ng-model="inputs.type" required></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-12" ng-if="inputs.type == 'sale'">
+                <label class="control-label">مبلغ کل</label>
+                <input type="number" class="form-control" ng-model="inputs.totalPrice" required/>
+            </div>
+            <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
+                <label class="control-label">مبلغ گرو</label>
+                <input type="number" class="form-control" ng-model="inputs.mortgagePrice" required/>
+            </div>
+            <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
+                <label class="control-label">دوره دریافت اجاره</label>
+                <select class="form-control" selectize="{}" options="periodTypes" ng-model="inputs.period" required></select>
+            </div>
+            <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
+                <label class="control-label">مبلغ اجاره</label>
+                <input type="number" class="form-control" ng-model="inputs.periodPrice" required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label class="control-label">خصوصی</label>
+                <div>
+                    <switch ng-model="inputs.rustayi">
+                        <switch>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-6">
+                <button class="btn btn-primary full-width" type="submit">ارسال</button>
+            </div>
+            <div class="form-group col-xs-6">
+                <button class="btn btn-default full-width" type="reset">انصراف</button>
+            </div>
+        </div>
+    </div>
 </form>
-

@@ -9,7 +9,7 @@
     <ul class="list-group main-sidebar">
         <li class="list-group-item profile" ng-click="go('/users/me')">
             <i class="glyphicon glyphicon-user"></i><br>
-            <h5 class="spin-toggle" ng-show="sidebar"> {{ me.alias }} </h5>
+            <h5 ng-show="sidebar"> {{ me.alias }} </h5>
         </li>
 
         <li class="list-group-item" ng-click="go('/sales/new')">
