@@ -58,7 +58,13 @@ angular.module('app.services', [])
             address: address,
             post: function(url, data) {
                 data = typeof data == 'undefined' ? {} : data;
-                return $http.post(address + url + '?_sid=' + _sid, data);
+                var lastUrl = '';
+                if (url.indexOf('?') == -1) {
+                    lastUrl = address + url + '?_sid=' + _sid;
+                } else {
+                    lastUrl = address + url + '&_sid=' + _sid;
+                }
+                return $http.post(lastUrl, data);
             },
             file: function(url, data) {
                 var dt = new FormData();
@@ -66,13 +72,25 @@ angular.module('app.services', [])
                 for (var i in data) {
                     dt.append(i, data[i]);
                 }
-                return $http.post(address + url + '?_sid=' + _sid, dt, {
+                var lastUrl = '';
+                if (url.indexOf('?') == -1) {
+                    lastUrl = address + url + '?_sid=' + _sid;
+                } else {
+                    lastUrl = address + url + '&_sid=' + _sid;
+                }
+                return $http.post(lastUrl, dt, {
                     transformRequest: angular.identity,
                     headers: { 'Content-Type': undefined }
                 });
             },
             get: function(url) {
-                return $http.get(address + url + '?_sid=' + _sid);
+                var lastUrl = '';
+                if (url.indexOf('?') == -1) {
+                    lastUrl = address + url + '?_sid=' + _sid;
+                } else {
+                    lastUrl = address + url + '&_sid=' + _sid;
+                }
+                return $http.get(lastUrl);
             }
         }
     })

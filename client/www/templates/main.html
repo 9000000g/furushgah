@@ -9,7 +9,7 @@
     <ul class="list-group main-sidebar">
         <li class="list-group-item profile" ng-click="go('/users/me')">
             <i class="glyphicon glyphicon-user"></i><br>
-            <h5 ng-show="sidebar"> {{ me.alias }} </h5>
+            <h5> {{ me.alias }} </h5>
         </li>
 
         <li class="list-group-item" ng-click="go('/sales/new')">
@@ -29,8 +29,8 @@
 </sidebar>
 
 <div ng-swipe-right="sidebar = true" ng-swipe-left="sidebar = false" class="nai-page-container">
-    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        <sale-directive ng-repeat="item in items" details="false" item="item"></sale-directive>
+    <div class="half-width inline-block" ng-repeat="item in items">
+        <sale-directive details="false" item="item"></sale-directive>
     </div>
-    <button class="btn btn-link col-xs-12 slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
+    <button class="btn btn-link slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
 </div>

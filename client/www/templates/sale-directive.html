@@ -7,17 +7,12 @@
 					<span class="caption text ">{{ itemF.title }}</span>
                 </span>
             </div>
-            <div class="cell text-left" ng-if="false && itemF.user == $root.me.id ">
-                <span class="caption ">
-					<span ng-click="del()" class="caption text red"> <i class="glyphicon glyphicon-trash "></i> حذف </span>
-                </span>
-            </div>
-            <div class="cell text-left" ng-if="item.connection_type && item.connection_type == 'fof'">
+            <div class="cell text-left" ng-if="item.connection_type && item.connection_type == 'fof' && false">
                 <span class="caption text label label-info"> دنبال شده توسط {{item.connections}} آشنا </span>
             </div>
 
 
-            <div class="cell text-left" ng-if="itemF.user == $root.me.id">
+            <div class="cell text-left" ng-if="itemF.user == $root.me.id && false">
                 <span class="caption ">
 					<span ng-click="dropdown()" class="caption text"> <i class="glyphicon glyphicon-option-vertical"></i> ویرایش </span>
                 </span>
@@ -36,10 +31,11 @@
             </ul>
 
         </div>
-        <image class="image" ng-src="{{itemF.thumbnail}}" ng-click="$root.go( 'sales/'+itemF.id) " />
-        <div class="body ">
+        <div class="image" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+itemF.id) "></div>
+        <div class="body">
             {{ itemF.body }}
         </div>
+        <div style="clear: both;"></div>
         <div class="panel-footer text-align-center ">
             <span ng-click="favoriteToggle()" class="btn btn-sm btn-link col-xs-2 text-center" ng-class="{ 'red': itemF.i_favorite} ">
                 <span class="glyphicon glyphicon-star "></span> <span class="monospace "> {{itemF.favorites_count}} </span>
@@ -55,7 +51,7 @@
                 <i class="glyphicon glyphicon-credit-card"></i>
                 <span>{{ itemF | fPrice }} </span>
             </span>
-            <div style="clear: both "></div>
+            <div style="clear: both;"></div>
         </div>
     </div>
     <div ng-if="details" class="panel panel-default post">

@@ -6,7 +6,7 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
                 controller: 'DesideCtrl'
             })
             .when('/deside/:redirect', {
-                template: '',
+                templateUrl: 'templates/deside.html',
                 controller: 'DesideCtrl'
             })
             .when('/login', {

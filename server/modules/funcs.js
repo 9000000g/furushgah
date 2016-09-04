@@ -97,8 +97,8 @@ module.exports.b64toFile = function(b64, path) {
 module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;
     let limitStart = limit * page - limit;
-
-    let queryDirect = qc.new().select('following', 'followers').where('follower = ?', [id]).val(false);
+    // liste kasayi ke man hade aghal 2 ta beheshun etemad daram va donbaleshun kardam
+    let queryDirect = qc.new().select('following', 'followers').where('follower = ? AND follow = 1 AND trust > 2', [id]).val(false);
     let queryLvl = qc.new().select([
         'following AS user',
         'follower AS connection',
@@ -133,6 +133,26 @@ module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
     let query = qc.new().select('s.*', 'sales s')
         .where('s.user = ?', [id])
         .orderBy('s.date', 'desc')
+        .limit(limitStart, limit)
+        .val();
+    db.query(query, (err, result) => {
+        cb(err ? err : false, result ? result : false);
+    });
+}
+module.exports.searchSales = (data = {}, page = 1, cb = new Function()) => {
+    let where = '';
+    let and = '';
+    if (data.user) {
+        where += `${and} user = '${data.user}'`;
+        and = 'AND';
+    }
+
+    let limit = 8;
+    let limitStart = limit * page - limit;
+
+    let query = qc.new().select('*', 'sales')
+        .where(where)
+        .orderBy('date', 'desc')
         .limit(limitStart, limit)
         .val();
     db.query(query, (err, result) => {
@@ -189,8 +209,38 @@ module.exports.deleteSale = (id = 1, cb = new Function()) => {
         cb(err ? err : false, result ? result : false);
     });
 }
+module.exports.getRelation = (user1 = 1, user2 = 2, cb = new Function()) => {
+    let queryCheck = qc.new()
+        .select('*', 'followers')
+        .where('follower = ? AND following = ?', [user1, user2])
+        .val();
+    db.query(queryCheck, (errCheck, resultCheck) => {
+        if (!errCheck && resultCheck.length == 0) {
+            cb(false, {
+                follower: parseInt(user1),
+                following: parseInt(user2),
+                follow: 0,
+                trust: 0
+            });
+        } else {
+            cb(false, resultCheck[0]);
+        }
+    });
+}
+module.exports.setRelation = (user1 = 1, user2 = 2, relation = {}, cb = new Function()) => {
+    module.exports.getRelation(user1, user2, (err, result) => {
+        let query = qc.new().replace('followers',
+            Object.assign(result, relation)
+        ).val();
+        db.query(query, (err, result) => {
+            cb(err ? err : false, result ? result : false);
+        });
+    });
+}
+
+
 module.exports.checkFollow = (follower = 1, following = 2, cb = new Function()) => {
-    let queryCheck = qc.new().select('following', 'followers').where('follower = ? AND following = ?', [follower, following]).val();
+    let queryCheck = qc.new().select('following', 'followers').where('follower = ? AND following = ? AND follow = 1', [follower, following]).val();
     db.query(queryCheck, (errCheck, resultCheck) => {
         if (!errCheck && resultCheck.length == 0) {
             cb(false, false);
@@ -204,7 +254,8 @@ module.exports.follow = (follower = 1, following = 2, cb = new Function()) => {
         if (!errCheck && resultCheck == false) {
             let query = qc.new().insert('followers', {
                 follower: follower,
-                following: following
+                following: following,
+                follow: 1
             }).val();
             db.query(query, (err, result) => {
                 cb(err ? err : false, result ? result : false);
@@ -246,7 +297,7 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
     }
 
 
-    let query = qc.new().select([
+    let queryIn = qc.new().select([
             't1.id',
             't1.mobile',
             't1.alias',
@@ -254,10 +305,18 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
             'SUM( IF(t2.following = t1.id, 1, 0 ) ) AS followers',
             `SUM( IF(t2.following = t1.id AND t2.follower = ${me}, 1, 0 ) ) AS i_follow`
         ], 'users t1')
-        .leftJoin('followers t2', 't1.id = t2.follower OR t1.id = t2.following')
+        .leftJoin('followers t2', '(t1.id = t2.follower OR t1.id = t2.following) AND t2.follow = 1')
         .where(where)
         .groupBy('t1.id')
+        .val(false);
+    let query = qc.new().select([
+            'q1.*',
+            'COUNT(*) AS sales_count'
+        ], `(${queryIn}) q1`)
+        .leftJoin('sales s', 'q1.id = s.user')
+        .groupBy('q1.id')
         .val();
+
     db.query(query, (err, result) => {
         cb(err || result.length == 0 ? true : false, !err && result.length == 1 ? result[0] : false);
     });

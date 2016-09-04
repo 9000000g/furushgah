@@ -99,7 +99,6 @@ angular.module('app.directives', [])
             link: function(scope) {
                 //scope.value = '';
                 scope.selectFile = function() {
-                    alert('select file' + typeof navigator.camera)
                     navigator.camera.getPicture(function(data) {
                         scope.value = data;
                         scope.$apply();

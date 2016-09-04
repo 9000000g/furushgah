@@ -103,6 +103,30 @@ app.get('/timeline/:page?', (req, res) => {
         });
     }, 1000);
 });
+
+app.get('/sales/search/:page?', (req, res) => {
+    if (req.session == null) {
+        res.json({ error: true, result: 'Session Error!' });
+        return;
+    }
+    if (req.session.me === false) {
+        res.json({ error: true, result: 'Login First!' });
+        return;
+    }
+    let page = req.params.page ? req.params.page : 1;
+    if (typeof req.query.user == 'undefined') {
+        funcs.fetchTimeline(req.session.me.id, page, (err, result) => {
+            res.json({ error: err, result: result });
+            return;
+        });
+    } else {
+        funcs.searchSales(req.query, page, (err, result) => {
+            res.json({ error: err, result: result });
+            return;
+        });
+    }
+});
+
 app.get('/users/:id', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {
@@ -116,7 +140,7 @@ app.get('/users/:id', (req, res) => {
         }
         id = req.session.me.id;
     }
-    let me = req.session.me !== false ? req.session.me.id : null;
+    let me = req.session && req.session.me !== false ? req.session.me.id : null;
     funcs.fetchUser('id', { username: id }, me, (err, result) => {
         res.json({ error: err, result: result });
         return;
@@ -203,6 +227,55 @@ app.get('/users/:id/checkFollow', (req, res) => {
         return;
     });
 });
+app.get('/users/:id/relation', (req, res) => {
+    if (req.session == null) {
+        res.json({ error: true, result: 'Session Error!' });
+        return;
+    }
+    if (req.session.me === false) {
+        res.json({ error: true, result: 'Login First!' });
+        return;
+    }
+    let id = req.params.id;
+    if (id == 'me') {
+        id = req.session.me.id;
+    }
+    let user1 = req.session.me.id;
+    let user2 = id;
+    funcs.getRelation(user1, user2, (err, result) => {
+        res.json({ error: err, result: result });
+        return;
+    });
+});
+app.post('/users/:id/relation', (req, res) => {
+    if (req.session == null) {
+        res.json({ error: true, result: 'Session Error!' });
+        return;
+    }
+    if (req.session.me === false) {
+        res.json({ error: true, result: 'Login First!' });
+        return;
+    }
+    if (typeof req.body.follow == 'undefined' && typeof req.body.trust == 'undefined') {
+        res.json({ error: true, result: 'Data Error!' });
+        return;
+    }
+    let user1 = req.session.me.id;
+    let user2 = req.params.id;
+    if (user1 == user2) {
+        res.json({ error: true, result: 'Data Error!' });
+        return;
+    }
+    let relation = req.body;
+    funcs.setRelation(user1, user2, relation, (err, result) => {
+        res.json({ error: err, result: result });
+        return;
+    });
+});
+
+
+
+
 app.post('/users/:id/follow', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });

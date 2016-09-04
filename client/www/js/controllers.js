@@ -46,12 +46,12 @@ angular.module('app.controllers', [])
         }
         $rootScope.desided = false;
     })
-    .controller('DesideCtrl', function($scope, $rootScope, server, $routeParams) {
+    .controller('DesideCtrl', function($scope, $rootScope, server, $routeParams, $timeout) {
         var redirect = '/main';
         if ($routeParams.redirect) {
             redirect = atob($routeParams.redirect);
         }
-        $rootScope.loading();
+        //$rootScope.loading();
         server.get('/users/me').then(function(res) {
             err = res.data.error;
             res = res.data.result;
@@ -60,9 +60,11 @@ angular.module('app.controllers', [])
             } else {
                 redirect = '/login';
             }
-            $rootScope.desided = true;
-            $rootScope.go(redirect);
-            $rootScope.loading(false);
+            $timeout(function() {
+                $rootScope.desided = true;
+                $rootScope.go(redirect);
+            }, 1000);
+            //$rootScope.loading(false);
         });
     })
     .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location) {
@@ -84,8 +86,15 @@ angular.module('app.controllers', [])
                 $scope.items = [];
                 $scope.currentPage = 1;
             }
+            var queryParams = '?';
+            if (typeof $routeParams.user != 'undefined') {
+                queryParams += 'user=' + $routeParams.user;
+            }
+            if (queryParams == '?') {
+                queryParams = '';
+            }
 
-            server.get('/timeline/' + $scope.currentPage).then(function(res) {
+            server.get('/sales/search/' + $scope.currentPage + queryParams).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 for (var i = 0; i < res.length; i++) {
@@ -95,7 +104,7 @@ angular.module('app.controllers', [])
                 for (var i = 0; i < res.length; i++) {
                     $scope.items.push(res[i]);
                 }
-                if (res.length < 8) {
+                if (res.length == 0) {
                     $scope.btnVisible = false;
                 } else {
                     $scope.btnVisible = true;
@@ -187,57 +196,61 @@ angular.module('app.controllers', [])
             return;
         }
         $scope.item = [];
-        $scope.sales = [];
-        $scope.amIFollow = false;
-        $scope.currentPage = 1;
-        $scope.btnVisible = false;
         $scope.followToggle = function() {
-            if ($scope.amIFollow) {
+            if ($scope.relation.follow == 1) {
                 if (confirm('آیا از حذف این کاربر از لیست خود مطمئنید؟') !== true) {
                     return;
                 }
-                server.post('/users/' + $routeParams.id + '/unfollow', {}).then(function(res) {
+                server.post('/users/' + $routeParams.id + '/relation', {
+                    follow: 0
+                }).then(function(res) {
                     err = res.data.error;
                     res = res.data.result;
-                    $scope.amIFollow = false;
+                    if (!err) {
+                        $scope.relation.follow = 0;
+                    } else {
+                        alert(res);
+                    }
                 });
             } else {
-                server.post('/users/' + $routeParams.id + '/follow', {}).then(function(res) {
+                server.post('/users/' + $routeParams.id + '/relation', {
+                    follow: 1
+                }).then(function(res) {
                     err = res.data.error;
                     res = res.data.result;
-                    $scope.amIFollow = true;
+                    if (!err) {
+                        $scope.relation.follow = 1;
+                    } else {
+                        alert(res);
+                    }
                 });
             }
         }
-        $scope.fetch = function(next) {
+        $scope.trustModal = false;
+        $scope.trustChange = function(trust) {
+            server.post('/users/' + $routeParams.id + '/relation', {
+                trust: trust
+            }).then(function(res) {
+                err = res.data.error;
+                res = res.data.result;
+                $scope.trustModal = false;
+                if (!err) {
+                    $scope.relation.trust = trust;
+                } else {
+                    alert(res);
+                }
+            });
+        }
+        $scope.fetch = function() {
             $rootScope.loading('در حال دریافت از سرور');
-            next = typeof next == 'undefined' ? false : next;
-            if (next) {
-                $scope.currentPage++;
-            } else {
-                $scope.currentPage = 1;
-            }
             server.get('/users/' + $routeParams.id).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.item = res;
-                $scope.amIFollow = res.i_follow;
-                server.get('/users/' + $routeParams.id + '/sales/' + $scope.currentPage).then(function(res) {
-                    err = res.data.error;
-                    res = res.data.result;
-                    for (var i = 0; i < res.length; i++) {
-                        res[i].thumbnail = server.address + '/sales/' + res[i].id + '/thumbnail';
-                    }
-                    if (!next) {
-                        $scope.sales = res;
-                    } else {
-                        $scope.sales = $scope.sales.concat(res);
-                    }
-                    if (res.length < 8) {
-                        $scope.btnVisible = false;
-                    } else {
-                        $scope.btnVisible = true;
-                    }
+                server.get('/users/' + $routeParams.id + '/relation').then(function(res2) {
+                    err2 = res2.data.error;
+                    res2 = res2.data.result;
+                    $scope.relation = res2;
                     $rootScope.loading(false);
                 });
             });
