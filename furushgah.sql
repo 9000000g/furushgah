@@ -78,7 +78,7 @@ CREATE TABLE `followers` (
   `follower` int(11) NOT NULL,
   `following` int(11) NOT NULL,
   `follow` tinyint(4) DEFAULT '1',
-  `trust` tinyint(4) DEFAULT '0',
+  `trust` tinyint(4) DEFAULT '-1',
   PRIMARY KEY (`follower`,`following`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -89,7 +89,7 @@ CREATE TABLE `followers` (
 
 LOCK TABLES `followers` WRITE;
 /*!40000 ALTER TABLE `followers` DISABLE KEYS */;
-INSERT INTO `followers` VALUES (1,1,1,5),(1,3,1,3),(1,4,1,3),(1,5,1,2),(1,8,1,0),(1,10,1,0),(2,1,1,0),(2,2,1,5),(3,1,1,0),(3,3,1,5),(3,7,1,0),(4,1,1,0),(4,2,1,0),(4,3,1,0),(4,4,1,5),(4,7,1,0),(5,5,1,5),(5,6,1,0),(6,6,1,5),(7,7,1,5),(8,8,1,5),(9,9,1,5),(10,10,1,5);
+INSERT INTO `followers` VALUES (1,1,1,5),(1,2,0,-1),(1,3,0,5),(1,4,1,2),(1,5,0,-1),(1,6,0,-1),(1,7,0,-1),(1,8,0,-1),(1,10,0,-1),(2,1,1,-1),(2,2,1,5),(3,1,1,-1),(3,3,1,5),(3,7,1,-1),(4,1,1,-1),(4,2,1,-1),(4,3,1,-1),(4,4,1,5),(4,7,1,-1),(5,5,1,5),(5,6,1,-1),(6,6,1,5),(7,7,1,5),(8,8,1,5),(9,9,1,5),(10,10,1,5);
 /*!40000 ALTER TABLE `followers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -161,4 +161,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-04 17:17:48
+-- Dump completed on 2016-09-06 18:39:57
