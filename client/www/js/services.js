@@ -30,7 +30,21 @@ angular.module('app.services', [])
     })
     .filter('pDate', function() {
         return function(dt) {
-            return moment(dt).format('jYYYY-jM-jD');
+            var ret = moment(dt).format('jD jMMMM jYY');
+            ret = ret
+                .replace('Farvardin', 'فروردین')
+                .replace('Ordibehesht', 'اردیبهشت')
+                .replace('Khordad', 'خرداد')
+                .replace('Tir', 'تیر')
+                .replace('Mordad', 'مرداد')
+                .replace('Shahrivar', 'شهریور')
+                .replace('Mehr', 'مهر')
+                .replace('Aban', 'آبان')
+                .replace('Azar', 'آذر')
+                .replace('Dey', 'دی')
+                .replace('Bahman', 'بهمن')
+                .replace('Esfand', 'اسفند');
+            return ret;
         }
     })
     .filter('fPrice', function() {
@@ -93,4 +107,41 @@ angular.module('app.services', [])
                 return $http.get(lastUrl);
             }
         }
+    })
+    .factory('contacts', function(funcs) {
+        return function(cb) {
+            cb = cb || new Function();
+            var ret = [];
+            if (typeof ContactFindOptions == 'function') {
+                var options = new ContactFindOptions();
+                options.multiple = true;
+                options.hasPhoneNumber = true;
+                var fields = ['displayName', 'nickName', 'id', 'phoneNumbers'];
+                navigator.contacts.find(fields, function(list) {
+                    var j, phone;
+                    for (var i = 0; i < list.length; i++) {
+                        if (list[i].phoneNumbers) {
+                            var num;
+                            for (j = 0; j < list[i].phoneNumbers.length; j++) {
+                                num = funcs.parsePhone(list[i].phoneNumbers[j].value);
+                                if (!num || !list[i].displayName) {
+                                    continue;
+                                }
+                                ret.push({ name: list[i].displayName, phone: num });
+                            }
+                        }
+                    }
+                    ret.sort(function(a, b) {
+                        if (a.name < b.name)
+                            return -1;
+                        if (a.name > b.name)
+                            return 1;
+                        return 0;
+                    });
+                    cb(ret);
+                }, function() {
+                    cb([]);
+                }, options);
+            }
+        };
     })

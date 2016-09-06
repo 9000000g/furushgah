@@ -93,33 +93,46 @@ module.exports.b64toFile = function(b64, path) {
 
     });
 }
+module.exports.query = {};
+module.exports.query.trustedLvlFollowing = (id, lvl) => {
+    return qc.new()
+        .select('following', 'followers')
+        .where('follower = ? AND follow = 1 AND trust >= ?', [id, lvl]);
+}
+module.exports.query.trustedLvl = (id, lvl) => {
+    return qc.new()
+        .select('following', 'followers')
+        .where('follower = ? AND trust >= ?', [id, lvl]);
+}
+module.exports.query.following = (id) => {
+    return qc.new()
+        .select('following', 'followers')
+        .where('follower = ? AND follow = 1', [id]);
+}
+module.exports.query.timelineList = (id, trust) => {
+    let fof = qc.new()
+        .select('following', 'followers')
+        .where(`follower = ${id} AND follow = 1 AND trust >= ${trust}`)
+        .groupBy('following').val(false);
+    return qc.new()
+        .select('following', 'followers')
+        .where(`(follower = ${id} AND follow = 1) OR (follower != ${id} AND follower IN(${fof}) AND trust >= ${trust})`)
+        .groupBy('following');
+}
+
 
 module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;
     let limitStart = limit * page - limit;
     // liste kasayi ke man hade aghal 2 ta beheshun etemad daram va donbaleshun kardam
-    let queryDirect = qc.new().select('following', 'followers').where('follower = ? AND follow = 1 AND trust > 2', [id]).val(false);
-    let queryLvl = qc.new().select([
-        'following AS user',
-        'follower AS connection',
-        'IF( follower = 1, 1, 0) AS connection_level'
-    ], 'followers').where(`follower IN( ${queryDirect} )`).val(false);
-    let queryList = qc.new().select([
-            'f.user',
-            'COUNT(f.connection) AS connections',
-            'IF( SUM(f.connection_level), "direct", "fof" ) AS connection_type'
-        ], `( ${queryLvl} ) f`)
-        .groupBy('f.user').val(false);
-
+    let myTimelineList = module.exports.query.timelineList(id, 3).val(false);
 
     let query = qc.new().select([
-            's.*',
-            'f.connection_type',
-            'f.connections'
-        ], 'sales s')
-        .innerJoin(`(${queryList}) f`, 's.user = f.user')
-        .groupBy('s.id')
-        .orderBy('s.date', 'desc')
+            '*'
+        ], 'sales')
+        .where(`user IN( ${myTimelineList})`)
+        .groupBy('id')
+        .orderBy('date', 'desc')
         .limit(limitStart, limit)
         .val();
     db.query(query, (err, result) => {
@@ -160,7 +173,7 @@ module.exports.searchSales = (data = {}, page = 1, cb = new Function()) => {
     });
 }
 module.exports.fetchSale = (id = 1, me = 0, cb = new Function()) => {
-    let query = qc.new().select([
+    let Oldquery = qc.new().select([
                 't1.*',
                 'COUNT(fa.id) AS i_favorite'
             ], '(' +
@@ -192,6 +205,46 @@ module.exports.fetchSale = (id = 1, me = 0, cb = new Function()) => {
         .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
         .groupBy('t1.id')
         .val();
+    let myTrustList = module.exports.query.trustedLvl(me, 3).val(false);
+
+    let query = qc.new().select([
+                'q1.*',
+                'SUM( IF( f.follower != q1.user, f.trust, 0 ) ) AS trust_sum'
+            ], '(' + qc.new().select([
+                    't1.*',
+                    'COUNT(fa.id) AS i_favorite'
+                ], '(' +
+                qc.new().select([
+                        't1.*',
+                        'COUNT(fa.id) AS favorites_count'
+                    ], '(' +
+                    qc.new().select([
+                            't1.*',
+                            'COUNT(c.id) AS i_comment'
+                        ], '(' +
+                        qc.new().select([
+                                't1.*',
+                                'COUNT(c.id) AS comments_count'
+                            ], '(' +
+                            qc.new().select([
+                                's.*',
+                                'u.alias AS user_alias'
+                            ], 'sales s')
+                            .innerJoin('users u', 's.user = u.id')
+                            .where(`s.id = ${id}`)
+                            .groupBy('s.id').val(false) + ') t1')
+                        .leftJoin('comments c', 'c.sale = t1.id')
+                        .groupBy('t1.id').val(false) + ') t1')
+                    .leftJoin('comments c', `c.sale = t1.id AND c.user = ${me}`)
+                    .groupBy('t1.id').val(false) + ') t1')
+                .leftJoin('favorites fa', 'fa.sale = t1.id')
+                .groupBy('t1.id').val(false) + ') t1')
+            .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
+            .groupBy('t1.id').val(false) + ') q1')
+        .leftJoin('followers f', `f.following = q1.user AND f.follower IN (${myTrustList}) AND f.trust > -1`) // following haye ghabele etemade man ke in adam ro donbal kardan
+        .groupBy('q1.id')
+        .val();
+
     fs.writeFileSync('query.sql', query);
     db.query(query, (err, result) => {
         cb(err ? err : false, result ? result[0] : false);
@@ -301,11 +354,12 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
             't1.id',
             't1.mobile',
             't1.alias',
-            'SUM( IF(t2.follower = t1.id, 1, 0 ) ) AS following',
-            'SUM( IF(t2.following = t1.id, 1, 0 ) ) AS followers',
+            'SUM( IF(t2.follower = t1.id AND t2.follow = 1, 1, 0 ) ) AS following',
+            `SUM( IF(t2.follower = t1.id AND t2.trust >= 3 AND t2.following != ${me}, 1, 0 ) ) AS trusts`,
+            'SUM( IF(t2.following = t1.id AND t2.follow = 1, 1, 0 ) ) AS followers',
             `SUM( IF(t2.following = t1.id AND t2.follower = ${me}, 1, 0 ) ) AS i_follow`
         ], 'users t1')
-        .leftJoin('followers t2', '(t1.id = t2.follower OR t1.id = t2.following) AND t2.follow = 1')
+        .leftJoin('followers t2', '(t1.id = t2.follower OR t1.id = t2.following) ')
         .where(where)
         .groupBy('t1.id')
         .val(false);
@@ -421,7 +475,19 @@ const fetchFollow = (type = 'ers', id = 1, cb = new Function()) => {
             't2.id', 't2.mobile', 't2.alias'
         ], 'followers t1')
         .innerJoin('users t2', `t1.${field} = t2.id`)
-        .where(`t1.${field2} = ?`, [id]).val();
+        .where(`t1.${field2} = ${id} AND t1.follow = 1`).val();
+    db.query(query, (err, result) => {
+        cb(err ? err : false, result ? result : false);
+    });
+}
+module.exports.fetchTrusts = (id = 1, trustlvl = 3, cb = new Function()) => {
+    let query = qc.new().select([
+            't2.id', 't2.mobile', 't2.alias', 't1.trust'
+        ], 'followers t1')
+        .innerJoin('users t2', `t1.following = t2.id`)
+        .where(`t1.follower = ${id} AND t1.trust >= ${trustlvl} AND t1.follower != t1.following`)
+        .orderBy('trust', 'desc')
+        .val();
     db.query(query, (err, result) => {
         cb(err ? err : false, result ? result : false);
     });

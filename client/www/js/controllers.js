@@ -63,7 +63,7 @@ angular.module('app.controllers', [])
             $timeout(function() {
                 $rootScope.desided = true;
                 $rootScope.go(redirect);
-            }, 1000);
+            }, 1300);
             //$rootScope.loading(false);
         });
     })
@@ -113,6 +113,11 @@ angular.module('app.controllers', [])
                 $rootScope.loading(false);
             });
         }
+        $scope.logout = function() {
+            server.post('/logout').then(function() {
+                $rootScope.go('/login');
+            });
+        }
         $scope.fetch(false);
     })
     .controller('LoginCtrl', function($scope, $rootScope, server, funcs, $location) {
@@ -145,7 +150,7 @@ angular.module('app.controllers', [])
             });
         }
 
-        server.post('/logout');
+        //
 
     })
     .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams, $location) {
@@ -169,7 +174,37 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location) {
+    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location, contacts) {
+        if (!$rootScope.desided) {
+            $rootScope.go('/deside/' + btoa($location.$$path));
+            return;
+        }
+
+        $scope.items = [];
+        $scope.fetch = function() {
+            $rootScope.loading('دریافت لیست');
+            server.get('/users/' + $routeParams.id + '/following').then(function(res) {
+                err = res.data.error;
+                res = res.data.result;
+                $scope.items = res;
+                $rootScope.loading('دریافت مخاطبین');
+                contacts(function(list) {
+                    $rootScope.loading(false);
+                    $scope.contacts = list;
+                    if (list.length > 0) {
+                        $scope.$apply();
+                    }
+                });
+
+            });
+        }
+        $scope.searchbar = false;
+        $scope.search = function(text) {
+            alert(text);
+        }
+        $scope.fetch();
+    })
+    .controller('TrustsCtrl', function($scope, $rootScope, server, $routeParams, $location) {
         if (!$rootScope.desided) {
             $rootScope.go('/deside/' + btoa($location.$$path));
             return;
@@ -177,7 +212,7 @@ angular.module('app.controllers', [])
         $scope.items = [];
         $scope.fetch = function() {
             $rootScope.loading('در حال دریافت از سرور');
-            server.get('/users/' + $routeParams.id + '/following').then(function(res) {
+            server.get('/users/' + $routeParams.id + '/trusts').then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.items = res;

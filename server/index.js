@@ -192,6 +192,24 @@ app.get('/users/:id/following', (req, res) => {
         return;
     });
 });
+app.get('/users/:id/trusts', (req, res) => {
+    let id = req.params.id;
+    if (id == 'me') {
+        if (req.session == null) {
+            res.json({ error: true, result: 'Session Error!' });
+            return;
+        }
+        if (req.session.me === false) {
+            res.json({ error: true, result: 'Login First!' });
+            return;
+        }
+        id = req.session.me.id;
+    }
+    funcs.fetchTrusts(id, 0, (err, result) => {
+        res.json({ error: err, result: result });
+        return;
+    });
+});
 app.get('/users/:id/sales/:page?', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {

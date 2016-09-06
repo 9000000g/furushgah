@@ -9,16 +9,16 @@
     </div>
     <div>
         <ul class="list-group full-width">
-            <li class="list-group-item" ng-click="followToggle()">
+            <li class="list-group-item" ng-click="followToggle()" ng-hide="me.id == item.id">
                 <i class="glyphicon glyphicon-copy"></i> حضور در لیست من؟
                 <span class="badge baseline" ng-class="{'yellow': relation.follow == 1, 'gray': relation.follow != 1}"> 
                     {{ relation.follow == 1? 'بله': 'خیر'}}
                 </span>
             </li>
-            <li class="list-group-item" ng-click="trustModal = true">
+            <li class="list-group-item" ng-click="trustModal = true" ng-hide="me.id == item.id">
                 <i class="glyphicon glyphicon-star"></i> میزان اعتماد من
                 <span class="badge baseline yellow"> 
-                    <i class="glyphicon glyphicon-star" ng-repeat="i in [5,4,3,2,1]" ng-class="{'yellow': i <= relation.trust, 'gray': i > relation.trust}"></i>    
+                    <i class="glyphicon glyphicon-star" ng-repeat="i in [0,1,2,3,4,5]" ng-class="{'yellow': i <= relation.trust, 'gray': i > relation.trust, 'glyphicon-star': i >= 1, 'glyphicon-star-empty': i == 0}"></i>    
                 </span>
             </li>
             <li class="list-group-item" ng-click="go('users/'+item.id+'/followers')">
@@ -28,6 +28,10 @@
             <li class="list-group-item" ng-click="go('users/'+item.id+'/following')">
                 <i class="glyphicon glyphicon-copy"></i> تعداد افراد لیست
                 <span class="badge baseline" ng-bind="item.following"></span>
+            </li>
+            <li class="list-group-item" ng-click="go('users/'+item.id+'/trusts')">
+                <i class="glyphicon glyphicon-star"></i> تعداد افراد مورد اعتماد
+                <span class="badge baseline" ng-bind="item.trusts"></span>
             </li>
             <li class="list-group-item" ng-click="go('main/?user='+item.id)">
                 <i class="glyphicon glyphicon-ice-lolly-tasted"></i> تعداد محصولات
@@ -50,10 +54,11 @@
             </div>
             <div class="modal-body">
                 <div class="starline">
-                    <i ng-repeat="j in [1,2,3,4,5]" class="glyphicon glyphicon-star pointer" ng-class="{'yellow': j <= relation.trust, 'gray': j > relation.trust}" ng-click="trustChange(j)"></i>
+                    <i ng-repeat="j in [0,1,2,3,4,5]" class="glyphicon pointer" ng-class="{'yellow': j <= relation.trust, 'gray': j > relation.trust, 'glyphicon-star': j >= 1, 'glyphicon-star-empty': j == 0}" ng-click="trustChange(j)"></i>
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" ng-click="trustChange(-1)">نظری ندارم</button>
                 <button type="button" class="btn btn-default" ng-click="trustModal = false">بستن</button>
             </div>
         </div>

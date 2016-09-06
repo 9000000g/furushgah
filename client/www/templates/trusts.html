@@ -1,5 +1,5 @@
 <div class="nai-navbar">
-    <div class="title"> لیست {{item.alias}} </div>
+    <div class="title"> افراد مورد اعتماد {{item.alias}} </div>
     <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
     <button class="nai-nav-icon left glyphicon glyphicon-search" ng-click="searchbar = true"></button>
 </div>
@@ -8,14 +8,10 @@
 <div>
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="item in items" ng-click="go('users/'+item.id)">
-            <span class="badge monospace" ng-bind="item.mobile"></span> {{item.alias}}
-        </li>
-    </ul>
-    <hr>
-    <p>موارد پیشنهادی</p>
-    <ul class="list-group">
-        <li class="list-group-item" ng-repeat="item in contacts">
-            <span class="badge monospace" ng-bind="item.phone"></span> {{item.name}}
+            {{item.alias}}
+            <span class="badge baseline yellow"> 
+                <i class="glyphicon glyphicon-star" ng-repeat="i in [0,1,2,3,4,5]" ng-class="{'yellow': i <= item.trust, 'gray': i > item.trust, 'glyphicon-star': i >= 1, 'glyphicon-star-empty': i == 0}"></i>    
+            </span>
         </li>
     </ul>
 </div>

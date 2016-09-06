@@ -2,7 +2,7 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
     .config(function($routeProvider, localStorageServiceProvider) {
         $routeProvider
             .when('/deside', {
-                template: '',
+                templateUrl: 'templates/deside.html',
                 controller: 'DesideCtrl'
             })
             .when('/deside/:redirect', {
@@ -32,6 +32,10 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
             .when('/users/:id/following', {
                 templateUrl: 'templates/following.html',
                 controller: 'FollowingCtrl'
+            })
+            .when('/users/:id/trusts', {
+                templateUrl: 'templates/trusts.html',
+                controller: 'TrustsCtrl'
             })
             .when('/sales/new', {
                 templateUrl: 'templates/new-sale.html',
