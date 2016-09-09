@@ -277,6 +277,7 @@ angular.module('app.controllers', [])
             server.get('/users/' + $routeParams.id).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
+                $routeParams.id = res.id;
                 $scope.item = res;
                 server.get('/users/' + $routeParams.id + '/relation').then(function(res2) {
                     err2 = res2.data.error;

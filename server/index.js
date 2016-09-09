@@ -141,7 +141,7 @@ app.get('/users/:id', (req, res) => {
         id = req.session.me.id;
     }
     let me = req.session && req.session.me !== false ? req.session.me.id : null;
-    funcs.fetchUser((id.length < 5 ? 'id' : 'mobile'), { username: id }, me, (err, result) => {
+    funcs.fetchUser((id.toString().length < 5 ? 'id' : 'mobile'), { username: id }, me, (err, result) => {
         res.json({ error: err, result: result });
         return;
     });
