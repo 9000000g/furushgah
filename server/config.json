@@ -7,5 +7,6 @@
         "user": "nai",
         "password": "1qaz@WSX",
         "database": "furushgah"
-    }
+    },
+    "levelDb": "./followers"
 }

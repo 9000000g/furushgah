@@ -98,10 +98,6 @@ angular.module('app.controllers', [])
                 err = res.data.error;
                 res = res.data.result;
                 for (var i = 0; i < res.length; i++) {
-                    res[i].thumbnail = server.address + '/sales/' + res[i].id + '/thumbnail';
-                }
-
-                for (var i = 0; i < res.length; i++) {
                     $scope.items.push(res[i]);
                 }
                 if (res.length == 0) {

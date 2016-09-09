@@ -4,9 +4,17 @@ const fs = require('fs');
 const jimp = require('jimp')
 const config = require('../config.json');
 const db = mysql.createConnection(config.mysql);
+
+const level = require('level-browserify');
+const levelgraph = require('levelgraph');
+const levelDb = levelgraph(level(config.levelDb));
+
+
+
 db.connect();
 
 module.exports.db = db;
+module.exports.levelDb = levelDb;
 
 /*
     Utility
@@ -120,6 +128,180 @@ module.exports.query.timelineList = (id, trust) => {
         .groupBy('following');
 }
 
+
+module.exports.connectedList = (id, trust = false) => {
+    return new Promise((resolve, reject) => {
+        let query = qc.new()
+            .select('following AS user, trust', 'followers')
+            .where('follower = ? AND follow = 1 AND trust >= ? AND follower != following', [id, (trust ? 1 : -1)]).val();
+        db.query(query, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+module.exports.getNetworkList = (id, outputType = 0 /* 0: as network, 1 just as list, 2 as list with detail*/ , maxLevel = 5) => {
+    return new Promise((resolve, reject) => {
+        let ret = [];
+        let ret1 = [];
+
+        ret.length = maxLevel - 1;
+        let lvl = 0;
+
+
+        let jobz = [];
+        let doed = [];
+        let find = (user) => {
+            return jobz.indexOf(user) === -1 ? false : true;
+        }
+
+        let trusts = {};
+
+
+        let retSuggest = [];
+        let getSuggest = (user, list = []) => {
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].user == user) {
+                    return list[i];
+                } else {
+                    if (list[i].suggests.length > 0) {
+                        return getSuggest(user, list[i].suggests);
+                    }
+                }
+            }
+            return false;
+        }
+        retSuggest.push({
+            user: id,
+            trust: 5,
+            suggests: []
+        });
+
+
+        let retTrust = [];
+        let getTrust = (user) => {
+            for (let i = 0; i < retTrust.length; i++) {
+                if (retTrust[i].user == user) {
+                    return retTrust[i];
+                }
+            }
+            return false;
+        }
+
+        ret1.push(id);
+
+        retTrust.push({
+            user: id,
+            trusts: [5]
+        });
+
+        let next = (user, level = 0, suggestedBy = id) => {
+            if (!find(user) && level < maxLevel && (level == 0 || trusts[user] > 0)) {
+                jobz.push(user);
+                module.exports.connectedList(user, (level == 0 ? false : true)).then((list) => {
+                    ret[level] = typeof ret[level] == 'undefined' ? [] : ret[level];
+                    for (let i = 0; i < list.length; i++) {
+                        if (!find(list[i].user)) {
+                            ret[level].push({
+                                by: user,
+                                user: list[i].user,
+                                trust: list[i].trust
+                            });
+                            getSuggest(user, retSuggest).suggests.push({
+                                user: list[i].user,
+                                trust: list[i].trust,
+                                suggests: []
+                            });
+
+                            if (ret1.indexOf(list[i].user) === -1) {
+                                ret1.push(list[i].user);
+                            }
+                            if (typeof trusts[list[i].user] == 'undefined') {
+                                trusts[list[i].user] = [list[i].trust];
+                            } else {
+                                trusts[list[i].user].push(list[i].trust);
+                            }
+                            next(list[i].user, (level + 1), user);
+                        }
+                    }
+                    doed.push(user);
+                    if (doed.length == jobz.length) {
+                        if (outputType == 0) {
+                            resolve(ret);
+                        } else if (outputType == 1) {
+                            resolve(ret1);
+                        } else if (outputType == 2) {
+                            resolve(trusts);
+                        } else if (outputType == 3) {
+                            resolve(retSuggest);
+                        }
+                    }
+                }).catch((err) => {
+                    reject(err);
+                });;
+            }
+        }
+        next(id);
+    });
+}
+
+module.exports.rebuildLevelDb = (cb = new Function()) => {
+    let query = qc.new().select('*', 'followers')
+        .where('follow = 1 && follower != following')
+        .val();
+    db.query(query, (err, result) => {
+        let list = result.map((i) => {
+            return {
+                subject: i.follower,
+                object: i.following,
+                trust: i.trust
+            }
+        });
+        levelDb.del({}, () => {
+            levelDb.put(list, () => { cb(list) });
+        });
+    });
+}
+module.exports.getNetwork = (user, maxLevel = 5) => {
+    let getLevel = (user, level) => {
+        return new Promise((resolve, reject) => {
+            let search = [];
+            for (let i = 0; i < level; i++) {
+                search.push({
+                    subject: levelDb.v(i),
+                    object: levelDb.v((i + 1))
+                });
+            }
+            search[0].filter = obj => obj.subject == user && !(level > 1 && obj.trust < 1);
+            levelDb.search(search, (error, results) => {
+                resolve(Object.keys(results).map(i =>
+                    Object.keys(results[i]).map(j =>
+                        results[i][j]
+                    )
+                ));
+            });
+        });
+    }
+    return new Promise((resolve, reject) => {
+        let ret = [];
+        let getLevels = function(i = 1) {
+            if (i > maxLevel) {
+                resolve(ret);
+            } else {
+                getLevel(user, i).then((lvlX) => {
+                    ret = ret.concat(lvlX);
+                    getLevels(i + 1);
+                });
+            }
+        }
+        getLevels(1);
+
+    });
+}
 
 module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;

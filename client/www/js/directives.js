@@ -10,6 +10,7 @@ angular.module('app.directives', [])
             },
             link: function(scope, element) {
                 scope.details = typeof scope.details == 'boolean' ? scope.details : false;
+                scope.item.thumbnail = server.address + '/sales/' + scope.item.id + '/thumbnail';
                 scope.inputs = {};
                 scope._dropdown = false;
                 scope.dropdown = function() {

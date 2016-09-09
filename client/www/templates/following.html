@@ -14,7 +14,7 @@
     <hr>
     <p>موارد پیشنهادی</p>
     <ul class="list-group">
-        <li class="list-group-item" ng-repeat="item in contacts">
+        <li class="list-group-item" ng-repeat="item in contacts" ng-click="go('users/'+item.phone)">
             <span class="badge monospace" ng-bind="item.phone"></span> {{item.name}}
         </li>
     </ul>
