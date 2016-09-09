@@ -50,12 +50,9 @@ app.get('/file/:name', (req, res) => {
     res.end(content, 'file');
 });
 app.post('/login', (req, res) => {
+    req.session.me = false;
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me !== false) {
-        res.json({ error: true, result: 'Logout First!' });
         return;
     }
     if (!req.body.username ||
@@ -141,6 +138,7 @@ app.get('/users/:id', (req, res) => {
         id = req.session.me.id;
     }
     let me = req.session && req.session.me !== false ? req.session.me.id : null;
+    console.log((id.toString().length < 5 ? 'id' : 'mobile'));
     funcs.fetchUser((id.toString().length < 5 ? 'id' : 'mobile'), { username: id }, me, (err, result) => {
         res.json({ error: err, result: result });
         return;
