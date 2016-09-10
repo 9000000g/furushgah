@@ -35,7 +35,6 @@ app.use(function(req, res, next) {
 });
 app.post('/file', upload.single('file'), (req, res) => {
     let newPath = `${__dirname}/uploads/${funcs.uniqueName()}.jpg`;
-    //console.log(req.file);
     res.json({ error: true, result: req.file.path });
 
 });
@@ -94,8 +93,8 @@ app.get('/timeline/:page?', (req, res) => {
     }
     let page = req.params.page ? req.params.page : 1;
     setTimeout(function() {
-        funcs.fetchTimeline(req.session.me.id, page, (err, result) => {
-            res.json({ error: err, result: result });
+        funcs.fetchTimeline(req.session.me.id, page).then((result) => {
+            res.json({ error: false, result: result });
             return;
         });
     }, 1000);
@@ -111,19 +110,15 @@ app.get('/sales/search/:page?', (req, res) => {
         return;
     }
     let page = req.params.page ? req.params.page : 1;
-    if (typeof req.query.user == 'undefined') {
-        funcs.fetchTimeline(req.session.me.id, page, (err, result) => {
-            res.json({ error: err, result: result });
-            return;
-        });
-    } else {
-        funcs.searchSales(req.query, page, (err, result) => {
-            res.json({ error: err, result: result });
-            return;
-        });
-    }
+    req.query.timeline = typeof req.query.timeline == 'undefined' ? false : (req.query.timeline == '0' ? false : true);
+    funcs.searchSales(req.query, req.session.me.id, page).then((result) => {
+        res.json({ error: false, result: result });
+        return;
+    }).catch((err) => {
+        console.log(err);
+        res.json({ error: true, result: err });
+    });
 });
-
 app.get('/users/:id', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {
@@ -138,7 +133,6 @@ app.get('/users/:id', (req, res) => {
         id = req.session.me.id;
     }
     let me = req.session && req.session.me !== false ? req.session.me.id : null;
-    console.log((id.toString().length < 5 ? 'id' : 'mobile'));
     funcs.fetchUser((id.toString().length < 5 ? 'id' : 'mobile'), { username: id }, me, (err, result) => {
         res.json({ error: err, result: result });
         return;
@@ -290,7 +284,7 @@ app.post('/users/:id/relation', (req, res) => {
 });
 
 
-app.get('/users/:id/network/:type', (req, res) => {
+app.get('/users/:id/network', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {
         if (req.session == null) {
@@ -304,13 +298,49 @@ app.get('/users/:id/network/:type', (req, res) => {
         id = req.session.me.id;
     }
 
-    funcs.getNetworkList(parseInt(id), req.params.type, 5).then((result) => {
+    funcs.getNetworkList(parseInt(id)).then((result) => {
         res.json({ error: false, result: result });
         return;
     });
 });
+app.get('/users/:id/network/:id2', (req, res) => {
+    let id = req.params.id;
+    if (id == 'me') {
+        if (req.session == null) {
+            res.json({ error: true, result: 'Session Error!' });
+            return;
+        }
+        if (req.session.me === false) {
+            res.json({ error: true, result: 'Login First!' });
+            return;
+        }
+        id = req.session.me.id;
+    }
 
+    funcs.getNetworkList(parseInt(id)).then((result) => {
+        res.json({ error: false, result: result });
+        return;
+    });
+});
+app.get('/users/:id/trust/:id2', (req, res) => {
+    let id = req.params.id;
+    if (id == 'me') {
+        if (req.session == null) {
+            res.json({ error: true, result: 'Session Error!' });
+            return;
+        }
+        if (req.session.me === false) {
+            res.json({ error: true, result: 'Login First!' });
+            return;
+        }
+        id = req.session.me.id;
+    }
 
+    funcs.getTrust(id, req.params.id2).then((result) => {
+        res.json({ error: false, result: result });
+        return;
+    });
+});
 app.post('/users/:id/follow', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -378,8 +408,8 @@ app.post('/sales/new', upload.array(), (req, res) => {
 app.get('/sales/:id', (req, res) => {
     let id = req.params.id;
     let me = req.session.me !== false ? req.session.me.id : null;
-    funcs.fetchSale(id, me, (err, result) => {
-        res.json({ error: err, result: result });
+    funcs.fetchSale(id, me).then((result) => {
+        res.json({ error: false, result: result });
         return;
     });
 });
@@ -442,10 +472,7 @@ app.post('/sales/:id/delete', (req, res) => {
     }
     let me = req.session.me !== false ? req.session.me.id : null;
     let id = req.params.id;
-    funcs.fetchSale(id, me, (err, result) => {
-        if (err) {
-            res.json({ error: err, result: result });
-        }
+    funcs.fetchSale(id, me, false).then((result) => {
         if (result.user != req.session.me.id) {
             res.json({ error: true, result: 'Not Allowed!' });
             return;

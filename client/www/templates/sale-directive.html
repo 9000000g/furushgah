@@ -3,13 +3,14 @@
         <div class="panel-heading ">
             <div class="cell text-right ">
                 <span class="caption">
-                    
-					<a ng-click="$root.go( 'users/'+itemF.user) " class="caption text "><i class="glyphicon glyphicon-user"></i> {{ itemF.user_alias }} </a> <span class="badge monospace">{{itemF.trust_sum+'+'}}</span> <br/>
-                <span class="caption text rtl">{{ itemF.title }}</span>
+					<a ng-click="$root.go( 'users/'+itemF.user) " class="caption text "><i class="glyphicon glyphicon-user"></i> {{ itemF.user_alias }} </a>
+                    <br/><span class="caption text rtl">{{ itemF.title }}</span>
                 </span>
             </div>
-            <div class="cell text-left" ng-if="item.connection_type && item.connection_type == 'fof' && false">
-                <span class="caption text label label-info"> دنبال شده توسط {{item.connections}} آشنا </span>
+            <div class="cell text-left">
+                <span class="badge monospace" ng-class="{'yellow': itemF.trust_direct}">
+                    {{itemF.trust}}<i class="glyphicon glyphicon-star"></i> 
+                </span>
             </div>
 
 
@@ -50,7 +51,7 @@
         <div style="clear: both;"></div>
         <div class="panel-footer text-align-center ">
             <span ng-click="favoriteToggle()" class="btn btn-sm btn-link col-xs-6 text-center" ng-class="{ 'red': itemF.i_favorite} ">
-                <span class="glyphicon glyphicon-star "></span> <span class="monospace "> {{itemF.favorites_count}} </span>
+                <span class="glyphicon glyphicon-thumbs-up "></span> <span class="monospace "> {{itemF.favorites_count}} </span>
             </span>
             <span ng-click="$root.go( 'sales/'+itemF.id)" class="btn btn-sm btn-link col-xs-6 text-center">
                 <span class="glyphicon glyphicon-comment "></span> <span class="monospace "> {{itemF.comments_count}} </span>

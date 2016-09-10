@@ -87,8 +87,17 @@ angular.module('app.controllers', [])
                 $scope.currentPage = 1;
             }
             var queryParams = '?';
+            var and = '';
             if (typeof $routeParams.user != 'undefined') {
-                queryParams += 'user=' + $routeParams.user;
+                queryParams += and + 'user=' + $routeParams.user;
+                and = '&';
+            }
+            if (typeof $routeParams.timeline == 'undefined') {
+                queryParams += and + 'timeline=1';
+                and = '&';
+            } else {
+                queryParams += and + 'timeline=' + $routeParams.timeline;
+                and = '&';
             }
             if (queryParams == '?') {
                 queryParams = '';
@@ -115,6 +124,34 @@ angular.module('app.controllers', [])
             });
         }
         $scope.fetch(false);
+    })
+    .controller('SearchCtrl', function($scope, $rootScope, server, $routeParams, $timeout, $location) {
+        if (!$rootScope.desided) {
+            $rootScope.go('/deside/' + btoa($location.$$path));
+            return;
+        }
+        $scope.inputs = {};
+        $scope.submit = function() {
+            var redirect = '/main';
+            var start = '?';
+            var and = '';
+            if (!$scope.inputs.timeline) {
+                redirect += start + and + 'timeline=0';
+                start = '';
+                and = '&';
+            } else {
+                redirect += start + and + 'timeline=1';
+                start = '';
+                and = '&';
+            }
+            if ($scope.inputs.text) {
+                redirect += start + and + 'text=' + encodeURIComponent($scope.inputs.text);
+                start = '';
+                and = '&';
+            }
+            $rootScope.go(redirect);
+        }
+
     })
     .controller('LoginCtrl', function($scope, $rootScope, server, funcs, $location) {
         if (!$rootScope.desided) {
@@ -343,20 +380,21 @@ angular.module('app.controllers', [])
             });
         }
     })
-    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams, $location) {
+    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams, $location, funcs) {
         if (!$rootScope.desided) {
             $rootScope.go('/deside/' + btoa($location.$$path));
             return;
         }
         $scope.inputs = {};
         $scope.checkForm = function() {
-            if (!$scope.inputs.username ||
-                funcs.parsePhone($scope.inputs.mobile) === false ||
+            if (!$scope.inputs.mobile ||
+                funcs.parsePhone($scope.inputs.mobile || '') === false ||
                 !$scope.inputs.password ||
                 $scope.inputs.password.length < 6 ||
-                !$scope.alias ||
-                $scope.alias.length < 4
+                !$scope.inputs.alias ||
+                $scope.inputs.alias.length < 3
             ) return false;
+            $scope.inputs.mobile = funcs.parsePhone($scope.inputs.mobile);
             return true;
         }
         $scope.submit = function() {

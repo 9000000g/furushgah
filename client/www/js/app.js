@@ -41,6 +41,10 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
                 templateUrl: 'templates/new-sale.html',
                 controller: 'NewSaleCtrl'
             })
+            .when('/sales/search', {
+                templateUrl: 'templates/search.html',
+                controller: 'SearchCtrl'
+            })
             .when('/sales/:id', {
                 templateUrl: 'templates/sale.html',
                 controller: 'SaleCtrl'

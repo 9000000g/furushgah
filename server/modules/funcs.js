@@ -144,12 +144,11 @@ module.exports.connectedList = (id, trust = false) => {
     });
 }
 
-module.exports.getNetworkList = (id, outputType = 0 /* 0: as network, 1 just as list, 2 as list with detail*/ , maxLevel = 5) => {
+module.exports.getNetworkList = (id, outputType = 2 /* 0: as network, 1 just as list, 2 as list with detail*/ , maxLevel = 5) => {
     return new Promise((resolve, reject) => {
         let ret = [];
         let ret1 = [];
 
-        ret.length = maxLevel - 1;
         let lvl = 0;
 
 
@@ -181,32 +180,15 @@ module.exports.getNetworkList = (id, outputType = 0 /* 0: as network, 1 just as 
             suggests: []
         });
 
-
-        let retTrust = [];
-        let getTrust = (user) => {
-            for (let i = 0; i < retTrust.length; i++) {
-                if (retTrust[i].user == user) {
-                    return retTrust[i];
-                }
-            }
-            return false;
-        }
-
         ret1.push(id);
-
-        retTrust.push({
-            user: id,
-            trusts: [5]
-        });
 
         let next = (user, level = 0, suggestedBy = id) => {
             if (!find(user) && level < maxLevel && (level == 0 || trusts[user] > 0)) {
                 jobz.push(user);
                 module.exports.connectedList(user, (level == 0 ? false : true)).then((list) => {
-                    ret[level] = typeof ret[level] == 'undefined' ? [] : ret[level];
                     for (let i = 0; i < list.length; i++) {
                         if (!find(list[i].user)) {
-                            ret[level].push({
+                            ret.push({
                                 by: user,
                                 user: list[i].user,
                                 trust: list[i].trust
@@ -235,8 +217,6 @@ module.exports.getNetworkList = (id, outputType = 0 /* 0: as network, 1 just as 
                         } else if (outputType == 1) {
                             resolve(ret1);
                         } else if (outputType == 2) {
-                            resolve(trusts);
-                        } else if (outputType == 3) {
                             resolve(retSuggest);
                         }
                     }
@@ -249,77 +229,139 @@ module.exports.getNetworkList = (id, outputType = 0 /* 0: as network, 1 just as 
     });
 }
 
-module.exports.rebuildLevelDb = (cb = new Function()) => {
-    let query = qc.new().select('*', 'followers')
-        .where('follow = 1 && follower != following')
-        .val();
-    db.query(query, (err, result) => {
-        let list = result.map((i) => {
-            return {
-                subject: i.follower,
-                object: i.following,
-                trust: i.trust
+module.exports.getTrust = (id1, id2, detail = false) => {
+    return new Promise((resolve, reject) => {
+        if (id1 == id2) {
+            resolve(
+                detail ? {
+                    direct: false,
+                    value: 5
+                } : 5
+            );
+        }
+        let query = qc.new().select('trust', 'followers').where('follower = ? AND following = ?', [id1, id2]).val();
+        db.query(query, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (result.length == 1) {
+                    resolve(
+                        detail ? {
+                            direct: true,
+                            value: result[0].trust
+                        } : result[0].trust
+                    );
+                } else {
+                    let network = [];
+                    let direct = true;
+                    let _getTrusts = (id) => {
+                        let list = [];
+                        let _ = (id_) => {
+                            for (let i = 0; i < network.length; i++) {
+                                if (network[i].user == id_) {
+                                    list.push(network[i].trust);
+                                    if (network[i].by != id1) {
+                                        direct = false;
+                                        _(network[i].by);
+                                    }
+                                }
+                            }
+                            return list;
+                        }
+                        return _(id);
+                    }
+
+                    module.exports.getNetworkList(id1, 0).then((list) => {
+                        network = list;
+                        let trusts = _getTrusts(id2);
+                        trusts = trusts.length == 0 ? [0] : trusts;
+                        let ret = Math.min(...trusts);
+                        ret = ret != null ? ret : 0;
+                        resolve(
+                            detail ? {
+                                direct: direct,
+                                value: ret
+                            } : ret
+                        );
+                    });
+                }
             }
-        });
-        levelDb.del({}, () => {
-            levelDb.put(list, () => { cb(list) });
         });
     });
 }
-module.exports.getNetwork = (user, maxLevel = 5) => {
-    let getLevel = (user, level) => {
-        return new Promise((resolve, reject) => {
-            let search = [];
-            for (let i = 0; i < level; i++) {
-                search.push({
-                    subject: levelDb.v(i),
-                    object: levelDb.v((i + 1))
-                });
+
+module.exports.getNetwork = (id1, id2) => {
+    let ret = [];
+    ret.push(id1);
+    return new Promise((resolve, reject) => {
+        if (id1 == id2) {
+            resolve(
+                detail ? {
+                    direct: false,
+                    value: 5
+                } : 5
+            );
+        }
+        let network = [];
+        let _getTrusts = (id) => {
+            let list = [];
+            let _ = (id_) => {
+                for (let i = 0; i < network.length; i++) {
+                    if (network[i].user == id_) {
+                        list.push(network[i].user);
+                        if (network[i].by != id1) {
+                            _(network[i].by);
+                        }
+                    }
+                }
+                return list;
             }
-            search[0].filter = obj => obj.subject == user && !(level > 1 && obj.trust < 1);
-            levelDb.search(search, (error, results) => {
-                resolve(Object.keys(results).map(i =>
-                    Object.keys(results[i]).map(j =>
-                        results[i][j]
-                    )
-                ));
+            return _(id);
+        }
+
+        module.exports.getNetworkList(id1, 0).then((list) => {
+            network = list;
+            let trusts = _getTrusts(id2);
+            trusts = trusts.length == 0 ? [0] : trusts;
+            let ret = Math.min(...trusts);
+            ret = ret != null ? ret : 0;
+            resolve(
+                detail ? {
+                    direct: direct,
+                    value: ret
+                } : ret
+            );
+        });
+    });
+}
+
+
+module.exports.fetchTimeline = (id = 1, page = 1) => {
+    return new Promise((resolve, reject) => {
+        let limit = 8;
+        let limitStart = limit * page - limit;
+        // liste kasayi ke man hade aghal 2 ta beheshun etemad daram va donbaleshun kardam
+        module.exports.getNetworkList(id, 1).then((myTimelineList) => {
+            let query = qc.new().select([
+                    '*'
+                ], 'sales')
+                .where(`user IN( ${myTimelineList.join()} )`)
+                .groupBy('id')
+                .orderBy('date', 'desc')
+                .limit(limitStart, limit)
+                .val();
+            db.query(query, (err, result) => {
+                if (!err) {
+                    resolve(result);
+                } else {
+                    reject(err);
+                }
             });
         });
-    }
-    return new Promise((resolve, reject) => {
-        let ret = [];
-        let getLevels = function(i = 1) {
-            if (i > maxLevel) {
-                resolve(ret);
-            } else {
-                getLevel(user, i).then((lvlX) => {
-                    ret = ret.concat(lvlX);
-                    getLevels(i + 1);
-                });
-            }
-        }
-        getLevels(1);
+
 
     });
-}
 
-module.exports.fetchTimeline = (id = 1, page = 1, cb = new Function()) => {
-    let limit = 8;
-    let limitStart = limit * page - limit;
-    // liste kasayi ke man hade aghal 2 ta beheshun etemad daram va donbaleshun kardam
-    let myTimelineList = module.exports.query.timelineList(id, 3).val(false);
-
-    let query = qc.new().select([
-            '*'
-        ], 'sales')
-        .where(`user IN( ${myTimelineList})`)
-        .groupBy('id')
-        .orderBy('date', 'desc')
-        .limit(limitStart, limit)
-        .val();
-    db.query(query, (err, result) => {
-        cb(err ? err : false, result ? result : false);
-    });
 }
 module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;
@@ -334,65 +376,51 @@ module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
         cb(err ? err : false, result ? result : false);
     });
 }
-module.exports.searchSales = (data = {}, page = 1, cb = new Function()) => {
-    let where = '';
-    let and = '';
-    if (data.user) {
-        where += `${and} user = '${data.user}'`;
-        and = 'AND';
-    }
+module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) => {
+    return new Promise((resolve, reject) => {
 
-    let limit = 8;
-    let limitStart = limit * page - limit;
 
-    let query = qc.new().select('*', 'sales')
-        .where(where)
-        .orderBy('date', 'desc')
-        .limit(limitStart, limit)
-        .val();
-    db.query(query, (err, result) => {
-        cb(err ? err : false, result ? result : false);
+        let limit = 8;
+        let limitStart = limit * page - limit;
+        let where = 'TRUE';
+        let startQuery = (where) => {
+            let query = qc.new().select('*', 'sales')
+                .where(where)
+                .orderBy('date', 'desc')
+                .limit(limitStart, limit)
+                .val();
+            db.query(query, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        }
+
+
+        if (data.user) {
+            where += ` AND user = '${data.user}'`;
+        }
+        if (data.text) {
+            where += ` AND body LIKE '%${data.text.split(' ').join('%')}%'`;
+        }
+        if (data.timeline) {
+            module.exports.getNetworkList(me, 1).then((myTimelineList) => {
+                where += ` AND user IN(${myTimelineList.join()})`;
+                startQuery(where);
+            });
+        } else {
+            startQuery(where);
+        }
+
+
     });
 }
-module.exports.fetchSale = (id = 1, me = 0, cb = new Function()) => {
-    let Oldquery = qc.new().select([
-                't1.*',
-                'COUNT(fa.id) AS i_favorite'
-            ], '(' +
-            qc.new().select([
-                    't1.*',
-                    'COUNT(fa.id) AS favorites_count'
-                ], '(' +
-                qc.new().select([
-                        't1.*',
-                        'COUNT(c.id) AS i_comment'
-                    ], '(' +
-                    qc.new().select([
-                            't1.*',
-                            'COUNT(c.id) AS comments_count'
-                        ], '(' +
-                        qc.new().select([
-                            's.*',
-                            'u.alias AS user_alias'
-                        ], 'sales s')
-                        .innerJoin('users u', 's.user = u.id')
-                        .where(`s.id = ${id}`)
-                        .groupBy('s.id').val(false) + ') t1')
-                    .leftJoin('comments c', 'c.sale = t1.id')
-                    .groupBy('t1.id').val(false) + ') t1')
-                .leftJoin('comments c', `c.sale = t1.id AND c.user = ${me}`)
-                .groupBy('t1.id').val(false) + ') t1')
-            .leftJoin('favorites fa', 'fa.sale = t1.id')
-            .groupBy('t1.id').val(false) + ') t1')
-        .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
-        .groupBy('t1.id')
-        .val();
-    let myTrustList = module.exports.query.trustedLvl(me, 3).val(false);
-
-    let query = qc.new().select([
-                'q1.*',
-                'SUM( IF( f.follower != q1.user, f.trust, 0 ) ) AS trust_sum'
-            ], '(' + qc.new().select([
+module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
+    let query;
+    if (getDetail) {
+        query = qc.new().select([
                     't1.*',
                     'COUNT(fa.id) AS i_favorite'
                 ], '(' +
@@ -422,15 +450,34 @@ module.exports.fetchSale = (id = 1, me = 0, cb = new Function()) => {
                 .leftJoin('favorites fa', 'fa.sale = t1.id')
                 .groupBy('t1.id').val(false) + ') t1')
             .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
-            .groupBy('t1.id').val(false) + ') q1')
-        .leftJoin('followers f', `f.following = q1.user AND f.follower IN (${myTrustList}) AND f.trust > -1`) // following haye ghabele etemade man ke in adam ro donbal kardan
-        .groupBy('q1.id')
-        .val();
+            .groupBy('t1.id')
+            .val();
+    } else {
+        query = qc.new().select('*', 'sales')
+            .where(`id = ${id}`)
+            .val();
+    }
+    //fs.writeFileSync('query.sql', query);
+    return new Promise((resolve, reject) => {
+        db.query(query, (err, result) => {
+            if (result.length == 0 || err) {
+                resolve({});
+                return;
+            }
+            let sale = result[0];
+            if (!getDetail) {
+                resolve(sale);
+            } else {
+                module.exports.getTrust(me, sale.user, true).then((trust) => {
+                    sale.trust_direct = trust.direct;
+                    sale.trust = trust.value;
+                    resolve(sale);
+                });
+            }
 
-    fs.writeFileSync('query.sql', query);
-    db.query(query, (err, result) => {
-        cb(err ? err : false, result ? result[0] : false);
+        });
     });
+
 }
 module.exports.newSale = (data = {}, cb = new Function()) => {
     let query = qc.new().insert('sales', data).val();
