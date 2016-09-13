@@ -32,9 +32,8 @@
     </ul>
 </sidebar>
 
-<div ng-swipe-right="sidebar = true" ng-swipe-left="sidebar = false" class="nai-page-container">
+<div ng-swipe-right="sidebar = true" ng-swipe-left="sidebar = false" class="nai-page-container" scroll-end="fetch(true)">
     <div class="half-width inline-block" ng-repeat="item in items">
         <sale-directive details="false" item="item"></sale-directive>
     </div>
-    <button class="btn btn-link slide-top" ng-click="fetch(true)" ng-if="btnVisible"> بیش‌تر... </button>
 </div>

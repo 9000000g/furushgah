@@ -67,7 +67,7 @@ angular.module('app.controllers', [])
             //$rootScope.loading(false);
         });
     })
-    .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location) {
+    .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location, $window) {
         if (!$rootScope.desided) {
             $rootScope.go('/deside/' + btoa($location.$$path));
             return;
@@ -78,8 +78,12 @@ angular.module('app.controllers', [])
         $scope.currentPage = 1;
         $scope.btnVisible = false;
         $scope.fetch = function(next) {
-            $rootScope.loading('در حال دریافت از سرور');
             next = typeof next == 'undefined' ? false : next;
+            if (next && !$scope.btnVisible) {
+                return;
+            }
+            $rootScope.loading('در حال دریافت از سرور');
+
             if (next) {
                 $scope.currentPage++;
             } else {
@@ -118,6 +122,16 @@ angular.module('app.controllers', [])
                 $rootScope.loading(false);
             });
         }
+        elem = angular.element(document.querySelectorAll('body')[0]);
+        elem.bind('scroll', function() {
+            var raw = elem[0];
+            console.log('sc');
+            if (raw.scrollTop == (raw.scrollHeight - raw.offsetHeight)) {
+                //scope.$apply(attrs.tfScrollEnd);
+                console.log('end');
+            }
+        });
+
         $scope.logout = function() {
             server.post('/logout').then(function() {
                 $rootScope.go('/login');
