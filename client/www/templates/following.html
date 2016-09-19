@@ -1,21 +1,26 @@
-<div class="nai-navbar">
-    <div class="title"> لیست {{item.alias}} </div>
-    <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-    <button class="nai-nav-icon left glyphicon glyphicon-search" ng-click="searchbar = true"></button>
-</div>
-<searchbar open="searchbar" callback="search($text)"></searchbar>
+<nav class="tf-navbar">
+    <section class="icon">
+        <i class="glyphicon glyphicon-exclamation-sign"></i>
+    </section>
+    <section class="title">
+        <h4>لیست</h4>
+        <p> {{item.alias}} </p>
+    </section>
+    <section class="icon button" tf-go="back">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+    </section>
+</nav>
 
-<div>
-    <ul class="list-group">
-        <li class="list-group-item" ng-repeat="item in items" ng-click="go('users/'+item.id)">
-            <span class="badge monospace" ng-bind="item.mobile"></span> {{item.alias}}
+<div class="tf-container">
+    <ul class=" list-group ">
+        <li class="list-group-item " ng-repeat="item in items " ng-click="go( 'users/'+item.id) ">
+            <span class="badge monospace " ng-bind="item.mobile "></span> {{item.alias}}
         </li>
     </ul>
-    <hr>
-    <p>موارد پیشنهادی</p>
-    <ul class="list-group">
-        <li class="list-group-item" ng-repeat="item in contacts" ng-click="go('users/'+item.phone)">
-            <span class="badge monospace" ng-bind="item.phone"></span> {{item.name}}
+    <p class="col-xs-12">موارد پیشنهادی:</p>
+    <ul class="list-group ">
+        <li class="list-group-item " ng-repeat="item in contacts " ng-click="go( 'users/'+item.phone) ">
+            <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
         </li>
     </ul>
 </div>

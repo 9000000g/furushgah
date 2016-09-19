@@ -1,9 +1,15 @@
-<div class="nai-navbar">
-    <div class="title"> </div>
-    <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-</div>
-<div>
-    <div class="profile" ng-click="go('/users/'+item.id)">
+<nav class="tf-navbar">
+    <section class="icon">
+        <i class="glyphicon glyphicon-exclamation-sign"></i>
+    </section>
+    <section class="title">
+    </section>
+    <section class="icon button" tf-go="back">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+    </section>
+</nav>
+<div class="tf-container">
+    <div class="profile" tf-go="/users/{{item.id}}">
         <i class="glyphicon glyphicon-user"></i><br>
         <h5> {{ item.alias }} </h5>
     </div>
@@ -21,19 +27,27 @@
                     <i class="glyphicon glyphicon-star" ng-repeat="i in [0,1,2,3,4,5]" ng-class="{'yellow': i <= relation.trust, 'gray': i > relation.trust, 'glyphicon-star': i >= 1, 'glyphicon-star-empty': i == 0}"></i>    
                 </span>
             </li>
-            <li class="list-group-item" ng-click="go('users/'+item.id+'/followers')">
+            <li class="list-group-item" ng-show="item.trust_direct == false">
+                <i class="glyphicon glyphicon-star"></i> نحوه آشنایی
+                <span class="badge baseline">
+                    <span ng-repeat="st in item.trust_network">
+                        {{ st.user + '(' + st.trust + ')'}}
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item" tf-go="/users/{{item.id}}/followers">
                 <i class="glyphicon glyphicon-paste"></i> تعداد دنبال‌کنندگان
                 <span class="badge baseline" ng-bind="item.followers"></span>
             </li>
-            <li class="list-group-item" ng-click="go('users/'+item.id+'/following')">
+            <li class="list-group-item" tf-go="/users/{{item.id}}/following">
                 <i class="glyphicon glyphicon-copy"></i> تعداد افراد لیست
                 <span class="badge baseline" ng-bind="item.following"></span>
             </li>
-            <li class="list-group-item" ng-click="go('users/'+item.id+'/trusts')">
+            <li class="list-group-item" tf-go="/users/{{item.id}}/trusts">
                 <i class="glyphicon glyphicon-star"></i> تعداد افراد مورد اعتماد
                 <span class="badge baseline" ng-bind="item.trusts"></span>
             </li>
-            <li class="list-group-item" ng-click="go('main/?user='+item.id)">
+            <li class="list-group-item" tf-go="/main?user={{item.id}}">
                 <i class="glyphicon glyphicon-ice-lolly-tasted"></i> تعداد محصولات
                 <span class="badge baseline" ng-bind="item.sales_count"></span>
             </li>

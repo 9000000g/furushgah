@@ -7,7 +7,13 @@ const path = require('path');
 //const io = require('socket.io')(http);
 //const ss = require('socket.io-stream');
 const multer = require('multer');
-const upload = multer({ dest: `${__dirname}/tmp/` });
+const upload = multer({
+    dest: `${__dirname}/tmp/`,
+    limits: {
+        fieldNameSize: 999999999,
+        fieldSize: 999999999
+    }
+});
 const jimp = require('jimp')
 const glob = require("glob");
 const ses = require('se-session');
@@ -18,8 +24,8 @@ const config = require('./config.json');
 //io.use(ses.io());
 app.use(ses.express({ required: false }));
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.listen(config.server.port);
 let me = false;
 
@@ -110,7 +116,7 @@ app.get('/sales/search/:page?', (req, res) => {
         return;
     }
     let page = req.params.page ? req.params.page : 1;
-    req.query.timeline = typeof req.query.timeline == 'undefined' ? false : (req.query.timeline == '0' ? false : true);
+    req.query.timeline = typeof req.query.timeline == 'undefined' ? true : (req.query.timeline == 'true' ? true : false);
     funcs.searchSales(req.query, req.session.me.id, page).then((result) => {
         res.json({ error: false, result: result });
         return;
@@ -374,6 +380,7 @@ app.post('/users/:id/unfollow', (req, res) => {
     });
 });
 app.post('/sales/new', upload.array(), (req, res) => {
+    //console.log(req.body)
     //thumbnail, 
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -397,6 +404,7 @@ app.post('/sales/new', upload.array(), (req, res) => {
     let b64 = req.body.thumbnail;
     delete req.body.thumbnail;
     funcs.newSale(req.body, (err, result) => {
+        console.log(err, result);
         let path = `${__dirname}/uploads/thumb-${result.insertId}.jpg`;
         funcs.b64toFile(b64, path).then(() => {
             res.json({ error: false, result: true });

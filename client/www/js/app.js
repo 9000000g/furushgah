@@ -1,14 +1,6 @@
-angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.controllers'])
-    .config(function($routeProvider, localStorageServiceProvider) {
+angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.controllers'])
+    .config(function($routeProvider) {
         $routeProvider
-            .when('/deside', {
-                templateUrl: 'templates/deside.html',
-                controller: 'DesideCtrl'
-            })
-            .when('/deside/:redirect', {
-                templateUrl: 'templates/deside.html',
-                controller: 'DesideCtrl'
-            })
             .when('/login', {
                 templateUrl: 'templates/login.html',
                 controller: 'LoginCtrl'
@@ -17,7 +9,17 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
                 templateUrl: 'templates/main.html',
                 controller: 'MainCtrl'
             })
-            .when('/users/new', {
+            .when('/main/user/:user', {
+                templateUrl: 'templates/main.html',
+                controller: 'MainCtrl'
+            })
+            .when('/main/text/:text/timeline/:timeline', {
+                templateUrl: 'templates/main.html',
+                controller: 'MainCtrl'
+            })
+
+
+        .when('/users/new', {
                 templateUrl: 'templates/new-user.html',
                 controller: 'NewUserCtrl'
             })
@@ -58,8 +60,6 @@ angular.module('app', ['ngNaiFramework', 'app.services', 'app.directives', 'app.
                 controller: 'RelativesCtrl'
             })
             .otherwise({
-                redirectTo: '/deside'
+                redirectTo: '/main'
             });
-
-        localStorageServiceProvider.setPrefix('CarPC');
     })

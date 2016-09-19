@@ -30,6 +30,7 @@ angular.module('app.services', [])
     })
     .filter('pDate', function() {
         return function(dt) {
+            return dt;
             var ret = moment(dt).format('jD jMMMM jYY');
             ret = ret
                 .replace('Farvardin', 'فروردین')

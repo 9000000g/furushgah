@@ -16,9 +16,7 @@ angular.module('app.directives', [])
                 scope.dropdown = function() {
                     scope._dropdown = !scope._dropdown;
                 }
-                element.bind('click', function(e) {
-                    angular.element(e.target).siblings('#upload').trigger('click');
-                });
+
                 angular.element(document).bind('click', function(event) {
                     var isClickedElementChildOfPopup = element
                         .find(event.target)

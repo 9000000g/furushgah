@@ -1,16 +1,8 @@
 angular.module('app.controllers', [])
-    .run(function($rootScope, $location, $window, $http) {
-        $rootScope.go = function(url) {
-            if (url == 'back') {
-                url = '/main';
-            }
-            if (url == 'back') {
-                $window.history.back();
-            } else {
-                $location.url(url);
-            }
-        }
+    .run(function($rootScope, $location, $window, $http, $theFramework, server, $timeout) {
 
+        $rootScope.go = $theFramework.go;
+        $rootScope.global = {};
         $rootScope.me = false;
 
         $rootScope.displayPrice = function(item) {
@@ -28,61 +20,57 @@ angular.module('app.controllers', [])
             }
         }
 
-        $rootScope._loading = {
-            text: '',
-            active: false
-        }
-        $rootScope.loading = function(val) {
-            if (typeof val == 'string') {
-                $rootScope._loading.active = true;
-                $rootScope._loading.text = val + '...';
-            } else if (typeof val == 'boolean' || typeof val == 'undefined') {
-                val = typeof val == 'undefined' ? true : val;
-                if (val == true) {
-                    $rootScope._loading.text = 'لطفا صبر کنید...';
-                }
-                $rootScope._loading.active = val;
-            }
-        }
-        $rootScope.desided = false;
-    })
-    .controller('DesideCtrl', function($scope, $rootScope, server, $routeParams, $timeout) {
-        var redirect = '/main';
-        if ($routeParams.redirect) {
-            redirect = atob($routeParams.redirect);
-        }
-        //$rootScope.loading();
-        server.get('/users/me').then(function(res) {
-            err = res.data.error;
-            res = res.data.result;
-            if (!err && res !== false) {
-                $rootScope.me = res;
+        $rootScope._desided = false;
+        $rootScope.deside = function() {
+            $theFramework.loading(true);
+            if ($rootScope._desided) {
+                return true;
             } else {
-                redirect = '/login';
+                server.get('/users/me').then(function(res) {
+                    err = res.data.error;
+                    res = res.data.result;
+                    console.log(res);
+                    var redirect;
+                    if (!err && res !== false) {
+                        $rootScope.me = res;
+                        //redirect = '/main';
+                    } else {
+                        redirect = '/login';
+                        $theFramework.go(redirect);
+                    }
+
+                    $rootScope._desided = true;
+
+
+                    ////$rootScope.loading(false);
+                });
+                return false;
             }
-            $timeout(function() {
-                $rootScope.desided = true;
-                $rootScope.go(redirect);
-            }, 1300);
-            //$rootScope.loading(false);
-        });
-    })
-    .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location, $window) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
+
         }
+    })
+
+.controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location, $window, $theFramework) {
+        $rootScope.deside();
+
+        $scope.searched = false;
+        for (var i in $routeParams) {
+            $scope.searched = true;
+            break;
+        }
+
         $scope.sidebar = false;
         $scope.searchbar = false;
         $scope.items = [];
         $scope.currentPage = 1;
         $scope.btnVisible = false;
         $scope.fetch = function(next) {
+            $theFramework.loading();
             next = typeof next == 'undefined' ? false : next;
             if (next && !$scope.btnVisible) {
                 return;
             }
-            $rootScope.loading('در حال دریافت از سرور');
+            // //$rootScope.loading('در حال دریافت از سرور');
 
             if (next) {
                 $scope.currentPage++;
@@ -103,11 +91,16 @@ angular.module('app.controllers', [])
                 queryParams += and + 'timeline=' + $routeParams.timeline;
                 and = '&';
             }
+            if (typeof $routeParams.text != 'undefined') {
+                queryParams += and + 'text=' + $routeParams.text;
+                and = '&';
+            }
             if (queryParams == '?') {
                 queryParams = '';
             }
 
             server.get('/sales/search/' + $scope.currentPage + queryParams).then(function(res) {
+                $theFramework.loading(false);
                 err = res.data.error;
                 res = res.data.result;
                 for (var i = 0; i < res.length; i++) {
@@ -118,60 +111,33 @@ angular.module('app.controllers', [])
                 } else {
                     $scope.btnVisible = true;
                 }
-                //console.log($scope.items);
-                $rootScope.loading(false);
             });
         }
-        elem = angular.element(document.querySelectorAll('body')[0]);
-        elem.bind('scroll', function() {
-            var raw = elem[0];
-            console.log('sc');
-            if (raw.scrollTop == (raw.scrollHeight - raw.offsetHeight)) {
-                //scope.$apply(attrs.tfScrollEnd);
-                console.log('end');
-            }
-        });
+
 
         $scope.logout = function() {
             server.post('/logout').then(function() {
-                $rootScope.go('/login');
+                $theFramework.go('/login');
             });
         }
         $scope.fetch(false);
     })
-    .controller('SearchCtrl', function($scope, $rootScope, server, $routeParams, $timeout, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('SearchCtrl', function($scope, $rootScope, server, $routeParams, $timeout, $location, $theFramework) {
+        $rootScope.deside();
         $scope.inputs = {};
         $scope.submit = function() {
-            var redirect = '/main';
-            var start = '?';
-            var and = '';
-            if (!$scope.inputs.timeline) {
-                redirect += start + and + 'timeline=0';
-                start = '';
-                and = '&';
-            } else {
-                redirect += start + and + 'timeline=1';
-                start = '';
-                and = '&';
-            }
+            var url = '/main/text/:text/timeline/:timeline';
+            url = url.replace(':timeline', $scope.inputs.timeline);
             if ($scope.inputs.text) {
-                redirect += start + and + 'text=' + encodeURIComponent($scope.inputs.text);
-                start = '';
-                and = '&';
+                url = url.replace(':text', encodeURIComponent($scope.inputs.text));
             }
-            $rootScope.go(redirect);
+            $theFramework.go(url);
+
         }
 
     })
-    .controller('LoginCtrl', function($scope, $rootScope, server, funcs, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('LoginCtrl', function($scope, $rootScope, server, funcs, $location, $theFramework) {
+        //$rootScope.deside();
         $rootScope.me = false;
         $scope.inputs = {};
         $scope.checkForm = function() {
@@ -183,36 +149,33 @@ angular.module('app.controllers', [])
             return true;
         }
         $scope.login = function() {
-            $rootScope.loading('در حال ورود به سیستم');
+            //$rootScope.loading('در حال ورود به سیستم');
             server.post('/login', $scope.inputs).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 if (!err) {
-                    $rootScope.go('/main');
+                    $theFramework.go('/main');
                     $rootScope.me = res;
                 } else {
                     alert('نام کاربری یا رمز عبور اشتباه است.');
                 }
-                $rootScope.loading(false);
+                //$rootScope.loading(false);
             });
         }
 
         //
 
     })
-    .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
+        $rootScope.deside();
         $scope.items = [];
         $scope.fetch = function() {
-            $rootScope.loading('در حال دریافت از سرور');
+            //$rootScope.loading('در حال دریافت از سرور');
             server.get('/users/' + $routeParams.id + '/followers').then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.items = res;
-                $rootScope.loading(false);
+                //$rootScope.loading(false);
             });
         }
         $scope.searchbar = false;
@@ -221,22 +184,18 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location, contacts) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
-
+    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location, contacts, $theFramework) {
+        $rootScope.deside();
         $scope.items = [];
         $scope.fetch = function() {
-            $rootScope.loading('دریافت لیست');
+            //$rootScope.loading('دریافت لیست');
             server.get('/users/' + $routeParams.id + '/following').then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.items = res;
-                $rootScope.loading('دریافت مخاطبین');
+                //$rootScope.loading('دریافت مخاطبین');
                 contacts(function(list) {
-                    $rootScope.loading(false);
+                    //$rootScope.loading(false);
                     $scope.contacts = list;
                     if (list.length > 0) {
                         $scope.$apply();
@@ -251,19 +210,16 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('TrustsCtrl', function($scope, $rootScope, server, $routeParams, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('TrustsCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
+        $rootScope.deside();
         $scope.items = [];
         $scope.fetch = function() {
-            $rootScope.loading('در حال دریافت از سرور');
+            //$rootScope.loading('در حال دریافت از سرور');
             server.get('/users/' + $routeParams.id + '/trusts').then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.items = res;
-                $rootScope.loading(false);
+                //$rootScope.loading(false);
             });
         }
         $scope.searchbar = false;
@@ -272,11 +228,8 @@ angular.module('app.controllers', [])
         }
         $scope.fetch();
     })
-    .controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
+        $rootScope.deside();
         $scope.item = [];
         $scope.followToggle = function() {
             if ($scope.relation.follow == 1) {
@@ -324,7 +277,7 @@ angular.module('app.controllers', [])
             });
         }
         $scope.fetch = function() {
-            $rootScope.loading('در حال دریافت از سرور');
+            //$rootScope.loading('در حال دریافت از سرور');
             server.get('/users/' + $routeParams.id).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
@@ -334,32 +287,23 @@ angular.module('app.controllers', [])
                     err2 = res2.data.error;
                     res2 = res2.data.result;
                     $scope.relation = res2;
-                    $rootScope.loading(false);
+                    //$rootScope.loading(false);
                 });
             });
         }
         $scope.fetch();
     })
-    .controller('SaleCtrl', function($scope, $rootScope, server, $routeParams, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('SaleCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
+        $rootScope.deside();
         $scope.inputs = {};
         $scope.item = {
             id: $routeParams.id
         };
 
     })
-    .controller('NewSaleCtrl', function($scope, $rootScope, server, $routeParams, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
-        $scope.inputs = {
-            type: 'sale',
-            period: 'month'
-        };
+    .controller('NewSaleCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
+        $rootScope.deside();
+        $scope.inputs = {};
         $scope.file = null;
 
         $scope.saleTypes = [
@@ -381,24 +325,21 @@ angular.module('app.controllers', [])
             { text: 'موبایل', value: 5 }
         ];
         $scope.submit = function() {
-            $rootScope.loading('در حال ارسال اطلاعات');
+            $theFramework.loading();
             server.file('/sales/new', $scope.inputs).then(function(res) {
-                $rootScope.loading(false);
+                $theFramework.loading(false);
                 err = res.data.error;
                 res = res.data.result;
                 if (!err) {
-                    $rootScope.go('timeline');
+                    $theFramework.go('/main');
                 } else {
-                    alert(res);
+                    $theFramework.toast(res);
                 }
             });
         }
     })
-    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams, $location, funcs) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('NewUserCtrl', function($scope, $rootScope, server, $routeParams, $location, funcs, $theFramework) {
+        $rootScope.deside();
         $scope.inputs = {};
         $scope.checkForm = function() {
             if (!$scope.inputs.mobile ||
@@ -412,22 +353,19 @@ angular.module('app.controllers', [])
             return true;
         }
         $scope.submit = function() {
-            $rootScope.loading('در حال ساخت کاربر جدید');
+            //$rootScope.loading('در حال ساخت کاربر جدید');
             //var stream = ss.createStream();
             server.post('/users/new', $scope.inputs).then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
-                $rootScope.loading(false);
+                //$rootScope.loading(false);
                 alert('کاربر ' + $scope.inputs.mobile + ' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
-                $rootScope.go('login');
+                $theFramework.go('login');
             });
         }
     })
-    .controller('RelativesCtrl', function($scope, localStorageService, $location) {
-        if (!$rootScope.desided) {
-            $rootScope.go('/deside/' + btoa($location.$$path));
-            return;
-        }
+    .controller('RelativesCtrl', function($scope, localStorageService, $location, $theFramework) {
+        $rootScope.deside();
         $scope.searchbar = false;
         $scope.contacts = new Array();
 

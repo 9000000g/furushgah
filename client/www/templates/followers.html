@@ -1,16 +1,18 @@
-<div class="nai-navbar">
-	<div class="title"> دنبال کنندگان {{item.alias}} </div>
-	<button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-	<button class="nai-nav-icon left glyphicon glyphicon-search" ng-click="searchbar = true"></button>
+<nav class="tf-navbar">
+    <section class="icon">
+        <i class="glyphicon glyphicon-exclamation-sign"></i>
+    </section>
+    <section class="title">
+        <h4>دنبال کنندگان</h4>
+    </section>
+    <section class="icon button" tf-go="back">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+    </section>
+</nav>
+<div class="tf-container">
+    <ul class="list-group">
+        <li class="list-group-item" ng-repeat="item in items" ng-click="go('users/'+item.id)">
+            <span class="badge monospace" ng-bind="item.mobile"></span> {{item.alias}}
+        </li>
+    </ul>
 </div>
-<searchbar open="searchbar" callback="search($text)"></searchbar>
-
-<div>
-	<ul class="list-group">
-		<li class="list-group-item" ng-repeat="item in items" ng-click="go('users/'+item.id)">
-			<span class="badge monospace" ng-bind="item.mobile"></span>
-			{{item.alias}}
-		</li>
-	</ul>
-</div>
-

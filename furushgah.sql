@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.7.13, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.15, for Linux (x86_64)
 --
 -- Host: localhost    Database: furushgah
 -- ------------------------------------------------------
@@ -29,7 +29,7 @@ CREATE TABLE `comments` (
   `body` text CHARACTER SET utf8,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +38,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (1,1,7,'محصول عنی میباشد.','2016-08-13 12:48:16'),(2,2,7,'خیلی محصول جالبی هستش :)','2016-08-13 12:46:27'),(3,5,7,'erfertert','2016-08-13 16:28:00'),(4,3,10,'اصلا ردیف نیست داداچ','2016-08-13 16:28:00'),(5,1,27,'خیلی ردیفه خدایی. بیاین بخریدش','2016-08-25 12:48:52'),(6,1,25,'این که واسه من بود!','2016-08-25 12:49:52'),(7,1,27,'چرا؟','2016-08-27 12:40:30'),(8,1,27,'سلام','2016-08-28 08:19:42'),(9,1,27,'داداچیا؟','2016-08-28 08:19:51'),(10,1,27,'چرا؟','2016-08-28 08:23:26'),(11,1,3,'خیلی ردیفه عزیزم :)','2016-08-28 08:43:43'),(12,1,26,'dasasd','2016-08-28 08:52:20'),(13,1,26,'عاااااااالی آقا عالییییی','2016-08-28 17:17:28'),(14,1,17,'سلام','2016-08-29 08:07:16');
+INSERT INTO `comments` VALUES (1,1,7,'محصول عنی میباشد.','2016-08-13 12:48:16'),(2,2,7,'خیلی محصول جالبی هستش :)','2016-08-13 12:46:27'),(3,5,7,'erfertert','2016-08-13 16:28:00'),(4,3,10,'اصلا ردیف نیست داداچ','2016-08-13 16:28:00'),(5,1,27,'خیلی ردیفه خدایی. بیاین بخریدش','2016-08-25 12:48:52'),(6,1,25,'این که واسه من بود!','2016-08-25 12:49:52'),(7,1,27,'چرا؟','2016-08-27 12:40:30'),(8,1,27,'سلام','2016-08-28 08:19:42'),(9,1,27,'داداچیا؟','2016-08-28 08:19:51'),(10,1,27,'چرا؟','2016-08-28 08:23:26'),(11,1,3,'خیلی ردیفه عزیزم :)','2016-08-28 08:43:43'),(12,1,26,'dasasd','2016-08-28 08:52:20'),(13,1,26,'عاااااااالی آقا عالییییی','2016-08-28 17:17:28'),(14,1,17,'سلام','2016-08-29 08:07:16'),(15,1,21,'salam','2016-09-13 16:46:19');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,7 +54,7 @@ CREATE TABLE `favorites` (
   `user` int(11) NOT NULL,
   `sale` int(11) NOT NULL,
   PRIMARY KEY (`id`,`user`,`sale`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +63,7 @@ CREATE TABLE `favorites` (
 
 LOCK TABLES `favorites` WRITE;
 /*!40000 ALTER TABLE `favorites` DISABLE KEYS */;
-INSERT INTO `favorites` VALUES (8,1,22),(11,1,1),(15,1,18),(16,1,7),(22,1,13),(23,1,10),(24,1,15),(26,1,14),(27,1,23),(29,1,25),(30,1,17),(31,1,8),(32,1,26),(33,1,21),(34,1,21),(35,1,21),(36,1,27);
+INSERT INTO `favorites` VALUES (8,1,22),(11,1,1),(15,1,18),(22,1,13),(23,1,10),(26,1,14),(27,1,23),(29,1,25),(30,1,17),(31,1,8),(32,1,26),(36,1,27),(37,1,7),(38,1,2),(39,1,21);
 /*!40000 ALTER TABLE `favorites` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,7 +89,7 @@ CREATE TABLE `followers` (
 
 LOCK TABLES `followers` WRITE;
 /*!40000 ALTER TABLE `followers` DISABLE KEYS */;
-INSERT INTO `followers` VALUES (1,1,1,5),(1,2,0,-1),(1,3,0,5),(1,4,1,2),(1,5,0,-1),(1,6,0,-1),(1,7,0,-1),(1,8,0,-1),(1,10,0,-1),(2,1,1,-1),(2,2,1,5),(3,1,1,-1),(3,3,1,5),(3,7,1,-1),(4,1,1,-1),(4,2,1,-1),(4,3,1,-1),(4,4,1,5),(4,7,1,-1),(5,5,1,5),(5,6,1,-1),(6,6,1,5),(7,7,1,5),(8,8,1,5),(9,9,1,5),(10,10,1,5);
+INSERT INTO `followers` VALUES (1,1,1,5),(1,2,0,0),(1,3,1,5),(1,4,1,2),(1,5,0,2),(1,6,0,0),(1,7,0,-1),(1,8,0,0),(1,10,0,0),(2,1,1,0),(2,2,1,5),(2,10,1,5),(3,1,1,0),(3,3,1,5),(3,7,1,0),(4,1,1,0),(4,2,1,0),(4,3,1,3),(4,4,1,5),(4,7,1,1),(4,10,1,5),(5,5,1,5),(5,6,1,0),(5,10,1,5),(6,6,1,5),(7,7,1,5),(8,8,1,5),(9,9,1,5),(10,11,1,5),(11,11,1,5),(12,12,1,5);
 /*!40000 ALTER TABLE `followers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,7 +113,7 @@ CREATE TABLE `sales` (
   `body` text CHARACTER SET utf8,
   `user` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -139,7 +139,7 @@ CREATE TABLE `users` (
   `mobile` varchar(20) CHARACTER SET utf8 NOT NULL,
   `alias` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -148,7 +148,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'qazwsx','09365586015','امیر مومنیان'),(2,'qazwsx','09125529011','حسن جوهرچی'),(3,'qazwsx','09398882340','نگار جواهریان'),(4,'qazwsx','09114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','09128905858','علیرضا رضایی'),(6,'qazwsx','09117904783','لوک خوش‌شانس'),(7,'qazwsx','09337890059','رامی مالک'),(8,'qazwsx','09366621020','عباس بنفشی'),(9,'qazwsx','09334612035','مریم امینی'),(10,'qazwsx','09365586017','abbas jadidi');
+INSERT INTO `users` VALUES (1,'qazwsx','09365586015','امیر مومنیان'),(2,'qazwsx','09125529011','حسن جوهرچی'),(3,'qazwsx','09398882340','نگار جواهریان'),(4,'qazwsx','09114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','09128905858','علیرضا رضایی'),(6,'qazwsx','09117904783','لوک خوش‌شانس'),(7,'qazwsx','09337890059','رامی مالک'),(8,'qazwsx','09366621020','عباس بنفشی'),(9,'qazwsx','09334612035','مریم امینی'),(10,'qazwsx','09365586017','abbas jadidi'),(11,'123456','09122999136','reza'),(12,'123456','09122999136','reza');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -161,4 +161,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-06 18:39:57
+-- Dump completed on 2016-09-19 21:42:29

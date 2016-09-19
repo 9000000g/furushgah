@@ -84,7 +84,10 @@ module.exports.uniqueName = function() {
 module.exports.b64toFile = function(b64, path) {
     return new Promise((resolve, reject) => {
         let temp = `./tmp/${module.exports.uniqueName()}`;
+        console.log(temp);
         b64 = b64.replace(/^data:image\/jpg;base64,/, "");
+        b64 = b64.replace(/^data:image\/png;base64,/, "");
+        b64 = b64.replace(/^data:image\/jpeg;base64,/, "");
         fs.writeFile(temp, b64, 'base64', function(err) {
             jimp.read(temp).then((lenna) => {
                 lenna.resize(600, jimp.AUTO) // resize
@@ -94,6 +97,7 @@ module.exports.b64toFile = function(b64, path) {
                         resolve(true);
                     }); // save 
             }).catch((errj) => {
+                console.log(errj);
                 fs.unlinkSync(temp);
                 reject(errj.code);
             });
@@ -229,7 +233,7 @@ module.exports.getNetworkList = (id, outputType = 2 /* 0: as network, 1 just as 
     });
 }
 
-module.exports.getTrust = (id1, id2, detail = false) => {
+module.exports.getTrust = (id1, id2, detail = false, full = false) => {
     return new Promise((resolve, reject) => {
         if (id1 == id2) {
             resolve(
@@ -239,12 +243,12 @@ module.exports.getTrust = (id1, id2, detail = false) => {
                 } : 5
             );
         }
-        let query = qc.new().select('trust', 'followers').where('follower = ? AND following = ?', [id1, id2]).val();
+        let query = qc.new().select('trust', 'followers').where('follower = ? AND following = ? AND follow = 1', [id1, id2]).val();
         db.query(query, (err, result) => {
             if (err) {
                 reject(err);
             } else {
-                if (result.length == 1) {
+                if (result.length == 1 && result[0].trust != -1) {
                     resolve(
                         detail ? {
                             direct: true,
@@ -254,35 +258,48 @@ module.exports.getTrust = (id1, id2, detail = false) => {
                 } else {
                     let network = [];
                     let direct = true;
-                    let _getTrusts = (id) => {
+                    let _getTrusts = (id, ful = false) => {
                         let list = [];
+                        let listF = [];
                         let _ = (id_) => {
                             for (let i = 0; i < network.length; i++) {
                                 if (network[i].user == id_) {
                                     list.push(network[i].trust);
+                                    listF.push({
+                                        user: id_,
+                                        trust: network[i].trust
+                                    });
                                     if (network[i].by != id1) {
                                         direct = false;
                                         _(network[i].by);
                                     }
                                 }
                             }
-                            return list;
+                            return ful ? listF : list;
                         }
                         return _(id);
                     }
 
                     module.exports.getNetworkList(id1, 0).then((list) => {
                         network = list;
-                        let trusts = _getTrusts(id2);
+                        let trusts = _getTrusts(id2, full);
                         trusts = trusts.length == 0 ? [0] : trusts;
-                        let ret = Math.min(...trusts);
+                        let ret = full ? trusts.reverse() : Math.min(...trusts);
                         ret = ret != null ? ret : 0;
-                        resolve(
-                            detail ? {
+                        if (full && detail) {
+                            resolve({
                                 direct: direct,
                                 value: ret
-                            } : ret
-                        );
+                            });
+                        } else if (detail) {
+                            resolve({
+                                direct: direct,
+                                value: ret
+                            });
+                        } else {
+                            resolve(ret);
+                        }
+
                     });
                 }
             }
@@ -399,14 +416,14 @@ module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) 
         }
 
 
-        if (data.user) {
+        if (data.user && data.text != ':user') {
             where += ` AND user = '${data.user}'`;
         }
-        if (data.text) {
-            where += ` AND body LIKE '%${data.text.split(' ').join('%')}%'`;
+        if (data.text && data.text != ':text') {
+            where += ` AND (title LIKE '%${data.text.split(' ').join('%')}%' OR body LIKE '%${data.text.split(' ').join('%')}%')`;
         }
-        if (data.timeline) {
-            module.exports.getNetworkList(me, 1).then((myTimelineList) => {
+        if (data.timeline == true) {
+            module.exports.getNetworkList(me, 1, 1).then((myTimelineList) => {
                 where += ` AND user IN(${myTimelineList.join()})`;
                 startQuery(where);
             });
@@ -601,7 +618,19 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
         .val();
 
     db.query(query, (err, result) => {
-        cb(err || result.length == 0 ? true : false, !err && result.length == 1 ? result[0] : false);
+        let user = !err && result.length == 1 ? result[0] : false;
+        if (me && user) {
+            module.exports.getTrust(me, user.id, true, true).then((trust) => {
+                user.trust_direct = trust.direct;
+                user.trust_network = trust.direct ? (trust.value.length > 0 ? trust.value[0] : trust.value) : trust.value;
+                cb(false, user);
+            }).catch((err) => {
+                cb(true, err);
+            });
+        } else {
+            cb(err || result.length == 0 ? true : false, user);
+        }
+
     });
 }
 

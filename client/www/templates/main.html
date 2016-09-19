@@ -1,38 +1,44 @@
-<div class="nai-navbar">
-    <div class="title">
-        <i class="glyphicon glyphicon-plane"></i> فروشگاه
-    </div>
-    <button class="nai-nav-icon left glyphicon glyphicon-menu-hamburger" ng-click="sidebar = true"></button>
-    <button class="nai-nav-icon left glyphicon glyphicon-refresh" ng-click="fetch()"></button>
-</div>
-<sidebar open="sidebar" ng-swipe-left="sidebar = false">
-    <ul class="list-group main-sidebar">
-        <li class="list-group-item profile" ng-click="go('/users/me')">
+<nav class="tf-navbar">
+    <section class="title">
+        <h4>فروشگاه</h4>
+    </section>
+    <section class="icon button" tf-go="/sales/search" ng-if="!searched">
+        <i class="glyphicon glyphicon-search"></i>
+    </section>
+    <section class="icon button" tf-go="/main" ng-if="searched">
+        <i class="glyphicon glyphicon-remove"></i>
+    </section>
+    <section class="icon button" ng-click="sidebar =! sidebar">
+        <i class="glyphicon glyphicon-menu-hamburger"></i>
+    </section>
+</nav>
+<tf-sidebar open="sidebar" direction="left">
+    <ul class="list-group main-sidebar pointer">
+        <li class="list-group-item profile" tf-go="/users/me">
             <i class="glyphicon glyphicon-user"></i><br>
             <h5> {{ me.alias }} </h5>
         </li>
 
-        <li class="list-group-item" ng-click="go('/sales/search')">
+        <li class="list-group-item">
             <i class="glyphicon glyphicon-search"></i> جست‌وجو
         </li>
 
-        <li class="list-group-item" ng-click="go('/sales/new')">
+        <li class="list-group-item" tf-go="/sales/new">
             <i class="glyphicon glyphicon-plus"></i> فروش جدید
         </li>
 
-        <li class="list-group-item" ng-click="go('users/me/followers')">
+        <li class="list-group-item" tf-go="users/me/followers">
             <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان من <span class="badge monospace" ng-bind="me.followers"></span>
         </li>
-        <li class="list-group-item" ng-click="go('users/me/following')">
+        <li class="list-group-item" tf-go="users/me/following">
             <i class="glyphicon glyphicon-copy"></i> لیست من <span class="badge monospace" ng-bind="me.following"></span>
         </li>
-        <li class="list-group-item" ng-click="go('/login')">
+        <li class="list-group-item" tf-go="/login">
             <i class="glyphicon glyphicon-log-out"></i> خروج
         </li>
     </ul>
-</sidebar>
-
-<div ng-swipe-right="sidebar = true" ng-swipe-left="sidebar = false" class="nai-page-container" scroll-end="fetch(true)">
+</tf-sidebar>
+<div class="tf-container horizontal-padding vertical-padding" tf-scroll-end="fetch(true)">
     <div class="half-width inline-block" ng-repeat="item in items">
         <sale-directive details="false" item="item"></sale-directive>
     </div>

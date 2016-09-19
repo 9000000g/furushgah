@@ -1,9 +1,20 @@
-<div class="nai-navbar">
-    <div class="title"> {{item.title}} </div>
-    <button class="nai-nav-icon left glyphicon glyphicon-chevron-left" ng-click="go('back')"></button>
-    <button class="nai-nav-icon left glyphicon glyphicon-remove" ng-click="delete()" ng-if="item.user == me.id"></button>
-</div>
-<div class="nai-page-container">
+<nav class="tf-navbar">
+    <section class="icon">
+        <i class="glyphicon glyphicon-exclamation-sign"></i>
+    </section>
+    <section class="title">
+        <h4> {{item.title}} </h4>
+        <p> {{item.user_alias}} </p>
+    </section>
+    <section class="icon button" ng-click="delete()" ng-if="item.user == me.id">
+        <i class="glyphicon glyphicon-remove"></i>
+    </section>
+    <section class="icon button" tf-go="back">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+    </section>
+</nav>
+
+<div class="tf-container vertical-padding horizontal-padding">
     <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
         <sale-directive details="true" item="item"></sale-directive>
     </div>
