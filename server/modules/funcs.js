@@ -586,22 +586,12 @@ module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) 
             where += ` AND user = '${data.user}'`;
             startQuery(where);
         } else {
-            if (data.timeline && data.timeline != ':timeline') {
-                module.exports.connectedPeople(me, -1, 1).then((list) => {
-                    if (list.length != 0) {
-                        where += ` AND user IN(${list.join()})`;
-                    }
-                    startQuery(where);
-                });
-            } else {
-                module.exports.network(me, 1).then((list) => {
-                    if (list.length != 0) {
-                        where += ` AND user IN(${list.join()})`;
-                    }
-                    startQuery(where);
-                });
-            }
-
+            module.exports.network(me, 1).then((list) => {
+                if (list.length != 0) {
+                    where += ` AND user IN(${list.join()})`;
+                }
+                startQuery(where);
+            });
         }
     });
 }
