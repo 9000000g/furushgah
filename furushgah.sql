@@ -77,8 +77,7 @@ DROP TABLE IF EXISTS `followers`;
 CREATE TABLE `followers` (
   `follower` int(11) NOT NULL,
   `following` int(11) NOT NULL,
-  `follow` tinyint(4) DEFAULT '1',
-  `trust` tinyint(4) DEFAULT '-1',
+  `trust` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`follower`,`following`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -89,7 +88,7 @@ CREATE TABLE `followers` (
 
 LOCK TABLES `followers` WRITE;
 /*!40000 ALTER TABLE `followers` DISABLE KEYS */;
-INSERT INTO `followers` VALUES (1,1,1,5),(1,2,0,0),(1,3,1,5),(1,4,1,2),(1,5,0,2),(1,6,0,0),(1,7,0,-1),(1,8,0,0),(1,10,0,0),(2,1,1,0),(2,2,1,5),(2,10,1,5),(3,1,1,0),(3,3,1,5),(3,7,1,0),(4,1,1,0),(4,2,1,0),(4,3,1,3),(4,4,1,5),(4,7,1,1),(4,10,1,5),(5,5,1,5),(5,6,1,0),(5,10,1,5),(6,6,1,5),(7,7,1,5),(8,8,1,5),(9,9,1,5),(10,11,1,5),(11,11,1,5),(12,12,1,5);
+INSERT INTO `followers` VALUES (1,2,1),(1,3,2),(1,4,2),(1,5,1),(1,6,3),(1,8,2),(2,1,0),(2,10,5),(3,1,0),(3,7,0),(4,1,0),(4,2,0),(4,3,3),(4,7,1),(4,10,5),(5,6,0),(5,10,5),(10,11,5),(11,1,4);
 /*!40000 ALTER TABLE `followers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,7 +112,7 @@ CREATE TABLE `sales` (
   `body` text CHARACTER SET utf8,
   `user` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -138,7 +137,8 @@ CREATE TABLE `users` (
   `password` varchar(255) CHARACTER SET utf8 NOT NULL,
   `mobile` varchar(20) CHARACTER SET utf8 NOT NULL,
   `alias` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mobile_UNIQUE` (`mobile`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -148,7 +148,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'qazwsx','09365586015','امیر مومنیان'),(2,'qazwsx','09125529011','حسن جوهرچی'),(3,'qazwsx','09398882340','نگار جواهریان'),(4,'qazwsx','09114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','09128905858','علیرضا رضایی'),(6,'qazwsx','09117904783','لوک خوش‌شانس'),(7,'qazwsx','09337890059','رامی مالک'),(8,'qazwsx','09366621020','عباس بنفشی'),(9,'qazwsx','09334612035','مریم امینی'),(10,'qazwsx','09365586017','abbas jadidi'),(11,'123456','09122999136','reza'),(12,'123456','09122999136','reza');
+INSERT INTO `users` VALUES (1,'qazwsx','09365586015','امیر مومنیان'),(2,'qazwsx','09125529011','حسن جوهرچی'),(3,'qazwsx','09398882340','نگار جواهریان'),(4,'qazwsx','09114540023','سید بختک فول‌آرشیو منش'),(5,'qazwsx','09128905858','علیرضا رضایی'),(6,'qazwsx','09117904783','لوک خوش‌شانس'),(7,'qazwsx','09337890059','رامی مالک'),(8,'qazwsx','09366621020','عباس بنفشی'),(9,'qazwsx','09334612035','مریم امینی'),(10,'qazwsx','09365586017','عباس جدیدی'),(11,'123456','09122999136','جناب مختارپور');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -161,4 +161,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-19 21:42:29
+-- Dump completed on 2016-09-23 22:09:31

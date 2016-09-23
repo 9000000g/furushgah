@@ -53,24 +53,27 @@ angular.module('app.controllers', [])
 .controller('MainCtrl', function($scope, $rootScope, $routeParams, server, $location, $window, $theFramework) {
         $rootScope.deside();
 
+        $scope.sidebar = false;
+
         $scope.searched = false;
         for (var i in $routeParams) {
             $scope.searched = true;
             break;
         }
 
-        $scope.sidebar = false;
-        $scope.searchbar = false;
+
         $scope.items = [];
         $scope.currentPage = 1;
         $scope.btnVisible = false;
+
+        $scope.busy = false;
         $scope.fetch = function(next) {
-            $theFramework.loading();
             next = typeof next == 'undefined' ? false : next;
-            if (next && !$scope.btnVisible) {
+            if ((next && !$scope.btnVisible) || $scope.busy) {
                 return;
             }
-            // //$rootScope.loading('در حال دریافت از سرور');
+            $theFramework.loading();
+            $scope.busy = true;
 
             if (next) {
                 $scope.currentPage++;
@@ -85,7 +88,7 @@ angular.module('app.controllers', [])
                 and = '&';
             }
             if (typeof $routeParams.timeline == 'undefined') {
-                queryParams += and + 'timeline=1';
+                queryParams += and + 'timeline=true';
                 and = '&';
             } else {
                 queryParams += and + 'timeline=' + $routeParams.timeline;
@@ -101,8 +104,12 @@ angular.module('app.controllers', [])
 
             server.get('/sales/search/' + $scope.currentPage + queryParams).then(function(res) {
                 $theFramework.loading(false);
+                $scope.busy = false;
                 err = res.data.error;
                 res = res.data.result;
+                if (err) {
+                    return;
+                }
                 for (var i = 0; i < res.length; i++) {
                     $scope.items.push(res[i]);
                 }
@@ -166,30 +173,12 @@ angular.module('app.controllers', [])
         //
 
     })
-    .controller('FollowersCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
-        $rootScope.deside();
-        $scope.items = [];
-        $scope.fetch = function() {
-            //$rootScope.loading('در حال دریافت از سرور');
-            server.get('/users/' + $routeParams.id + '/followers').then(function(res) {
-                err = res.data.error;
-                res = res.data.result;
-                $scope.items = res;
-                //$rootScope.loading(false);
-            });
-        }
-        $scope.searchbar = false;
-        $scope.search = function(text) {
-            alert(text);
-        }
-        $scope.fetch();
-    })
-    .controller('FollowingCtrl', function($scope, $rootScope, server, $routeParams, $location, contacts, $theFramework) {
+    .controller('ListCtrl', function($scope, $rootScope, server, $routeParams, $location, contacts, $theFramework) {
         $rootScope.deside();
         $scope.items = [];
         $scope.fetch = function() {
             //$rootScope.loading('دریافت لیست');
-            server.get('/users/' + $routeParams.id + '/following').then(function(res) {
+            server.get('/users/' + $routeParams.id + '/list').then(function(res) {
                 err = res.data.error;
                 res = res.data.result;
                 $scope.items = res;
@@ -230,39 +219,40 @@ angular.module('app.controllers', [])
     })
     .controller('ProfileCtrl', function($scope, $rootScope, server, $routeParams, $location, $theFramework) {
         $rootScope.deside();
-        $scope.item = [];
-        $scope.followToggle = function() {
-            if ($scope.relation.follow == 1) {
-                if (confirm('آیا از حذف این کاربر از لیست خود مطمئنید؟') !== true) {
-                    return;
-                }
-                server.post('/users/' + $routeParams.id + '/relation', {
-                    follow: 0
-                }).then(function(res) {
-                    err = res.data.error;
-                    res = res.data.result;
-                    if (!err) {
-                        $scope.relation.follow = 0;
-                    } else {
-                        alert(res);
-                    }
-                });
-            } else {
-                server.post('/users/' + $routeParams.id + '/relation', {
-                    follow: 1
-                }).then(function(res) {
-                    err = res.data.error;
-                    res = res.data.result;
-                    if (!err) {
-                        $scope.relation.follow = 1;
-                    } else {
-                        alert(res);
-                    }
-                });
-            }
-        }
+        $scope.trustList = [{
+            index: -1,
+            text: 'نظری ندارم',
+            icon: 'glyphicon-question-sign'
+        }, {
+            index: 0,
+            text: 'اعتماد ندارم',
+            icon: 'glyphicon-star-empty'
+        }, {
+            index: 1,
+            text: 'خیلی کم به او اعتماد دارم',
+            icon: 'glyphicon-star'
+        }, {
+            index: 2,
+            text: 'اعتماد دارم، اما نه اعتماد کامل',
+            icon: 'glyphicon-star'
+        }, {
+            index: 3,
+            text: 'نسبتا به او اعتماد دارم',
+            icon: 'glyphicon-star'
+        }, {
+            index: 4,
+            text: 'اعتماد زیادی به او دارم',
+            icon: 'glyphicon-star'
+        }, {
+            index: 5,
+            text: 'کاملا به او اعتماد دارم',
+            icon: 'glyphicon-star'
+        }, ]
+        $scope.item = {};
+
         $scope.trustModal = false;
         $scope.trustChange = function(trust) {
+            $theFramework.loading();
             server.post('/users/' + $routeParams.id + '/relation', {
                 trust: trust
             }).then(function(res) {
@@ -270,25 +260,22 @@ angular.module('app.controllers', [])
                 res = res.data.result;
                 $scope.trustModal = false;
                 if (!err) {
-                    $scope.relation.trust = trust;
+                    $scope.fetch();
                 } else {
-                    alert(res);
+                    $theFramework.loading(false);
+                    $theFramework.toast(res);
                 }
             });
         }
         $scope.fetch = function() {
-            //$rootScope.loading('در حال دریافت از سرور');
+            $theFramework.loading();
             server.get('/users/' + $routeParams.id).then(function(res) {
+                $theFramework.loading(false);
                 err = res.data.error;
                 res = res.data.result;
+                console.log(res);
                 $routeParams.id = res.id;
                 $scope.item = res;
-                server.get('/users/' + $routeParams.id + '/relation').then(function(res2) {
-                    err2 = res2.data.error;
-                    res2 = res2.data.result;
-                    $scope.relation = res2;
-                    //$rootScope.loading(false);
-                });
             });
         }
         $scope.fetch();

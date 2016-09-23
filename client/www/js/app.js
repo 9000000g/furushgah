@@ -27,19 +27,13 @@ angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.co
                 templateUrl: 'templates/profile.html',
                 controller: 'ProfileCtrl'
             })
-            .when('/users/:id/followers', {
-                templateUrl: 'templates/followers.html',
-                controller: 'FollowersCtrl'
-            })
-            .when('/users/:id/following', {
-                templateUrl: 'templates/following.html',
-                controller: 'FollowingCtrl'
-            })
-            .when('/users/:id/trusts', {
-                templateUrl: 'templates/trusts.html',
-                controller: 'TrustsCtrl'
-            })
-            .when('/sales/new', {
+
+        .when('/users/:id/list', {
+            templateUrl: 'templates/list.html',
+            controller: 'ListCtrl'
+        })
+
+        .when('/sales/new', {
                 templateUrl: 'templates/new-sale.html',
                 controller: 'NewSaleCtrl'
             })

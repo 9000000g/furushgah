@@ -12,9 +12,9 @@
 </nav>
 
 <div class="tf-container">
-    <ul class=" list-group ">
-        <li class="list-group-item " ng-repeat="item in items " ng-click="go( 'users/'+item.id) ">
-            <span class="badge monospace " ng-bind="item.mobile "></span> {{item.alias}}
+    <ul class=" list-group block">
+        <li class="list-group-item " ng-repeat="item in items " ng-click="go( 'users/'+item.user) ">
+            <span class="badge monospace"><span class="yellow"><i class="glyphicon glyphicon-star"></i>{{item.trust}}</span></span> {{item.alias}}
         </li>
     </ul>
     <p class="col-xs-12">موارد پیشنهادی:</p>

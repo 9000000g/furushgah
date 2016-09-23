@@ -1,8 +1,9 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="glyphicon glyphicon-exclamation-sign"></i>
+        <i class="glyphicon glyphicon-user"></i>
     </section>
     <section class="title">
+        <h4>پروفایل</h4>
     </section>
     <section class="icon button" tf-go="back">
         <i class="glyphicon glyphicon-chevron-left"></i>
@@ -15,67 +16,37 @@
     </div>
     <div>
         <ul class="list-group full-width">
-            <li class="list-group-item" ng-click="followToggle()" ng-hide="me.id == item.id">
-                <i class="glyphicon glyphicon-copy"></i> حضور در لیست من؟
-                <span class="badge baseline" ng-class="{'yellow': relation.follow == 1, 'gray': relation.follow != 1}"> 
-                    {{ relation.follow == 1? 'بله': 'خیر'}}
+            <li class="list-group-item pointer" ng-click="trustModal = true" ng-hide="me.id == item.id">
+                <i class="glyphicon glyphicon-star"></i> میزان اعتماد
+                <span class="badge monospace yellow" ng-if="item.trust.direct">
+                    <i class="glyphicon glyphicon-star"></i>{{item.trust.trust}}
+                </span>
+                <span class="badge monospace" ng-if="!item.trust.direct">
+                    <i class="glyphicon glyphicon-star"></i>{{item.trust.trust}}
                 </span>
             </li>
-            <li class="list-group-item" ng-click="trustModal = true" ng-hide="me.id == item.id">
-                <i class="glyphicon glyphicon-star"></i> میزان اعتماد من
-                <span class="badge baseline yellow"> 
-                    <i class="glyphicon glyphicon-star" ng-repeat="i in [0,1,2,3,4,5]" ng-class="{'yellow': i <= relation.trust, 'gray': i > relation.trust, 'glyphicon-star': i >= 1, 'glyphicon-star-empty': i == 0}"></i>    
-                </span>
-            </li>
-            <li class="list-group-item" ng-show="item.trust_direct == false">
-                <i class="glyphicon glyphicon-star"></i> نحوه آشنایی
+
+            <li class="list-group-item pointer" ng-repeat="net in item.network" ng-if="me.id != item.id">
+                <i class="glyphicon glyphicon-random"></i> خط ارتباطی {{$index+1}}
                 <span class="badge baseline">
-                    <span ng-repeat="st in item.trust_network">
-                        {{ st.user + '(' + st.trust + ')'}}
-                    </span>
+                    <span ng-repeat="usr in net">
+                        {{ usr.alias }} <span class="yellow"><i class="glyphicon glyphicon-star"></i>{{usr.trust}}</span> <i class="glyphicon glyphicon-chevron-left" ng-if="!$last"></i></span>
                 </span>
             </li>
-            <li class="list-group-item" tf-go="/users/{{item.id}}/followers">
-                <i class="glyphicon glyphicon-paste"></i> تعداد دنبال‌کنندگان
-                <span class="badge baseline" ng-bind="item.followers"></span>
+            <li class="list-group-item pointer" tf-go="/users/{{item.id}}/list">
+                <i class="glyphicon glyphicon-copy"></i> افراد لیست
             </li>
-            <li class="list-group-item" tf-go="/users/{{item.id}}/following">
-                <i class="glyphicon glyphicon-copy"></i> تعداد افراد لیست
-                <span class="badge baseline" ng-bind="item.following"></span>
+            <li class="list-group-item pointer" tf-go="/main/user/{{item.id}}">
+                <i class="glyphicon glyphicon-blackboard"></i> محصولات
             </li>
-            <li class="list-group-item" tf-go="/users/{{item.id}}/trusts">
-                <i class="glyphicon glyphicon-star"></i> تعداد افراد مورد اعتماد
-                <span class="badge baseline" ng-bind="item.trusts"></span>
-            </li>
-            <li class="list-group-item" tf-go="/main?user={{item.id}}">
-                <i class="glyphicon glyphicon-ice-lolly-tasted"></i> تعداد محصولات
-                <span class="badge baseline" ng-bind="item.sales_count"></span>
-            </li>
-
-
         </ul>
     </div>
 </div>
 
-<div class="nai-overlay toggle" ng-show="trustModal" ng-click="trustModal = false"></div>
-<div class="modal trust-modal slide-top" ng-show="trustModal">
-    <div class="modal-dialog modal-sm ">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">میزان اعتماد من</h4>
-            </div>
-            <div class="modal-body">
-                <div class="starline">
-                    <i ng-repeat="j in [0,1,2,3,4,5]" class="glyphicon pointer" ng-class="{'yellow': j <= relation.trust, 'gray': j > relation.trust, 'glyphicon-star': j >= 1, 'glyphicon-star-empty': j == 0}" ng-click="trustChange(j)"></i>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" ng-click="trustChange(-1)">نظری ندارم</button>
-                <button type="button" class="btn btn-default" ng-click="trustModal = false">بستن</button>
-            </div>
-        </div>
-
-    </div>
-</div>
+<tf-bottom-sheet open="trustModal">
+    <ul class="list-group block">
+        <li class="list-group-item pointer" ng-repeat="t in trustList" ng-click="trustChange(t.index)" ng-class="{active: (item.trust.direct && item.trust.trust == t.index) || (!item.trust.direct && t.index == -1) }">
+            <i class="glyphicon {{t.icon}} pointer"></i> <span ng-bind="t.text"></span>
+        </li>
+    </ul>
+</tf-bottom-sheet>

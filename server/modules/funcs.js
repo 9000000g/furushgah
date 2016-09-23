@@ -4,7 +4,7 @@ const fs = require('fs');
 const jimp = require('jimp')
 const config = require('../config.json');
 const db = mysql.createConnection(config.mysql);
-
+const log = console.log;
 const level = require('level-browserify');
 const levelgraph = require('levelgraph');
 const levelDb = levelgraph(level(config.levelDb));
@@ -133,6 +133,195 @@ module.exports.query.timelineList = (id, trust) => {
 }
 
 
+
+// New Functions {
+module.exports.network = (usr, output = 0 /* see endOfStory func */ , level = 5) => {
+    return new Promise((resolve, reject) => {
+        let ret = [];
+        let jobCount = 0;
+        let didCount = 0;
+
+        let lengthInRet = (_usr) => {
+            let founded = 0;
+            for (let i = 0; i < ret.length; i++) {
+                if (ret[i].user == _usr) {
+                    founded++;
+                }
+            }
+            return founded;
+        }
+        let innerFunction = (_usr, _trust = 0, _parent = null, _level = 0) => {
+            //log(_usr, _trust, _parent, _level);
+            return new Promise((_resolve, _reject) => {
+                module.exports.connectedPeople(_usr, _trust).then((_result) => {
+                    //log(_usr + ' child of ' + _parent);
+                    //log(_result);
+                    if (_level >= level) {
+                        endOfStory(ret);
+                        didCount++;
+                        _resolve();
+                    } else {
+                        jobCount += _result.length;
+                        if (_result.length == 0) {
+                            endOfStory(ret);
+                            didCount++;
+                            _resolve();
+                        }
+                        for (let i = 0; i < _result.length; i++) {
+                            ret.push(Object.assign(_result[i], {
+                                parent: _parent
+                            }));
+                            let indexInRet = ret.length - 1;
+                            if (lengthInRet(_result[i].user) <= 1 && _result[i].trust > 0 && _level <= level) {
+                                innerFunction(_result[i].user, 1, indexInRet, (_level + 1)).then(() => {
+                                    endOfStory(ret);
+                                    didCount++;
+                                    _resolve();
+                                });
+                            } else {
+                                endOfStory(ret);
+                                didCount++;
+                                _resolve();
+                            }
+                        }
+
+                    }
+                }).catch((_err) => {
+                    reject(_err);
+                });
+
+            });
+        }
+        let endOfStory = function(data) {
+            //log('EOS called ' + (didCount < jobCount), didCount, jobCount);
+            if (didCount < jobCount) {
+                return false;
+            }
+            data.push({
+                user: usr,
+                trust: 5,
+                parent: null
+            });
+            switch (output) {
+                case 0: // with detail
+                    resolve(data);
+                    break;
+                case 1: // just user ids
+                    let _data = [];
+                    for (let i = 0; i < data.length; i++) {
+                        let found = _data.find((z) => z.user == data[i].user);
+                        if (!found) {
+                            _data.push(data[i].user);
+                        }
+                    }
+                    resolve(_data);
+                    break;
+            }
+        }
+        innerFunction(usr);
+    });
+
+}
+module.exports.networkOf = (usr, usr2) => {
+    return new Promise((resolve, reject) => {
+        module.exports.network(usr).then((result) => {
+            let founded = [];
+            for (let i = 0; i < result.length; i++) {
+                if (result[i].user == usr2) {
+                    founded.push(i);
+                }
+            }
+            let network = [];
+            for (let i = 0; i < founded.length; i++) {
+                network.push([]);
+                let p = result[founded[i]];
+                network[i].push(
+                    p
+                );
+                while (p.parent != null) {
+                    p = result[p.parent];
+                    network[i].push(
+                        p
+                    );
+                }
+                network[i] = network[i].reverse();
+            }
+            resolve(network);
+        });
+    });
+}
+module.exports.trust = (usr, usr2, networkOf = false) => {
+    return new Promise((resolve, reject) => {
+        let endOfStory = function(data) {
+            let ret = {};
+            let direct = false;
+            let trusts = [];
+            if (data.length == 0) {
+                trusts.push(-1);
+            } else {
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].length == 1) { // i rate him directed
+                        trusts = [];
+                        trusts.push(data[i][0].trust);
+                        direct = true;
+                        break;
+                    } else {
+                        direct = false;
+                        for (let j = 0; j < data[i].length; j++) {
+                            trusts.push(data[i][j].trust);
+                        }
+                    }
+                }
+            }
+
+            resolve({
+                trust: Math.min(...trusts),
+                direct: direct
+            })
+        }
+        if (networkOf === false) {
+            module.exports.networkOf(usr, usr2).then((result) => {
+                endOfStory(result);
+            });
+        } else {
+            endOfStory(networkOf);
+        }
+    });
+}
+
+module.exports.connectedPeople = (usr, trust = -1, output = 0 /* see endOfStory func */ ) => {
+    return new Promise((resolve, reject) => {
+        let query = qc.new()
+            .select('following AS user, trust, u.alias AS alias', 'followers f')
+            .innerJoin('users u', 'f.following = u.id')
+            .where(`follower = ${usr} AND trust >= ${trust} AND follower != following`)
+            .val();
+        let endOfStory = function(data) {
+            switch (output) {
+                case 0: // with detail
+                    resolve(data);
+                    break;
+                case 1: // just user ids
+                    let _data = [];
+                    for (let i = 0; i < data.length; i++) {
+                        _data.push(data[i].user);
+                    }
+                    resolve(_data);
+                    break;
+            }
+        }
+        db.query(query, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                endOfStory(result);
+            }
+        });
+    });
+}
+
+
+// } End of New Functions
 module.exports.connectedList = (id, trust = false) => {
     return new Promise((resolve, reject) => {
         let query = qc.new()
@@ -352,34 +541,6 @@ module.exports.getNetwork = (id1, id2) => {
     });
 }
 
-
-module.exports.fetchTimeline = (id = 1, page = 1) => {
-    return new Promise((resolve, reject) => {
-        let limit = 8;
-        let limitStart = limit * page - limit;
-        // liste kasayi ke man hade aghal 2 ta beheshun etemad daram va donbaleshun kardam
-        module.exports.getNetworkList(id, 1).then((myTimelineList) => {
-            let query = qc.new().select([
-                    '*'
-                ], 'sales')
-                .where(`user IN( ${myTimelineList.join()} )`)
-                .groupBy('id')
-                .orderBy('date', 'desc')
-                .limit(limitStart, limit)
-                .val();
-            db.query(query, (err, result) => {
-                if (!err) {
-                    resolve(result);
-                } else {
-                    reject(err);
-                }
-            });
-        });
-
-
-    });
-
-}
 module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
     let limit = 8;
     let limitStart = limit * page - limit;
@@ -394,19 +555,23 @@ module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
     });
 }
 module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) => {
+
     return new Promise((resolve, reject) => {
-
-
         let limit = 8;
         let limitStart = limit * page - limit;
         let where = 'TRUE';
         let startQuery = (where) => {
-            let query = qc.new().select('*', 'sales')
+            let query = qc.new().select([
+                    '*',
+                    `CONCAT("${config.server.address + ':' + config.server.port + '/sales/'}", id, "/thumbnail") AS thumbnail`,
+                ], 'sales')
                 .where(where)
                 .orderBy('date', 'desc')
                 .limit(limitStart, limit)
                 .val();
+            //console.log(query);
             db.query(query, (err, result) => {
+
                 if (err) {
                     reject(err);
                 } else {
@@ -414,29 +579,35 @@ module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) 
                 }
             });
         }
-
-
-        if (data.user && data.text != ':user') {
-            where += ` AND user = '${data.user}'`;
-        }
         if (data.text && data.text != ':text') {
             where += ` AND (title LIKE '%${data.text.split(' ').join('%')}%' OR body LIKE '%${data.text.split(' ').join('%')}%')`;
         }
-        if (data.timeline == true) {
-            module.exports.getNetworkList(me, 1, 1).then((myTimelineList) => {
-                where += ` AND user IN(${myTimelineList.join()})`;
-                startQuery(where);
-            });
-        } else {
+        if (data.user && data.user != ':user') {
+            where += ` AND user = '${data.user}'`;
             startQuery(where);
+        } else {
+            if (data.timeline && data.timeline != ':timeline') {
+                module.exports.connectedPeople(me, -1, 1).then((list) => {
+                    if (list.length != 0) {
+                        where += ` AND user IN(${list.join()})`;
+                    }
+                    startQuery(where);
+                });
+            } else {
+                module.exports.network(me, 1).then((list) => {
+                    if (list.length != 0) {
+                        where += ` AND user IN(${list.join()})`;
+                    }
+                    startQuery(where);
+                });
+            }
+
         }
-
-
     });
 }
 module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
     let query;
-    if (getDetail) {
+    if (getDetail && false) { // old way
         query = qc.new().select([
                     't1.*',
                     'COUNT(fa.id) AS i_favorite'
@@ -469,6 +640,16 @@ module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
             .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
             .groupBy('t1.id')
             .val();
+    }
+    if (getDetail) {
+        query = qc.new().select([
+                's.*',
+                `CONCAT("${config.server.address + ':' + config.server.port + '/sales/'}", s.id, "/thumbnail") AS thumbnail`,
+                'u.alias AS user_alias'
+            ], 'sales s')
+            .innerJoin('users u', 's.user = u.id')
+            .where(`s.id = ${id}`)
+            .groupBy('s.id').val();
     } else {
         query = qc.new().select('*', 'sales')
             .where(`id = ${id}`)
@@ -485,10 +666,12 @@ module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
             if (!getDetail) {
                 resolve(sale);
             } else {
-                module.exports.getTrust(me, sale.user, true).then((trust) => {
-                    sale.trust_direct = trust.direct;
-                    sale.trust = trust.value;
-                    resolve(sale);
+                module.exports.networkOf(me, sale.user).then((networkOf) => {
+                    sale.network = networkOf;
+                    module.exports.trust(me, sale.user, networkOf).then((trust) => {
+                        sale.trust = trust;
+                        resolve(sale);
+                    });
                 });
             }
 
@@ -518,8 +701,7 @@ module.exports.getRelation = (user1 = 1, user2 = 2, cb = new Function()) => {
             cb(false, {
                 follower: parseInt(user1),
                 following: parseInt(user2),
-                follow: 0,
-                trust: 0
+                trust: -1
             });
         } else {
             cb(false, resultCheck[0]);
@@ -528,12 +710,21 @@ module.exports.getRelation = (user1 = 1, user2 = 2, cb = new Function()) => {
 }
 module.exports.setRelation = (user1 = 1, user2 = 2, relation = {}, cb = new Function()) => {
     module.exports.getRelation(user1, user2, (err, result) => {
-        let query = qc.new().replace('followers',
-            Object.assign(result, relation)
-        ).val();
-        db.query(query, (err, result) => {
-            cb(err ? err : false, result ? result : false);
-        });
+        delete relation.follow;
+        if (relation.trust == -1) {
+            let query = qc.new().delete('followers').where(`follower = ${user1} AND following = ${user2}`).val();
+            db.query(query, (err, result) => {
+                cb(err ? err : false, result ? result : false);
+            });
+        } else {
+            let query = qc.new().replace('followers',
+                Object.assign(result, relation)
+            ).val();
+            db.query(query, (err, result) => {
+                cb(err ? err : false, result ? result : false);
+            });
+        }
+
     });
 }
 
@@ -589,46 +780,37 @@ module.exports.fetchUsers = (cb = new Function()) => {
     });
 }
 module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()) => {
+
     let where = '';
-    where = `t1.${by} = "${data.username}" `
+    where = `${by} = "${data.username}" `
     if (data.password) {
-        where += `AND t1.password = "${data.password}"`;
+        where += `AND password = "${data.password}"`;
     }
 
 
-    let queryIn = qc.new().select([
-            't1.id',
-            't1.mobile',
-            't1.alias',
-            'SUM( IF(t2.follower = t1.id AND t2.follow = 1, 1, 0 ) ) AS following',
-            `SUM( IF(t2.follower = t1.id AND t2.trust >= 3 AND t2.following != ${me}, 1, 0 ) ) AS trusts`,
-            'SUM( IF(t2.following = t1.id AND t2.follow = 1, 1, 0 ) ) AS followers',
-            `SUM( IF(t2.following = t1.id AND t2.follower = ${me}, 1, 0 ) ) AS i_follow`
-        ], 'users t1')
-        .leftJoin('followers t2', '(t1.id = t2.follower OR t1.id = t2.following) ')
-        .where(where)
-        .groupBy('t1.id')
-        .val(false);
     let query = qc.new().select([
-            'q1.*',
-            'COUNT(*) AS sales_count'
-        ], `(${queryIn}) q1`)
-        .leftJoin('sales s', 'q1.id = s.user')
-        .groupBy('q1.id')
-        .val();
+            'id',
+            'mobile',
+            'alias'
+        ], 'users')
+        .where(where)
+        .val(false);
 
     db.query(query, (err, result) => {
         let user = !err && result.length == 1 ? result[0] : false;
         if (me && user) {
-            module.exports.getTrust(me, user.id, true, true).then((trust) => {
-                user.trust_direct = trust.direct;
-                user.trust_network = trust.direct ? (trust.value.length > 0 ? trust.value[0] : trust.value) : trust.value;
-                cb(false, user);
-            }).catch((err) => {
-                cb(true, err);
+            console.log('true')
+            module.exports.networkOf(me, user.id).then((networkOf) => {
+                user.network = networkOf;
+                module.exports.trust(me, user.id, networkOf).then((trust) => {
+                    user.trust = trust;
+                    cb(false, user);
+                });
             });
+        } else if (err || result.length == 0) {
+            cb(true, err);
         } else {
-            cb(err || result.length == 0 ? true : false, user);
+            cb(false, user);
         }
 
     });
@@ -637,9 +819,7 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
 module.exports.newUser = (data = {}, cb = new Function()) => {
     let query = qc.new().insert('users', data).val();
     db.query(query, (err, result) => {
-        module.exports.follow(result.insertId, result.insertId, (err2, result2) => {
-            cb(err ? err : false, !err ? result.insertId : false);
-        });
+        cb(err ? err : false, !err ? result.insertId : false);
     });
 }
 module.exports.editUser = (id = 1, data = {}, cb = new Function()) => {

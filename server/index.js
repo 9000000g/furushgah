@@ -24,8 +24,11 @@ const config = require('./config.json');
 //io.use(ses.io());
 app.use(ses.express({ required: false }));
 app.use(cors());
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
-app.use(bodyParser.json({ limit: '50mb' }));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//app.use(upload.array());
 app.listen(config.server.port);
 let me = false;
 
@@ -88,23 +91,6 @@ app.post('/logout', (req, res) => {
     res.json({ error: false, result: true });
     return;
 });
-app.get('/timeline/:page?', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    let page = req.params.page ? req.params.page : 1;
-    setTimeout(function() {
-        funcs.fetchTimeline(req.session.me.id, page).then((result) => {
-            res.json({ error: false, result: result });
-            return;
-        });
-    }, 1000);
-});
 
 app.get('/sales/search/:page?', (req, res) => {
     if (req.session == null) {
@@ -121,10 +107,10 @@ app.get('/sales/search/:page?', (req, res) => {
         res.json({ error: false, result: result });
         return;
     }).catch((err) => {
-        console.log(err);
         res.json({ error: true, result: err });
     });
 });
+
 app.get('/users/:id', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {
@@ -154,7 +140,7 @@ app.post('/users/new', (req, res) => {
         return;
     });
 });
-app.get('/users/:id/followers', (req, res) => {
+app.get('/users/:id/list', (req, res) => {
     let id = req.params.id;
     if (id == 'me') {
         if (req.session == null) {
@@ -167,28 +153,13 @@ app.get('/users/:id/followers', (req, res) => {
         }
         id = req.session.me.id;
     }
-    funcs.fetchFollowers(id, (err, result) => {
-        res.json({ error: err, result: result });
+    funcs.connectedPeople(id, 0).then((result) => {
+        res.json({ error: false, result: result });
         return;
-    });
-});
-app.get('/users/:id/following', (req, res) => {
-    let id = req.params.id;
-    if (id == 'me') {
-        if (req.session == null) {
-            res.json({ error: true, result: 'Session Error!' });
-            return;
-        }
-        if (req.session.me === false) {
-            res.json({ error: true, result: 'Login First!' });
-            return;
-        }
-        id = req.session.me.id;
-    }
-    funcs.fetchFollowing(id, (err, result) => {
-        res.json({ error: err, result: result });
+    }).catch((err) => {
+        res.json({ error: true, result: err });
         return;
-    });
+    })
 });
 app.get('/users/:id/trusts', (req, res) => {
     let id = req.params.id;
@@ -208,25 +179,7 @@ app.get('/users/:id/trusts', (req, res) => {
         return;
     });
 });
-app.get('/users/:id/sales/:page?', (req, res) => {
-    let id = req.params.id;
-    if (id == 'me') {
-        if (req.session == null) {
-            res.json({ error: true, result: 'Session Error!' });
-            return;
-        }
-        if (req.session.me === false) {
-            res.json({ error: true, result: 'Login First!' });
-            return;
-        }
-        id = req.session.me.id;
-    }
-    let page = req.params.page ? req.params.page : 1;
-    funcs.fetchSales(id, page, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
+
 app.get('/users/:id/checkFollow', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -304,13 +257,17 @@ app.get('/users/:id/network', (req, res) => {
         id = req.session.me.id;
     }
 
-    funcs.getNetworkList(parseInt(id)).then((result) => {
+    funcs.network(id).then((result) => {
         res.json({ error: false, result: result });
+        return;
+    }).catch((err) => {
+        res.json({ error: true, result: err });
         return;
     });
 });
 app.get('/users/:id/network/:id2', (req, res) => {
     let id = req.params.id;
+    let id2 = req.params.id2;
     if (id == 'me') {
         if (req.session == null) {
             res.json({ error: true, result: 'Session Error!' });
@@ -323,13 +280,17 @@ app.get('/users/:id/network/:id2', (req, res) => {
         id = req.session.me.id;
     }
 
-    funcs.getNetworkList(parseInt(id)).then((result) => {
+    funcs.networkOf(id, id2).then((result) => {
         res.json({ error: false, result: result });
+        return;
+    }).catch((err) => {
+        res.json({ error: true, result: err });
         return;
     });
 });
 app.get('/users/:id/trust/:id2', (req, res) => {
     let id = req.params.id;
+    let id2 = req.params.id2;
     if (id == 'me') {
         if (req.session == null) {
             res.json({ error: true, result: 'Session Error!' });
@@ -342,11 +303,13 @@ app.get('/users/:id/trust/:id2', (req, res) => {
         id = req.session.me.id;
     }
 
-    funcs.getTrust(id, req.params.id2).then((result) => {
+    funcs.trust(id, id2).then((result) => {
         res.json({ error: false, result: result });
         return;
     });
 });
+
+
 app.post('/users/:id/follow', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -404,7 +367,6 @@ app.post('/sales/new', upload.array(), (req, res) => {
     let b64 = req.body.thumbnail;
     delete req.body.thumbnail;
     funcs.newSale(req.body, (err, result) => {
-        console.log(err, result);
         let path = `${__dirname}/uploads/thumb-${result.insertId}.jpg`;
         funcs.b64toFile(b64, path).then(() => {
             res.json({ error: false, result: true });
@@ -414,6 +376,7 @@ app.post('/sales/new', upload.array(), (req, res) => {
     });
 });
 app.get('/sales/:id', (req, res) => {
+
     let id = req.params.id;
     let me = req.session.me !== false ? req.session.me.id : null;
     funcs.fetchSale(id, me).then((result) => {

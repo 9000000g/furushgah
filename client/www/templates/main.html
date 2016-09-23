@@ -19,19 +19,19 @@
             <h5> {{ me.alias }} </h5>
         </li>
 
-        <li class="list-group-item">
-            <i class="glyphicon glyphicon-search"></i> جست‌وجو
-        </li>
+
 
         <li class="list-group-item" tf-go="/sales/new">
             <i class="glyphicon glyphicon-plus"></i> فروش جدید
         </li>
-
-        <li class="list-group-item" tf-go="users/me/followers">
-            <i class="glyphicon glyphicon-paste"></i> دنبال کنندگان من <span class="badge monospace" ng-bind="me.followers"></span>
+        <li class="list-group-item" tf-go="/sales/search">
+            <i class="glyphicon glyphicon-search"></i> جست‌وجو
         </li>
-        <li class="list-group-item" tf-go="users/me/following">
-            <i class="glyphicon glyphicon-copy"></i> لیست من <span class="badge monospace" ng-bind="me.following"></span>
+        <li class="list-group-item pointer" tf-go="/users/{{me.id}}/list">
+            <i class="glyphicon glyphicon-copy"></i> افراد لیست من
+        </li>
+        <li class="list-group-item pointer" tf-go="/main/user/{{me.id}}">
+            <i class="glyphicon glyphicon-blackboard"></i> محصولات من
         </li>
         <li class="list-group-item" tf-go="/login">
             <i class="glyphicon glyphicon-log-out"></i> خروج

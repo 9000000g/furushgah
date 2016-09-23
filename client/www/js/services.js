@@ -30,8 +30,14 @@ angular.module('app.services', [])
     })
     .filter('pDate', function() {
         return function(dt) {
-            return dt;
-            var ret = moment(dt).format('jD jMMMM jYY');
+            var y = moment(dt).format('jYY');
+            var format = '';
+            if (y != moment().format('jYY')) {
+                format = 'jD jMMMM jYY';
+            } else {
+                format = 'jD jMMMM';
+            }
+            var ret = moment(dt).format(format);
             ret = ret
                 .replace('Farvardin', 'فروردین')
                 .replace('Ordibehesht', 'اردیبهشت')

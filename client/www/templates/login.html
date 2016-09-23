@@ -1,32 +1,25 @@
 <form class="tf-container horizontal-padding vertical-padding row" ng-submit="login()">
     <div class="col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
-        <div class="row">
-            <p class="col-xs-12">
-                برای استفاده از برنامه، لطفا وارد شوید!
-            </p>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <label class="control-label">نام کاربری</label>
-                <input type="number" class="form-control" ng-model="inputs.username" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <label class="control-label">رمز عبور</label>
-                <input type="password" class="form-control" ng-model="inputs.password" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <label class="control-label"></label>
-                <button class="btn btn-primary col-xs-12" ng-disabled="!checkForm()"> ورود </button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-12 text-align-center">
-                <label class="control-label"><hr></label>
-                <a tf-go="/users/new"> ثبت نام کنید </a>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">ورود</div>
+            <div class="panel-body">
+                <div class="form-group col-xs-12">
+                    <label class="control-label">نام کاربری</label>
+                    <input type="number" class="form-control" ng-model="inputs.username" />
+                </div>
+                <div class="form-group col-xs-12">
+                    <label class="control-label">رمز عبور</label>
+                    <input type="password" class="form-control" ng-model="inputs.password" />
+                </div>
+                <div class="form-group col-xs-12">
+                    <label class="control-label"></label>
+                    <button class="btn btn-primary btn-block" ng-disabled="!checkForm()"> ورود </button>
+                </div>
+                <div class="form-group col-xs-12 text-center">
+                    <label class="control-label"><hr></label>
+                    <a tf-go="/users/new"> ثبت نام کنید </a>
+                </div>
             </div>
         </div>
     </div>

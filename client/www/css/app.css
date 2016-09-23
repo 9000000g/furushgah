@@ -65,7 +65,7 @@ body {
 .post .panel-heading,
 .post .panel-footer {
     padding: 5px 7px;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .post .image {
@@ -81,12 +81,12 @@ body {
     width: 100%;
 }
 
-.post .info {
-    padding: 15px;
-    font-size: 12px;
-    background: #f9f9f9;
-    color: #999;
-    border-top: 1px solid #dddddd;
+.post .panel-footer > span {
+    padding: 5px 1px;
+}
+
+.post .date {
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .post .dropdown-menu {

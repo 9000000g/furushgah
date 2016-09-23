@@ -68,7 +68,6 @@ angular.module('app.directives', [])
                     server.get('/sales/' + scope.item.id).then(function(res) {
                         err = res.data.error;
                         res = res.data.result;
-                        res.thumbnail = server.address + '/sales/' + res.id + '/thumbnail';
                         scope.itemF = res;
                         if (scope.details) {
                             server.get('/sales/' + res.id + '/comments').then(function(res) {
