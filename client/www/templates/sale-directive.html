@@ -4,7 +4,7 @@
             <div class="cell text-right ">
                 <span class="caption">
 					<a ng-click="$root.go( 'users/'+itemF.user) " class="caption text ">
-                        <i class="glyphicon glyphicon-user"></i> {{ itemF.user_alias }}
+                        <i class="fa fa-user"></i> {{ itemF.user_alias }}
                     </a>
                     <div class="caption text rtl">
                         {{ itemF.title }}, {{ itemF.date | pDate }}
@@ -13,37 +13,37 @@
             </div>
             <div class="cell text-left">
                 <span class="badge monospace" ng-class="{'yellow': itemF.trust.direct}">
-                    {{itemF.trust.trust}}<i class="glyphicon glyphicon-star"></i> 
+                    {{itemF.trust.trust}}<i class="fa fa-star"></i> 
                 </span>
             </div>
 
 
         </div>
-        <div class="image" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+itemF.id) "></div>
+        <div class="image pointer" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+itemF.id) "></div>
         <div class="body" ng-if="details">
             {{ itemF.body }}
 
         </div>
         <div style="clear: both;"></div>
         <div class="panel-footer text-center">
-            <i class="glyphicon glyphicon-credit-card "></i>
+            <i class="fa fa-credit-card "></i>
             <span>{{ itemF | fPrice }} </span>
         </div>
     </div>
     <div ng-if="details " class="panel panel-default post ">
         <div class="panel-heading ">
             <div class="cell text-right ">
-                <span class="caption ">
-                    <a class="caption text "><i class="glyphicon glyphicon-comment "></i> نظرها </a>
+                <span class="caption">
+                    <a class="caption text "><i class="fa fa-comments "></i> نظرها </a>
                 </span>
             </div>
         </div>
-        <div class="body ">
-            <div class="panel panel-default post " ng-repeat="comment in itemF.comments ">
+        <div class="body">
+            <div class="panel panel-default post " ng-repeat="comment in itemF.comments">
                 <div class="panel-heading ">
                     <div class="cell text-right ">
                         <span class="caption ">
-                            <a ng-click="$root.go( 'users/'+comment.user) " class="caption text "><i class="glyphicon glyphicon-user "></i> {{ comment.user_alias }} </a>
+                            <a ng-click="$root.go( 'users/'+comment.user) " class="caption text "><i class="fa fa-user "></i> {{ comment.user_alias }} </a>
                         </span>
                     </div>
                 </div>
@@ -51,11 +51,11 @@
                     {{ comment.body }}
                 </div>
             </div>
-            <hr>
+            <hr ng-if="itemF.comments.length > 0">
             <form ng-submit="newComment() ">
                 <div class="row ">
                     <div class="form-group col-xs-12 ">
-                        <textarea class="form-control input-sm textarea-height " placeholder="نظر خود را درباره این محصول بنویسید... " ng-model="inputs.body "></textarea>
+                        <textarea class="form-control input-sm" placeholder="نظر خود را درباره این محصول بنویسید... " ng-model="inputs.body "></textarea>
                     </div>
                 </div>
                 <div class="row ">

@@ -56,6 +56,7 @@ angular.module('app.controllers', [])
         $scope.sidebar = false;
 
         $scope.searched = false;
+        $scope.searchText = false;
         for (var i in $routeParams) {
             $scope.searched = true;
             break;
@@ -96,6 +97,7 @@ angular.module('app.controllers', [])
             }
             if (typeof $routeParams.text != 'undefined') {
                 queryParams += and + 'text=' + $routeParams.text;
+                $scope.searchText = decodeURIComponent($routeParams.text);
                 and = '&';
             }
             if (queryParams == '?') {
@@ -156,17 +158,17 @@ angular.module('app.controllers', [])
             return true;
         }
         $scope.login = function() {
-            //$rootScope.loading('در حال ورود به سیستم');
+            $theFramework.loading();
             server.post('/login', $scope.inputs).then(function(res) {
+                $theFramework.loading(false);
                 err = res.data.error;
                 res = res.data.result;
                 if (!err) {
                     $theFramework.go('/main');
                     $rootScope.me = res;
                 } else {
-                    alert('نام کاربری یا رمز عبور اشتباه است.');
+                    $theFramework.toast('نام کاربری یا رمز عبور اشتباه است.');
                 }
-                //$rootScope.loading(false);
             });
         }
 
@@ -183,19 +185,36 @@ angular.module('app.controllers', [])
                 res = res.data.result;
                 $scope.items = res;
                 //$rootScope.loading('دریافت مخاطبین');
-                contacts(function(list) {
-                    //$rootScope.loading(false);
-                    $scope.contacts = list;
-                    if (list.length > 0) {
-                        $scope.$apply();
-                    }
-                });
+                if ($routeParams.id == $rootScope.me.id) {
+                    contacts(function(list, needApply) {
+                        //$rootScope.loading(false);
+                        $scope.contacts = list;
+                        if (list.length > 0 && needApply) {
+                            $scope.$apply();
+                        }
+                    });
+                }
+
 
             });
         }
         $scope.searchbar = false;
         $scope.search = function(text) {
             alert(text);
+        }
+        $scope.checkExists = function(phone) {
+            server.get('/users/' + phone).then(function(res) {
+                err = res.data.error;
+                res = res.data.result;
+                if (!err) {
+                    $theFramework.go('/users/' + phone)
+                } else {
+                    $theFramework.toast('کاربری با شماره ' + phone + ' هنوز عضو سیستم فروشگاه نیست!' +
+                        ' هروقت ما پنل اسمس گرفتیم، یه دکمه میذاریم این بغل که شما با زدن اون، این کاربر رو به سیستم دعوت کنید.',
+                        6000)
+                }
+
+            });
         }
         $scope.fetch();
     })
@@ -222,31 +241,31 @@ angular.module('app.controllers', [])
         $scope.trustList = [{
             index: -1,
             text: 'نظری ندارم',
-            icon: 'glyphicon-question-sign'
+            icon: 'question'
         }, {
             index: 0,
             text: 'اعتماد ندارم',
-            icon: 'glyphicon-star-empty'
+            icon: 'star-o'
         }, {
             index: 1,
             text: 'خیلی کم به او اعتماد دارم',
-            icon: 'glyphicon-star'
+            icon: 'star-half-o'
         }, {
             index: 2,
             text: 'اعتماد دارم، اما نه اعتماد کامل',
-            icon: 'glyphicon-star'
+            icon: 'star-half-o'
         }, {
             index: 3,
             text: 'نسبتا به او اعتماد دارم',
-            icon: 'glyphicon-star'
+            icon: 'star-half-o'
         }, {
             index: 4,
             text: 'اعتماد زیادی به او دارم',
-            icon: 'glyphicon-star'
+            icon: 'star-half-o'
         }, {
             index: 5,
             text: 'کاملا به او اعتماد دارم',
-            icon: 'glyphicon-star'
+            icon: 'star'
         }, ]
         $scope.item = {};
 
@@ -336,86 +355,29 @@ angular.module('app.controllers', [])
                 !$scope.inputs.alias ||
                 $scope.inputs.alias.length < 3
             ) return false;
+            console.log(
+                funcs.parsePhone($scope.inputs.mobile)
+            )
             $scope.inputs.mobile = funcs.parsePhone($scope.inputs.mobile);
             return true;
         }
         $scope.submit = function() {
-            //$rootScope.loading('در حال ساخت کاربر جدید');
-            //var stream = ss.createStream();
+            $theFramework.loading();
             server.post('/users/new', $scope.inputs).then(function(res) {
+                $theFramework.loading(false);
                 err = res.data.error;
                 res = res.data.result;
-                //$rootScope.loading(false);
-                alert('کاربر ' + $scope.inputs.mobile + ' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
-                $theFramework.go('login');
+                if (!err) {
+                    $theFramework.toast('کاربر ' + $scope.inputs.mobile + ' با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید.');
+                    $theFramework.go('/login');
+                } else {
+                    if (res.errno && res.errno == 1062) {
+                        $theFramework.toast('این شماره قبلا در سیستم ثبت شده‌است. برای بازیابی رمزعبور با پشتیبانی تماس بگیرید.');
+                        $theFramework.go('/login');
+                    } else {
+                        $theFramework.toast('بروز اشکال در ثبت نام! مجددا تلاش کنید.');
+                    }
+                }
             });
         }
-    })
-    .controller('RelativesCtrl', function($scope, localStorageService, $location, $theFramework) {
-        $rootScope.deside();
-        $scope.searchbar = false;
-        $scope.contacts = new Array();
-
-        $scope.reloadContacts = function(callback) {
-            callback = typeof callback == 'function' ? callback : new Function();
-            var ret = new Array();
-
-            $scope.contacts = new Array();
-
-            if (typeof ContactFindOptions != 'function') {
-                $scope.contacts.push({ name: 'علی آملی', phone: '00989333612031' });
-                $scope.contacts.push({ name: 'حسن جوادی', phone: '00989333612032' });
-                $scope.contacts.push({ name: 'هوشنگ کامبیزی', phone: '00989333612033' });
-                $scope.contacts.push({ name: 'کامبیز خوشنواز', phone: '00989333612034' });
-                $scope.contacts.push({ name: 'ایرج برج‌نژاد', phone: '00989333612035' });
-                $scope.contacts.push({ name: 'قیام کربلا', phone: '00989333612036' });
-                $scope.contacts.push({ name: 'عباس کیارستمی', phone: '00989333612037' });
-                $scope.contacts.push({ name: 'سید مهدی مرتعش', phone: '00989333612038' });
-                $scope.contacts.push({ name: 'کامیار هاشمی', phone: '00989333612039' });
-                $scope.contacts.push({ name: 'نگین الماسی', phone: '0098914' });
-                $scope.contacts.push({ name: 'الناز خوش‌لاک', phone: '0098913' });
-                $scope.contacts.push({ name: 'ممد ماهواره', phone: '0098912' });
-                callback(false);
-            } else {
-                var options = new ContactFindOptions();
-                /* options.filter= $scope.contactsForm.search; */
-                options.multiple = true;
-                options.hasPhoneNumber = true;
-                var fields = ['displayName', 'nickName', 'id', 'phoneNumbers'];
-                navigator.contacts.find(fields, function(list) {
-                    var j, phone;
-                    for (var i = 0; i < list.length; i++) {
-                        if (list[i].phoneNumbers) {
-                            for (j = 0; j < list[i].phoneNumbers.length; j++) {
-                                $scope.contacts.push({ name: list[i].displayName, phone: (list[i].phoneNumbers[j].value) });
-                            }
-                        }
-                    }
-                    $scope.contacts.sort(function(a, b) {
-                        if (a.name < b.name)
-                            return -1;
-                        if (a.name > b.name)
-                            return 1;
-                        return 0;
-                    });
-                    $scope.$apply();
-
-                    callback(true);
-
-                }, function() { callback(false); }, options);
-            }
-
-        }
-
-        $scope.items = localStorageService.get('items');
-        if (!$scope.items) $scope.items = [];
-
-        $scope.sidebar = false;
-        $scope.searchbar = false;
-        $scope.search = function(text) {
-            alert(text);
-        }
-
-
-        $scope.reloadContacts();
     })

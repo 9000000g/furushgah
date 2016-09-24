@@ -1,40 +1,44 @@
 <nav class="tf-navbar">
+    <section class="icon">
+        <i class="fa fa-cubes"></i>
+    </section>
     <section class="title">
         <h4>فروشگاه</h4>
+        <p ng-if="searchText !== false"> جست‌وجوی کلمه "{{searchText}}"</p>
     </section>
     <section class="icon button" tf-go="/sales/search" ng-if="!searched">
-        <i class="glyphicon glyphicon-search"></i>
+        <i class="fa fa-search"></i>
     </section>
     <section class="icon button" tf-go="/main" ng-if="searched">
-        <i class="glyphicon glyphicon-remove"></i>
+        <i class="fa fa-search-minus"></i>
     </section>
     <section class="icon button" ng-click="sidebar =! sidebar">
-        <i class="glyphicon glyphicon-menu-hamburger"></i>
+        <i class="fa fa-bars"></i>
     </section>
 </nav>
 <tf-sidebar open="sidebar" direction="left">
     <ul class="list-group main-sidebar pointer">
         <li class="list-group-item profile" tf-go="/users/me">
-            <i class="glyphicon glyphicon-user"></i><br>
+            <i class="fa fa-user"></i><br>
             <h5> {{ me.alias }} </h5>
         </li>
 
 
 
         <li class="list-group-item" tf-go="/sales/new">
-            <i class="glyphicon glyphicon-plus"></i> فروش جدید
+            <i class="fa fa-plus"></i> فروش جدید
         </li>
         <li class="list-group-item" tf-go="/sales/search">
-            <i class="glyphicon glyphicon-search"></i> جست‌وجو
+            <i class="fa fa-search"></i> جست‌وجو
         </li>
         <li class="list-group-item pointer" tf-go="/users/{{me.id}}/list">
-            <i class="glyphicon glyphicon-copy"></i> افراد لیست من
+            <i class="fa fa-list"></i> افراد لیست من
         </li>
         <li class="list-group-item pointer" tf-go="/main/user/{{me.id}}">
-            <i class="glyphicon glyphicon-blackboard"></i> محصولات من
+            <i class="fa fa-cubes"></i> محصولات من
         </li>
-        <li class="list-group-item" tf-go="/login">
-            <i class="glyphicon glyphicon-log-out"></i> خروج
+        <li class="list-group-item" ng-click="logout()">
+            <i class="fa fa-sign-out"></i> خروج
         </li>
     </ul>
 </tf-sidebar>

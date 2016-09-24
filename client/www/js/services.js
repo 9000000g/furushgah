@@ -145,10 +145,16 @@ angular.module('app.services', [])
                             return 1;
                         return 0;
                     });
-                    cb(ret);
+                    cb(ret, true);
                 }, function() {
-                    cb([]);
+                    cb([], true);
                 }, options);
+            } else {
+                cb([
+                    { name: 'علی دهقان', phone: '09163367114' },
+                    { name: 'سید بختک فول‌آرشیو منش', phone: '09114540023' },
+                    { name: 'دیویت بکام', phone: '09332091170' }
+                ], false);
             }
         };
     })

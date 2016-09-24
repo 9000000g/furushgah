@@ -809,13 +809,13 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
 module.exports.newUser = (data = {}, cb = new Function()) => {
     let query = qc.new().insert('users', data).val();
     db.query(query, (err, result) => {
-        cb(err ? err : false, !err ? result.insertId : false);
+        cb(err ? true : false, !err ? result.insertId : err);
     });
 }
 module.exports.editUser = (id = 1, data = {}, cb = new Function()) => {
     let query = qc.new().update('users', data).where('id = ?', [id]).val();
     db.query(query, (err, result) => {
-        cb(err ? err : false, result ? result : false);
+        cb(err ? true : false, !err ? result.insertId : err);
     });
 }
 

@@ -1,12 +1,12 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="glyphicon glyphicon-search"></i>
+        <i class="fa fa-search"></i>
     </section>
     <section class="title">
         <h4> جست‌وجو </h4>
     </section>
     <section class="icon button" tf-go="/main">
-        <i class="glyphicon glyphicon-chevron-left"></i>
+        <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
 <form class="tf-container vertical-padding horizontal-padding" ng-submit="submit()">
@@ -14,10 +14,10 @@
         <div class="row">
             <div class="form-group col-xs-12">
                 <label class="control-label">متن جست‌وجو</label>
-                <input type="text" class="form-control" ng-model="inputs.text" />
+                <input type="text" class="form-control" ng-model="inputs.text" placeholder="نام محصول یا متن مورد نظر خود را وارد کنید." />
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-if="false">
             <div class="form-group col-xs-12">
                 <label class="control-label">فقط در لیست من بگرد؟</label>
                 <tf-switch class="form-control" ng-model="inputs.timeline"></tf-switch>
@@ -26,5 +26,5 @@
     </div>
 </form>
 <div>
-    <button class="btn btn-primary btn-lg btn-block full-width no-margin pull-right" ng-click="submit()"> بگرد </button>
+    <button class="btn btn-primary btn-lg btn-block full-width no-margin pull-right" ng-disabled="!inputs.text || inputs.text.length == 0" ng-click="submit()"> بگرد </button>
 </div>

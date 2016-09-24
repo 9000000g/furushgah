@@ -1,12 +1,12 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="glyphicon glyphicon-exclamation-sign"></i>
+        <i class="fa fa-plus"></i>
     </section>
     <section class="title">
         <h4>فروش جدید</h4>
     </section>
     <section class="icon button" tf-go="back">
-        <i class="glyphicon glyphicon-chevron-left"></i>
+        <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
 <form class="tf-container vertical-padding" ng-submit="submit()">
@@ -14,25 +14,20 @@
         <div class="row">
             <div class="form-group col-xs-9">
                 <label class="control-label">عنوان</label>
-                <input type="text" class="form-control" ng-model="inputs.title" required/>
+                <input type="text" class="form-control" ng-model="inputs.title" placeholder="عنوان محصول را وارد کنید." required/>
             </div>
 
             <div class="form-group col-xs-3">
                 <label class="control-label"> تصویر </label>
                 <div class="btn btn-sm btn-primary full-width" tf-image-picker ng-model="inputs.thumbnail">
-                    <i class="glyphicon glyphicon-paperclip"></i>
+                    <i class="fa fa-image"></i>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-group col-xs-12">
                 <label class="control-label">توضیحات</label>
-                <textarea class="form-control" ng-model="inputs.body" required></textarea>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <hr/>
+                <textarea class="form-control" ng-model="inputs.body" placeholder="توضیحات خود را برای این محصول بنویسید." required></textarea>
             </div>
         </div>
         <div class="row">
@@ -48,33 +43,23 @@
         <div class="row">
             <div class="form-group col-sm-12" ng-if="inputs.type == 'sale'">
                 <label class="control-label">مبلغ کل</label>
-                <input type="number" class="form-control" ng-model="inputs.totalPrice" required/>
+                <input type="number" class="form-control" ng-model="inputs.totalPrice" placeholder="مبلغ فروش این محصول." required/>
             </div>
             <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
                 <label class="control-label">مبلغ گرو</label>
-                <input type="number" class="form-control" ng-model="inputs.mortgagePrice" required/>
+                <input type="number" class="form-control" ng-model="inputs.mortgagePrice" placeholder="مبلغی که در ابتدای اجاره به عنوان گرو و یا رهن دریافت می‌کنید." required/>
             </div>
             <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
                 <label class="control-label">دوره دریافت اجاره</label>
-                <select tf-selectize class="form-control" options="periodTypes" ng-model="inputs.period" required></select>
+                <select tf-selectize class="form-control" options="periodTypes" ng-model="inputs.period" placeholder="بازه زمانی دوره دریافت اجاره." required></select>
             </div>
             <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
                 <label class="control-label">مبلغ اجاره</label>
-                <input type="number" class="form-control" ng-model="inputs.periodPrice" required/>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12">
-                <hr/>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-xs-6">
-                <button class="btn btn-primary full-width" type="submit">ارسال</button>
-            </div>
-            <div class="form-group col-xs-6">
-                <button class="btn btn-default full-width" type="reset">انصراف</button>
+                <input type="number" class="form-control" ng-model="inputs.periodPrice" placeholder="مبلغی که قرار است در هر دوره از خریدار دریافت کنید." required/>
             </div>
         </div>
     </div>
 </form>
+<div>
+    <button class="btn btn-primary btn-lg btn-block" ng-click="submit()">ارسال</button>
+</div>

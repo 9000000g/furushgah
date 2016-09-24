@@ -1,43 +1,43 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="glyphicon glyphicon-user"></i>
+        <i class="fa fa-user"></i>
     </section>
     <section class="title">
         <h4>پروفایل</h4>
     </section>
     <section class="icon button" tf-go="back">
-        <i class="glyphicon glyphicon-chevron-left"></i>
+        <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
 <div class="tf-container">
     <div class="profile" tf-go="/users/{{item.id}}">
-        <i class="glyphicon glyphicon-user"></i><br>
+        <i class="fa fa-user"></i><br>
         <h5> {{ item.alias }} </h5>
     </div>
     <div>
         <ul class="list-group full-width">
             <li class="list-group-item pointer" ng-click="trustModal = true" ng-hide="me.id == item.id">
-                <i class="glyphicon glyphicon-star"></i> میزان اعتماد
+                <i class="fa fa-star"></i> میزان اعتماد
                 <span class="badge monospace yellow" ng-if="item.trust.direct">
-                    <i class="glyphicon glyphicon-star"></i>{{item.trust.trust}}
+                    <i class="fa fa-star"></i>{{item.trust.trust}}
                 </span>
                 <span class="badge monospace" ng-if="!item.trust.direct">
-                    <i class="glyphicon glyphicon-star"></i>{{item.trust.trust}}
+                    <i class="fa fa-star"></i>{{item.trust.trust}}
                 </span>
             </li>
 
             <li class="list-group-item pointer" ng-repeat="net in item.network" ng-if="me.id != item.id">
-                <i class="glyphicon glyphicon-random"></i> خط ارتباطی {{$index+1}}
+                <i class="fa fa-users"></i> خط ارتباطی {{$index+1}}
                 <span class="badge baseline">
                     <span ng-repeat="usr in net">
-                        {{ usr.alias }} <span class="yellow"><i class="glyphicon glyphicon-star"></i>{{usr.trust}}</span> <i class="glyphicon glyphicon-chevron-left" ng-if="!$last"></i></span>
+                        {{ usr.alias }} <span class="yellow"><i class="fa fa-star"></i>{{usr.trust}}</span> <i class="fa fa-chevron-left" ng-if="!$last"></i></span>
                 </span>
             </li>
             <li class="list-group-item pointer" tf-go="/users/{{item.id}}/list">
-                <i class="glyphicon glyphicon-copy"></i> افراد لیست
+                <i class="fa fa-list"></i> افراد لیست
             </li>
             <li class="list-group-item pointer" tf-go="/main/user/{{item.id}}">
-                <i class="glyphicon glyphicon-blackboard"></i> محصولات
+                <i class="fa fa-cubes"></i> محصولات
             </li>
         </ul>
     </div>
@@ -46,7 +46,7 @@
 <tf-bottom-sheet open="trustModal">
     <ul class="list-group block">
         <li class="list-group-item pointer" ng-repeat="t in trustList" ng-click="trustChange(t.index)" ng-class="{active: (item.trust.direct && item.trust.trust == t.index) || (!item.trust.direct && t.index == -1) }">
-            <i class="glyphicon {{t.icon}} pointer"></i> <span ng-bind="t.text"></span>
+            <i class="fa fa-{{t.icon}} pointer"></i> <span ng-bind="t.text"></span>
         </li>
     </ul>
 </tf-bottom-sheet>

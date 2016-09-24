@@ -1,26 +1,29 @@
-<form class="tf-container horizontal-padding vertical-padding row" ng-submit="login()">
-    <div class="col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+<nav class="tf-navbar">
+    <section class="icon">
+        <i class="fa fa-sign-in"></i>
+    </section>
+    <section class="title">
+        <h4>ورود به سیستم</h4>
+    </section>
+</nav>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">ورود</div>
-            <div class="panel-body">
-                <div class="form-group col-xs-12">
-                    <label class="control-label">نام کاربری</label>
-                    <input type="number" class="form-control" ng-model="inputs.username" />
-                </div>
-                <div class="form-group col-xs-12">
-                    <label class="control-label">رمز عبور</label>
-                    <input type="password" class="form-control" ng-model="inputs.password" />
-                </div>
-                <div class="form-group col-xs-12">
-                    <label class="control-label"></label>
-                    <button class="btn btn-primary btn-block" ng-disabled="!checkForm()"> ورود </button>
-                </div>
-                <div class="form-group col-xs-12 text-center">
-                    <label class="control-label"><hr></label>
-                    <a tf-go="/users/new"> ثبت نام کنید </a>
-                </div>
+<form class="tf-container vertical-padding" ng-submit="login()">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="form-group col-xs-12">
+                <label class="control-label">شماره تلفن</label>
+                <input type="text" class="form-control" ng-model="inputs.username" placeholder="شماره تلفن خود را وارد کنید." required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-12">
+                <label class="control-label">رمز عبور</label>
+                <input type="password" class="form-control" ng-model="inputs.password" placeholder="رمز عبور خود را وارد کنید." required/>
             </div>
         </div>
     </div>
 </form>
+<div>
+    <button class="btn btn-primary pull-right btn-lg no-margin btn-block half-width" ng-disabled="!checkForm()" ng-click="login()">ورود</button>
+    <button class="btn btn-default pull-left btn-lg no-margin btn-block half-width" tf-go="/users/new">ثبت نام</button>
+</div>

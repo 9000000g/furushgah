@@ -40,8 +40,10 @@ body {
 
 /*.main-sidebar > */
 
-.profile > .glyphicon {
+.profile > i {
     font-size: 42px;
+    width: 74px;
+    height: 74px;
     padding: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border-radius: 50%;
@@ -136,8 +138,4 @@ hr {
     font-size: 32px;
     direction: rtl;
     height: 32px;
-}
-
-.trust-modal .starline .glyphicon {
-    margin: 0 5px;
 }

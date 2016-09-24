@@ -1,25 +1,22 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="glyphicon glyphicon-exclamation-sign"></i>
+        <i class="fa fa-list"></i>
     </section>
     <section class="title">
         <h4>لیست</h4>
         <p> {{item.alias}} </p>
     </section>
     <section class="icon button" tf-go="back">
-        <i class="glyphicon glyphicon-chevron-left"></i>
+        <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
 
 <div class="tf-container">
-    <ul class=" list-group block">
-        <li class="list-group-item " ng-repeat="item in items " ng-click="go( 'users/'+item.user) ">
-            <span class="badge monospace"><span class="yellow"><i class="glyphicon glyphicon-star"></i>{{item.trust}}</span></span> {{item.alias}}
+    <ul class="list-group block">
+        <li class="list-group-item pointer" ng-repeat="item in items " tf-go="/users/{{item.user}}">
+            <span class="badge monospace"><span class="yellow"><i class="fa fa-star"></i>{{item.trust}}</span></span> {{item.alias}}
         </li>
-    </ul>
-    <p class="col-xs-12">موارد پیشنهادی:</p>
-    <ul class="list-group ">
-        <li class="list-group-item " ng-repeat="item in contacts " ng-click="go( 'users/'+item.phone) ">
+        <li class="list-group-item pointer" ng-repeat="item in contacts" ng-click="checkExists(item.phone)">
             <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
         </li>
     </ul>
