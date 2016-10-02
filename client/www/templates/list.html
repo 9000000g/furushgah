@@ -4,19 +4,36 @@
     </section>
     <section class="title">
         <h4>لیست</h4>
-        <p> {{item.alias}} </p>
+        <p ng-if="searched !== false " ng-bind="searched"></p>
+    </section>
+    <section class="icon button" ng-click="fetch()">
+        <i class="fa fa-refresh"></i>
+    </section>
+    <section class="icon button" ng-show="searched===false" ng-click="searchbar = true">
+        <i class="fa fa-search"></i>
+    </section>
+    <section class="icon button" ng-show="searched!==false" ng-click="fetch()">
+        <i class="fa fa-search-minus"></i>
     </section>
     <section class="icon button" tf-go="back">
         <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
-
+<tf-searchbar open="searchbar" search="search($text)"></tf-searchbar>
 <div class="tf-container">
-    <ul class="list-group block">
+    <ul class="list-group block" ng-show="searched === false">
         <li class="list-group-item pointer" ng-repeat="item in items " tf-go="/users/{{item.user}}">
             <span class="badge monospace"><span class="yellow"><i class="fa fa-star"></i>{{item.trust}}</span></span> {{item.alias}}
         </li>
         <li class="list-group-item pointer" ng-repeat="item in contacts" ng-click="checkExists(item.phone)">
+            <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
+        </li>
+    </ul>
+    <ul class="list-group block" ng-show="searched !== false">
+        <li class="list-group-item pointer" ng-repeat="item in searchItems " tf-go="/users/{{item.user}}">
+            <span class="badge monospace"><span class="yellow"><i class="fa fa-star"></i>{{item.trust}}</span></span> {{item.alias}}
+        </li>
+        <li class="list-group-item pointer" ng-repeat="item in searchContacts" ng-click="checkExists(item.phone)">
             <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
         </li>
     </ul>

@@ -1,12 +1,12 @@
 {
     "server": {
         "port": 3005,
-        "address": "http://23.227.201.9"
+        "address": "http://127.0.0.1"
     },
     "mysql": {
         "host": "127.0.0.1",
-        "user": "root",
-        "password": "",
+        "user": "nai",
+        "password": "1qaz@WSX",
         "database": "furushgah"
     },
     "levelDb": "./followers"

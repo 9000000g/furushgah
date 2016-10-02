@@ -92,7 +92,7 @@ app.post('/logout', (req, res) => {
     return;
 });
 
-app.get('/sales/search/:page?', (req, res) => {
+app.get('/sales/search/:filters?/:page?', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
         return;
@@ -102,8 +102,17 @@ app.get('/sales/search/:page?', (req, res) => {
         return;
     }
     let page = req.params.page ? req.params.page : 1;
-    req.query.timeline = typeof req.query.timeline == 'undefined' ? true : (req.query.timeline == 'true' ? true : false);
-    funcs.searchSales(req.query, req.session.me.id, page).then((result) => {
+    let spl = req.params.filters.split('&');
+    let filters = {};
+    for (let i in spl) {
+        let keyval = spl[i].split('=');
+        if (keyval.length == 2) {
+            filters[keyval[0]] = keyval[1];
+        }
+    }
+    console.log(filters.text);
+    //req.query.timeline = typeof req.query.timeline == 'undefined' ? true : (req.query.timeline == 'true' ? true : false);
+    funcs.searchSales(filters, req.session.me.id, page).then((result) => {
         res.json({ error: false, result: result });
         return;
     }).catch((err) => {
@@ -497,7 +506,7 @@ app.post('/sales/:id/comments/new', (req, res) => {
         return;
     });
 });
-app.get('/sales/:id/thumbnail', (req, res) => {
+app.get('/thumbnails/sales/:id', (req, res) => {
     let basedir = `${__dirname}/uploads`;
     let file = `${basedir}/thumb-${req.params.id}.*`;
     glob(file, function(err, files) {

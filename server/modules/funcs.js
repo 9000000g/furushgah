@@ -5,16 +5,12 @@ const jimp = require('jimp')
 const config = require('../config.json');
 const db = mysql.createConnection(config.mysql);
 const log = console.log;
-const level = require('level-browserify');
-const levelgraph = require('levelgraph');
-const levelDb = levelgraph(level(config.levelDb));
-
-
+const async = require('async');
 
 db.connect();
 
 module.exports.db = db;
-module.exports.levelDb = levelDb;
+
 
 /*
     Utility
@@ -84,7 +80,6 @@ module.exports.uniqueName = function() {
 module.exports.b64toFile = function(b64, path) {
     return new Promise((resolve, reject) => {
         let temp = `./tmp/${module.exports.uniqueName()}`;
-        console.log(temp);
         b64 = b64.replace(/^data:image\/jpg;base64,/, "");
         b64 = b64.replace(/^data:image\/png;base64,/, "");
         b64 = b64.replace(/^data:image\/jpeg;base64,/, "");
@@ -97,7 +92,7 @@ module.exports.b64toFile = function(b64, path) {
                         resolve(true);
                     }); // save 
             }).catch((errj) => {
-                console.log(errj);
+                log(errj);
                 fs.unlinkSync(temp);
                 reject(errj.code);
             });
@@ -554,87 +549,107 @@ module.exports.fetchSales = (id = 1, page = 1, cb = new Function()) => {
         cb(err ? err : false, result ? result : false);
     });
 }
-module.exports.searchSales = (data = {}, me = 1, page = 1, cb = new Function()) => {
+module.exports.searchSales = (filters = {}, me = 1, page = 1, cb = new Function()) => {
 
     return new Promise((resolve, reject) => {
         let limit = 8;
         let limitStart = limit * page - limit;
         let where = 'TRUE';
-        let startQuery = (where) => {
+        let startQuery = () => {
+            console.log(where);
             let query = qc.new().select([
-                    '*',
-                    `CONCAT("${config.server.address + ':' + config.server.port + '/sales/'}", id, "/thumbnail") AS thumbnail`,
+                    'id',
                 ], 'sales')
                 .where(where)
                 .orderBy('date', 'desc')
                 .limit(limitStart, limit)
                 .val();
-            //console.log(query);
+            //log(query);
             db.query(query, (err, result) => {
 
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(result);
+                    // now we have id of sales.
+                    let resultF = [];
+                    async.forEach(result, function(item, nextOne) {
+                        module.exports.fetchSale(item.id, me).then(function(itemF) {
+                            resultF.push(itemF);
+                            nextOne();
+                        }).catch(nextOne);
+                    }, function(err) {
+                        resolve(resultF);
+                    });
                 }
             });
         }
-        if (data.text && data.text != ':text') {
-            where += ` AND (title LIKE '%${data.text.split(' ').join('%')}%' OR body LIKE '%${data.text.split(' ').join('%')}%')`;
-        }
-        if (data.user && data.user != ':user') {
-            where += ` AND user = '${data.user}'`;
-            startQuery(where);
-        } else {
-            module.exports.network(me, 1).then((list) => {
-                if (list.length != 0) {
-                    where += ` AND user IN(${list.join()})`;
+        async.series([
+            function(nextOne) {
+                if (filters.text) {
+                    where += ` AND (title LIKE '%${filters.text.split(' ').join('%')}%' OR body LIKE '%${filters.text.split(' ').join('%')}%')`;
                 }
-                startQuery(where);
-            });
-        }
+                if (filters.saleTypes) {
+                    where += ` AND type = '${filters.saleTypes}'`;
+                }
+                if (filters.type) {
+                    where += ` AND type = '${filters.type}'`;
+                    switch (filters.type) {
+                        case 'sale':
+                            if (filters.totalPriceMin) {
+                                where += ` AND totalPrice >= '${filters.totalPriceMin}'`;
+                            }
+                            if (filters.totalPriceMax) {
+                                where += ` AND totalPrice <= '${filters.totalPriceMax}'`;
+                            }
+                            break;
+                        case 'rent':
+                            if (filters.mortgagePriceMin) {
+                                where += ` AND mortgagePrice >= '${filters.mortgagePriceMin}'`;
+                            }
+                            if (filters.mortgagePriceMax) {
+                                where += ` AND mortgagePrice <= '${filters.mortgagePriceMax}'`;
+                            }
+                            if (filters.period) {
+                                where += ` AND period = '${filters.period}'`;
+                            }
+                            if (filters.periodPriceMin) {
+                                where += ` AND periodPrice >= '${filters.periodPriceMin}'`;
+                            }
+                            if (filters.periodPriceMax) {
+                                where += ` AND mortgagePrice <= '${filters.periodPriceMax}'`;
+                            }
+                            break;
+                    }
+                }
+                nextOne();
+            },
+            function(nextOne) {
+                if (filters.user && filters.user != 'timeline') {
+                    where += ` AND user = '${filters.user}'`;
+                    nextOne();
+                } else if ((filters.user && filters.user == 'timeline') || filters.timeline) {
+                    module.exports.network(me, 1).then((list) => {
+                        if (list.length > 1) { // if it just 1, means thas is myself
+                            where += ` AND user IN(${list.join()})`;
+                        }
+                        nextOne();
+                    });
+                } else {
+                    nextOne();
+                }
+            },
+            startQuery
+        ]);
+
+
     });
 }
 module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
     let query;
-    if (getDetail && false) { // old way
-        query = qc.new().select([
-                    't1.*',
-                    'COUNT(fa.id) AS i_favorite'
-                ], '(' +
-                qc.new().select([
-                        't1.*',
-                        'COUNT(fa.id) AS favorites_count'
-                    ], '(' +
-                    qc.new().select([
-                            't1.*',
-                            'COUNT(c.id) AS i_comment'
-                        ], '(' +
-                        qc.new().select([
-                                't1.*',
-                                'COUNT(c.id) AS comments_count'
-                            ], '(' +
-                            qc.new().select([
-                                's.*',
-                                'u.alias AS user_alias'
-                            ], 'sales s')
-                            .innerJoin('users u', 's.user = u.id')
-                            .where(`s.id = ${id}`)
-                            .groupBy('s.id').val(false) + ') t1')
-                        .leftJoin('comments c', 'c.sale = t1.id')
-                        .groupBy('t1.id').val(false) + ') t1')
-                    .leftJoin('comments c', `c.sale = t1.id AND c.user = ${me}`)
-                    .groupBy('t1.id').val(false) + ') t1')
-                .leftJoin('favorites fa', 'fa.sale = t1.id')
-                .groupBy('t1.id').val(false) + ') t1')
-            .leftJoin('favorites fa', `fa.sale = t1.id AND fa.user = ${me}`)
-            .groupBy('t1.id')
-            .val();
-    }
     if (getDetail) {
         query = qc.new().select([
                 's.*',
-                `CONCAT("${config.server.address + ':' + config.server.port + '/sales/'}", s.id, "/thumbnail") AS thumbnail`,
+                `CONCAT("${config.server.address + ':' + config.server.port + '/thumbnails/sales/'}", s.id) AS thumbnail`,
                 'u.alias AS user_alias'
             ], 'sales s')
             .innerJoin('users u', 's.user = u.id')
@@ -789,7 +804,6 @@ module.exports.fetchUser = (by = 'id', data = {}, me = null, cb = new Function()
     db.query(query, (err, result) => {
         let user = !err && result.length == 1 ? result[0] : false;
         if (me && user) {
-            console.log('true')
             module.exports.networkOf(me, user.id).then((networkOf) => {
                 user.network = networkOf;
                 module.exports.trust(me, user.id, networkOf).then((trust) => {

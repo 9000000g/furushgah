@@ -3,34 +3,32 @@
         <div class="panel-heading ">
             <div class="cell text-right ">
                 <span class="caption">
-					<a ng-click="$root.go( 'users/'+itemF.user) " class="caption text ">
-                        <i class="fa fa-user"></i> {{ itemF.user_alias }}
+					<a ng-click="$root.go( 'users/'+item.user) " class="caption text ">
+                        <i class="fa fa-user"></i> {{ item.user_alias || '@'+item.user }}
                     </a>
                     <div class="caption text rtl">
-                        {{ itemF.title }}, {{ itemF.date | pDate }}
+                        {{ item.title }}, {{ item.date | pDate }}
                     </div>
                 </span>
             </div>
-            <div class="cell text-left">
-                <span class="badge monospace" ng-class="{'yellow': itemF.trust.direct}">
-                    {{itemF.trust.trust}}<i class="fa fa-star"></i> 
+            <div class="cell text-left" ng-if="item.trust.trust != -1">
+                <span class="badge monospace" ng-class="{'yellow': item.trust.direct}">
+                    {{item.trust.trust}}<i class="fa fa-star"></i> 
                 </span>
             </div>
-
-
         </div>
-        <div class="image pointer" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+itemF.id) "></div>
-        <div class="body" ng-if="details">
-            {{ itemF.body }}
+        <div class="image pointer" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+item.id) "></div>
+        <div class="body" ng-if="item.comments">
+            {{ item.body }}
 
         </div>
         <div style="clear: both;"></div>
         <div class="panel-footer text-center">
             <i class="fa fa-credit-card "></i>
-            <span>{{ itemF | fPrice }} </span>
+            <span>{{ item | fPrice }} </span>
         </div>
     </div>
-    <div ng-if="details " class="panel panel-default post ">
+    <div ng-if="item.comments " class="panel panel-default post ">
         <div class="panel-heading ">
             <div class="cell text-right ">
                 <span class="caption">
@@ -39,7 +37,7 @@
             </div>
         </div>
         <div class="body">
-            <div class="panel panel-default post " ng-repeat="comment in itemF.comments">
+            <div class="panel panel-default post " ng-repeat="comment in item.comments">
                 <div class="panel-heading ">
                     <div class="cell text-right ">
                         <span class="caption ">
@@ -51,7 +49,7 @@
                     {{ comment.body }}
                 </div>
             </div>
-            <hr ng-if="itemF.comments.length > 0">
+            <hr ng-if="item.comments.length > 0">
             <form ng-submit="newComment() ">
                 <div class="row ">
                     <div class="form-group col-xs-12 ">

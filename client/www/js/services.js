@@ -55,13 +55,17 @@ angular.module('app.services', [])
         }
     })
     .filter('fPrice', function() {
+        var formatMoney = function(m) {
+            var ret = m.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '﷼';
+            return ret;
+        }
         return function(item) {
             if (typeof item == 'undefined') {
                 return '';
             }
             if (item.type == 'sale') {
-                return item.totalPrice + ' ریال';
-            } else {
+                return formatMoney(item.totalPrice);
+            } else if (item.type == 'rent') {
                 var periodTexts = {
                     year: 'سالانه',
                     month: 'ماهانه',
@@ -69,7 +73,9 @@ angular.module('app.services', [])
                     day: 'روزانه',
                     hour: 'هر ساعت'
                 }
-                return item.mortgagePrice + ' ریال ودیعه و ' + item.periodPrice + ' ریال ' + periodTexts[item.period];
+                return formatMoney(item.mortgagePrice) + ' ودیعه و ' + formatMoney(item.periodPrice) + ' ' + periodTexts[item.period];
+            } else {
+                return 'نامشخص';
             }
         }
     })
@@ -150,11 +156,13 @@ angular.module('app.services', [])
                     cb([], true);
                 }, options);
             } else {
-                cb([
-                    { name: 'علی دهقان', phone: '09163367114' },
-                    { name: 'سید بختک فول‌آرشیو منش', phone: '09114540023' },
-                    { name: 'دیویت بکام', phone: '09332091170' }
-                ], false);
+                setTimeout(function() {
+                    cb([
+                        { name: 'علی دهقان', phone: '09163367114' },
+                        { name: 'سید بختک فول‌آرشیو منش', phone: '09114540023' },
+                        { name: 'دیویت بکام', phone: '09332091170' }
+                    ], true);
+                }, 3000);
             }
         };
     })

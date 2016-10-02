@@ -9,8 +9,8 @@
         <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
-<div class="tf-container">
-    <div class="profile" tf-go="/users/{{item.id}}">
+<div class="tf-container" style="overflow-y: scroll">
+    <div class="profile">
         <i class="fa fa-user"></i><br>
         <h5> {{ item.alias }} </h5>
     </div>
@@ -36,8 +36,11 @@
             <li class="list-group-item pointer" tf-go="/users/{{item.id}}/list">
                 <i class="fa fa-list"></i> افراد لیست
             </li>
-            <li class="list-group-item pointer" tf-go="/main/user/{{item.id}}">
+            <li class="list-group-item pointer" tf-go="/sales/search/user={{item.id}}/کاربر {{item.alias}}">
                 <i class="fa fa-cubes"></i> محصولات
+            </li>
+            <li class="list-group-item pointer" ng-click="logout()" ng-show="me.id == item.id">
+                <i class="fa fa-sign-out"></i> خروج
             </li>
         </ul>
     </div>

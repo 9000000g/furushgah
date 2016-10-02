@@ -1,9 +1,17 @@
 angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.controllers'])
-    .config(function($routeProvider) {
+    .config(function($routeProvider, $tfHttpProvider) {
         $routeProvider
             .when('/login', {
                 templateUrl: 'templates/login.html',
                 controller: 'LoginCtrl'
+            })
+            .when('/sales/search/:filters?/:title?', {
+                templateUrl: 'templates/main.html',
+                controller: 'MainCtrl'
+            })
+            .when('/search', {
+                templateUrl: 'templates/search.html',
+                controller: 'SearchCtrl'
             })
             .when('/main', {
                 templateUrl: 'templates/main.html',
@@ -17,9 +25,7 @@ angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.co
                 templateUrl: 'templates/main.html',
                 controller: 'MainCtrl'
             })
-
-
-        .when('/users/new', {
+            .when('/users/new', {
                 templateUrl: 'templates/new-user.html',
                 controller: 'NewUserCtrl'
             })
@@ -27,19 +33,13 @@ angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.co
                 templateUrl: 'templates/profile.html',
                 controller: 'ProfileCtrl'
             })
-
-        .when('/users/:id/list', {
-            templateUrl: 'templates/list.html',
-            controller: 'ListCtrl'
-        })
-
-        .when('/sales/new', {
+            .when('/users/:id/list', {
+                templateUrl: 'templates/list.html',
+                controller: 'ListCtrl'
+            })
+            .when('/sales/new', {
                 templateUrl: 'templates/new-sale.html',
                 controller: 'NewSaleCtrl'
-            })
-            .when('/sales/search', {
-                templateUrl: 'templates/search.html',
-                controller: 'SearchCtrl'
             })
             .when('/sales/:id', {
                 templateUrl: 'templates/sale.html',
@@ -54,6 +54,8 @@ angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.co
                 controller: 'RelativesCtrl'
             })
             .otherwise({
-                redirectTo: '/main'
+                redirectTo: '/sales/search'
             });
+        $tfHttpProvider.address = serverConfig.address + ':' + serverConfig.port;
+        $tfHttpProvider.sid = _sid;
     })
