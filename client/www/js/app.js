@@ -1,29 +1,20 @@
 angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.controllers'])
     .config(function($routeProvider, $tfHttpProvider) {
         $routeProvider
+            .when('/', {
+                redirectTo: '/sales/search'
+            })
             .when('/login', {
                 templateUrl: 'templates/login.html',
                 controller: 'LoginCtrl'
             })
             .when('/sales/search/:filters?/:title?', {
-                templateUrl: 'templates/main.html',
-                controller: 'MainCtrl'
+                templateUrl: 'templates/sales.html',
+                controller: 'SalesCtrl'
             })
             .when('/search', {
                 templateUrl: 'templates/search.html',
                 controller: 'SearchCtrl'
-            })
-            .when('/main', {
-                templateUrl: 'templates/main.html',
-                controller: 'MainCtrl'
-            })
-            .when('/main/user/:user', {
-                templateUrl: 'templates/main.html',
-                controller: 'MainCtrl'
-            })
-            .when('/main/text/:text/timeline/:timeline', {
-                templateUrl: 'templates/main.html',
-                controller: 'MainCtrl'
             })
             .when('/users/new', {
                 templateUrl: 'templates/new-user.html',
@@ -45,17 +36,10 @@ angular.module('app', ['theFramework', 'app.services', 'app.directives', 'app.co
                 templateUrl: 'templates/sale.html',
                 controller: 'SaleCtrl'
             })
-            .when('/page1/:id', {
-                templateUrl: 'templates/page1.html',
-                controller: 'Page1Ctrl'
-            })
-            .when('/relatives', {
-                templateUrl: 'templates/relatives.html',
-                controller: 'RelativesCtrl'
-            })
             .otherwise({
                 redirectTo: '/sales/search'
             });
+        //$locationProvider.html5Mode(true);
         $tfHttpProvider.address = serverConfig.address + ':' + serverConfig.port;
         $tfHttpProvider.sid = _sid;
     })

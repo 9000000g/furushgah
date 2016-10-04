@@ -45,9 +45,13 @@ angular.module('app.directives', [])
                     server.post('/sales/' + scope.item.id + '/comments/new', { body: scope.inputs.body }).then(function(res) {
                         err = res.data.error;
                         res = res.data.result;
-                        scope.inputs.body = '';
                         if (!err) {
-                            scope.refresh();
+                            scope.item.comments.push({
+                                user: $rootScope.me.id,
+                                user_alias: $rootScope.me.alias,
+                                body: scope.inputs.body
+                            });
+                            scope.inputs.body = '';
                         }
                     });
                 }

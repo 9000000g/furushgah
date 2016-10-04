@@ -10,28 +10,28 @@
     </section>
 </nav>
 
-<form class="tf-container vertical-padding" ng-submit="submit()">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="form-group col-xs-12">
-                <label class="control-label">نام</label>
-                <input type="text" class="form-control" ng-model="inputs.alias" placeholder="نام و یا نام مستعار شما" required/>
-            </div>
+<form class="tf-container vertical-padding horizontal-padding" ng-submit="submit()">
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <label class="control-label">نام</label>
+            <input type="text" class="form-control" ng-model="inputs.alias" placeholder="نام و یا نام مستعار شما" required/>
         </div>
-        <div class="row">
-            <div class="form-group col-xs-12">
-                <label class="control-label">شماره تلفن</label>
-                <input type="tel" class="form-control" ng-model="inputs.mobile" placeholder="شماره تلفن شما" required/>
-            </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <label class="control-label">شماره تلفن</label>
+            <input type="tel" class="form-control" ng-model="inputs.mobile" placeholder="شماره تلفن شما" required/>
         </div>
-        <div class="row">
-            <div class="form-group col-xs-12">
-                <label class="control-label">رمز عبور</label>
-                <input type="password" class="form-control" ng-model="inputs.password" placeholder="رمز عبور" required/>
-            </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <label class="control-label">رمز عبور</label>
+            <input type="password" class="form-control" ng-model="inputs.password" placeholder="رمز عبور" required/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <button class="btn btn-primary btn-block" ng-disabled="!checkForm()" type="submit">ثبت نام</button>
         </div>
     </div>
 </form>
-<div>
-    <button class="btn btn-primary btn-lg btn-block" ng-disabled="!checkForm()" ng-click="submit()">ثبت نام</button>
-</div>

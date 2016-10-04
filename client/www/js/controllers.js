@@ -6,6 +6,7 @@ angular.module('app.controllers', [])
 
         $rootScope.desided = false;
         $rootScope.deside = function(loggedIn) {
+            //alert('im called and desided is ' + $rootScope.desided)
             if ($rootScope.desided) {
                 loggedIn(true);
             } else {
@@ -18,6 +19,9 @@ angular.module('app.controllers', [])
                         $rootScope.desided = true;
                         loggedIn(true);
                         $theFramework.loading(false);
+                        $theFramework.go('/sales/search');
+
+
                     } else {
                         $rootScope.desided = true;
                         $theFramework.loading(false);
@@ -50,7 +54,7 @@ angular.module('app.controllers', [])
             { text: 'موبایل', value: 5 }
         ];
     })
-    .controller('MainCtrl', function($scope, $rootScope, $routeParams, $tfHttp, $location, $window, $theFramework) {
+    .controller('SalesCtrl', function($scope, $rootScope, $routeParams, $tfHttp, $location, $window, $theFramework) {
         $rootScope.deside(function() {
             $scope.sidebar = false;
 
@@ -251,6 +255,7 @@ angular.module('app.controllers', [])
     })
     .controller('ProfileCtrl', function($scope, $rootScope, $tfHttp, $routeParams, $location, $theFramework) {
         $rootScope.deside(function() {
+            $scope.title = $routeParams.title ? $routeParams.title : false;
             $scope.trustList = [{
                 index: -1,
                 text: 'نظری ندارم',
@@ -323,6 +328,7 @@ angular.module('app.controllers', [])
         $rootScope.deside(function() {
             $scope.inputs = {};
             $scope.item = {};
+            $scope.title = $routeParams.title ? $routeParams.title : false;
             $scope.fetch = function(next) {
                 $tfHttp.get('/sales/' + $routeParams.id).then(function(res) {
                     err = res.data.error;
@@ -347,12 +353,12 @@ angular.module('app.controllers', [])
 
             $scope.submit = function() {
                 $theFramework.loading();
-                $tfHttp.file('/sales/new', $scope.inputs).then(function(res) {
+                $tfHttp.post('/sales/new', $scope.inputs).then(function(res) {
                     $theFramework.loading(false);
                     err = res.data.error;
                     res = res.data.result;
                     if (!err) {
-                        $theFramework.go('/main');
+                        $theFramework.go('/sales/search/timeline=true');
                     } else {
                         $theFramework.toast(res);
                     }

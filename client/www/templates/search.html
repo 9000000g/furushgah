@@ -20,7 +20,7 @@
     <div class="row">
         <div class="form-group col-xs-12">
             <label class="control-label">نوع فروش</label>
-            <select tf-selectize class="form-control" options="saleTypes" ng-model="inputs.type"></select>
+            <select tf-selectize class="form-control disable-search" options="saleTypes" ng-model="inputs.type"></select>
         </div>
     </div>
     <div class="row" ng-if="inputs.type == 'sale'">
@@ -46,7 +46,7 @@
     <div class="row " ng-if="inputs.type=='rent' ">
         <div class="form-group col-xs-4 " ng-if="inputs.type=='rent' ">
             <label class="control-label ">دوره دریافت اجاره</label>
-            <select tf-selectize class="form-control " options="periodTypes " ng-model="inputs.period "></select>
+            <select tf-selectize class="form-control disable-search" options="periodTypes " ng-model="inputs.period "></select>
         </div>
         <div class="form-group col-xs-4 " ng-if="inputs.type=='rent' ">
             <label class="control-label ">حداقل مبلغ اجاره</label>

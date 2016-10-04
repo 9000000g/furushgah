@@ -1,6 +1,6 @@
 <div class="sale-directive" ng-class="{'loading': loading}">
-    <div class=" panel panel-default post ">
-        <div class="panel-heading ">
+    <div class=" panel panel-default post " ng-class="{'single': details}">
+        <div class="panel-heading" ng-if="!details">
             <div class="cell text-right ">
                 <span class="caption">
 					<a ng-click="$root.go( 'users/'+item.user) " class="caption text ">
@@ -28,40 +28,27 @@
             <span>{{ item | fPrice }} </span>
         </div>
     </div>
-    <div ng-if="item.comments " class="panel panel-default post ">
-        <div class="panel-heading ">
-            <div class="cell text-right ">
-                <span class="caption">
-                    <a class="caption text "><i class="fa fa-comments "></i> نظرها </a>
-                </span>
-            </div>
-        </div>
-        <div class="body">
-            <div class="panel panel-default post " ng-repeat="comment in item.comments">
-                <div class="panel-heading ">
-                    <div class="cell text-right ">
-                        <span class="caption ">
-                            <a ng-click="$root.go( 'users/'+comment.user) " class="caption text "><i class="fa fa-user "></i> {{ comment.user_alias }} </a>
+    <div ng-if="item.comments" class="panel panel-default post single horizontal-padding vertical-padding comments">
+        <form ng-submit="newComment()">
+            <div class="row">
+                <div class="form-group col-xs-12">
+                    <div class="input-group">
+                        <input type="text" ng-model="inputs.body" class="form-control input-sm" placeholder="نظر خود را درباره این محصول بنویسید...">
+                        <span class="input-group-btn" style="z-index: 30000">
+                            <button class="btn btn-primary btn-sm" type="submit">ارسال!</button>
                         </span>
                     </div>
                 </div>
-                <div class="body ">
-                    {{ comment.body }}
-                </div>
             </div>
-            <hr ng-if="item.comments.length > 0">
-            <form ng-submit="newComment() ">
-                <div class="row ">
-                    <div class="form-group col-xs-12 ">
-                        <textarea class="form-control input-sm" placeholder="نظر خود را درباره این محصول بنویسید... " ng-model="inputs.body "></textarea>
-                    </div>
-                </div>
-                <div class="row ">
-                    <div class="form-group col-xs-4 col-xs-offset-8 ">
-                        <button class="btn btn-sm btn-primary full-width " type="submit ">ارسال</button>
-                    </div>
-                </div>
-            </form>
+        </form>
+        <div class="comment" ng-repeat="comment in item.comments">
+            <span class="label label-default pointer" ng-click="$root.go( 'users/'+comment.user) ">
+                <i class="fa fa-user "></i> {{ comment.user_alias }}
+            </span>
+
+            <span class="body">
+                {{ comment.body }}
+            </span>
         </div>
     </div>
 </div>

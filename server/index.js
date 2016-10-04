@@ -57,7 +57,7 @@ app.get('/file/:name', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'image/jpg' });
     res.end(content, 'file');
 });
-app.post('/login', (req, res) => {
+app.post('/login', upload.array(), (req, res) => {
     req.session.me = false;
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -78,7 +78,7 @@ app.post('/login', (req, res) => {
         return;
     });
 });
-app.post('/logout', (req, res) => {
+app.post('/logout', upload.array(), (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
         return;
@@ -110,13 +110,24 @@ app.get('/sales/search/:filters?/:page?', (req, res) => {
             filters[keyval[0]] = keyval[1];
         }
     }
-    console.log(filters.text);
+    //console.log(filters.text);
     //req.query.timeline = typeof req.query.timeline == 'undefined' ? true : (req.query.timeline == 'true' ? true : false);
     funcs.searchSales(filters, req.session.me.id, page).then((result) => {
         res.json({ error: false, result: result });
         return;
     }).catch((err) => {
         res.json({ error: true, result: err });
+    });
+});
+app.get('/sales/:id/thumbnail', (req, res) => {
+    let basedir = `${__dirname}/uploads`;
+    let file = `${basedir}/thumb-${req.params.id}.*`;
+    glob(file, function(err, files) {
+        if (files.length != 1) {
+            res.sendFile(`${basedir}/thumb-default.jpg`);
+        } else {
+            res.sendFile(files[0]);
+        }
     });
 });
 
@@ -139,7 +150,7 @@ app.get('/users/:id', (req, res) => {
         return;
     });
 });
-app.post('/users/new', (req, res) => {
+app.post('/users/new', upload.array(), (req, res) => {
     if (!req.body.alias || !req.body.mobile || !req.body.password) {
         res.json({ error: true, result: 'Data Error!' });
         return;
@@ -225,7 +236,7 @@ app.get('/users/:id/relation', (req, res) => {
         return;
     });
 });
-app.post('/users/:id/relation', (req, res) => {
+app.post('/users/:id/relation', upload.array(), (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
         return;
@@ -351,8 +362,9 @@ app.post('/users/:id/unfollow', (req, res) => {
         return;
     });
 });
-app.post('/sales/new', upload.array(), (req, res) => {
+app.post('/sales/new', upload.single('file'), (req, res) => {
     //console.log(req.body)
+    //console.log(req.file.path)
     //thumbnail, 
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -362,8 +374,8 @@ app.post('/sales/new', upload.array(), (req, res) => {
         res.json({ error: true, result: 'Login First!' });
         return;
     }
-    if (!req.body.thumbnail) {
-        res.json({ error: true, result: typeof req.body.thumbnail });
+    if (!req.file.path) {
+        res.json({ error: true, result: false });
         return;
     }
     //console.log(req.body);
@@ -373,15 +385,19 @@ app.post('/sales/new', upload.array(), (req, res) => {
     }
     req.body.user = req.session.me.id;
     req.body.date = funcs.mysqlDate(new Date());
-    let b64 = req.body.thumbnail;
-    delete req.body.thumbnail;
+
     funcs.newSale(req.body, (err, result) => {
         let path = `${__dirname}/uploads/thumb-${result.insertId}.jpg`;
-        funcs.b64toFile(b64, path).then(() => {
-            res.json({ error: false, result: true });
-        }).catch(() => {
-            res.json({ error: true, result: errj.code });
+        jimp.read(req.file.path).then((lenna) => {
+            lenna.resize(800, jimp.AUTO)
+                .quality(50)
+                .write(path, () => {
+                    res.json({ error: false, result: result.insertId });
+                });
         });
+
+        //fs.renameSync(req.file.path, path);
+
     });
 });
 app.get('/sales/:id', (req, res) => {
@@ -506,17 +522,7 @@ app.post('/sales/:id/comments/new', (req, res) => {
         return;
     });
 });
-app.get('/thumbnails/sales/:id', (req, res) => {
-    let basedir = `${__dirname}/uploads`;
-    let file = `${basedir}/thumb-${req.params.id}.*`;
-    glob(file, function(err, files) {
-        if (files.length != 1) {
-            res.sendFile(`${basedir}/thumb-default.jpg`);
-        } else {
-            res.sendFile(files[0]);
-        }
-    });
-});
+
 
 app.get('/hi', (req, res) => {
     res.json({ error: false, result: 'Hi Baby :-)' });
@@ -558,10 +564,5 @@ app.get('/nainemom/resize', (req, res) => {
             res.json({ error: false, result: files });
         }, 1000);
 
-    });
-});
-app.get('/nainemom/rebuild-level-db', (req, res) => {
-    funcs.rebuildLevelDb((result) => {
-        res.json({ error: false, result: result });
     });
 });

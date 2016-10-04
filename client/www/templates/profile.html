@@ -4,6 +4,7 @@
     </section>
     <section class="title">
         <h4>پروفایل</h4>
+        <p ng-bind="item.alias"></p>
     </section>
     <section class="icon button" tf-go="back">
         <i class="fa fa-arrow-left"></i>
@@ -36,7 +37,7 @@
             <li class="list-group-item pointer" tf-go="/users/{{item.id}}/list">
                 <i class="fa fa-list"></i> افراد لیست
             </li>
-            <li class="list-group-item pointer" tf-go="/sales/search/user={{item.id}}/کاربر {{item.alias}}">
+            <li class="list-group-item pointer" tf-go="/sales/search/user={{item.id}}/{{item.alias}}">
                 <i class="fa fa-cubes"></i> محصولات
             </li>
             <li class="list-group-item pointer" ng-click="logout()" ng-show="me.id == item.id">

@@ -1,6 +1,6 @@
 <nav class="tf-navbar">
     <section class="icon">
-        <i class="fa fa-cubes"></i>
+        <i class="fa fa-shopping-cart"></i>
     </section>
     <section class="title">
         <h4>فروشگاه</h4>
@@ -16,10 +16,10 @@
         <i class="fa fa-user"></i>
     </section>
 </nav>
-<div class="tf-container" tf-scroll-end="fetch(true)" style="overflow-y: scroll">
+<div class="tf-container" tf-scroll-end="fetch(true)" style="overflow-y: scroll" ng-swipe-left="go('/sales/search/timeline=true')" ng-swipe-right="go('/sales/search')">
     <div class="main-items full-width" ng-if="!title">
-        <button tf-go="/sales/search/timeline=true" class="btn btn-block btn-primary" ng-class="{selected: inTimeline}"> <i class="fa fa-users"></i> حلقه من </button>
-        <button tf-go="/sales/search" class="btn btn-block btn-primary" ng-class="{selected: !inTimeline}"> <i class="fa fa-globe"></i> کل سیستم </button>
+        <div tf-go="/sales/search/timeline=true" ng-class="{selected: inTimeline}"> <i class="fa fa-users"></i> حلقه آشنایان من </div>
+        <div tf-go="/sales/search" ng-class="{selected: !inTimeline}"> <i class="fa fa-globe"></i> کل سیستم </div>
     </div>
     <div class="horizontal-padding vertical-padding">
         <div class="half-width inline-block" ng-repeat="item in items">

@@ -556,7 +556,7 @@ module.exports.searchSales = (filters = {}, me = 1, page = 1, cb = new Function(
         let limitStart = limit * page - limit;
         let where = 'TRUE';
         let startQuery = () => {
-            console.log(where);
+            //console.log(where);
             let query = qc.new().select([
                     'id',
                 ], 'sales')
@@ -629,9 +629,7 @@ module.exports.searchSales = (filters = {}, me = 1, page = 1, cb = new Function(
                     nextOne();
                 } else if ((filters.user && filters.user == 'timeline') || filters.timeline) {
                     module.exports.network(me, 1).then((list) => {
-                        if (list.length > 1) { // if it just 1, means thas is myself
-                            where += ` AND user IN(${list.join()})`;
-                        }
+                        where += ` AND user IN(${list.join()})`;
                         nextOne();
                     });
                 } else {
@@ -649,7 +647,7 @@ module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
     if (getDetail) {
         query = qc.new().select([
                 's.*',
-                `CONCAT("${config.server.address + ':' + config.server.port + '/thumbnails/sales/'}", s.id) AS thumbnail`,
+                `CONCAT("${config.server.address + ':' + config.server.port + '/sales/'}", s.id, '/thumbnail') AS thumbnail`,
                 'u.alias AS user_alias'
             ], 'sales s')
             .innerJoin('users u', 's.user = u.id')
