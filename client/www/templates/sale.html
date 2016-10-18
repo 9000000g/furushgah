@@ -10,11 +10,14 @@
             {{ item.title }}, {{ item.date | pDate }}
         </p>
     </section>
+    <section class="icon button" ng-if="item.user == me.id" ng-click="delete()">
+        <i class="fa fa-trash"></i>
+    </section>
     <section class="icon button" tf-go="back">
         <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
 
-<div class="tf-container" style="overflow-y: scroll">
+<div class="tf-container">
     <sale-directive details="true" item="item"></sale-directive>
 </div>

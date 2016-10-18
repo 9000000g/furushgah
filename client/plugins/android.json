@@ -18,6 +18,9 @@
         },
         "cordova-plugin-camera": {
             "PACKAGE_NAME": "io.nainemom.furushgah"
+        },
+        "cordova-plugin-file-transfer": {
+            "PACKAGE_NAME": "io.nainemom.furushgah"
         }
     },
     "dependent_plugins": {

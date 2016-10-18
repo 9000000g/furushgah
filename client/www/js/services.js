@@ -56,7 +56,7 @@ angular.module('app.services', [])
     })
     .filter('fPrice', function() {
         var formatMoney = function(m) {
-            var ret = m.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '﷼';
+            var ret = m.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ﷼';
             return ret;
         }
         return function(item) {

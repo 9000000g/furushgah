@@ -19,7 +19,7 @@
 
             <div class="form-group col-xs-3">
                 <label class="control-label"> تصویر </label>
-                <div class="btn btn-sm btn-primary full-width" tf-image-picker ng-model="inputs.file">
+                <div class="btn btn-sm full-width" tf-image-picker ng-model="inputs.file" ng-change="imageChanged()" ng-class="imageClass">
                     <i class="fa fa-image"></i>
                 </div>
             </div>
@@ -33,11 +33,11 @@
         <div class="row">
             <div class="form-group col-sm-6">
                 <label class="control-label">دسته‌بندی فروش</label>
-                <select tf-selectize class="form-control" options="categoryTypes" ng-model="inputs.category" required></select>
+                <tf-select class="form-control" options="categoryTypes" ng-model="inputs.category" required></tf-select>
             </div>
             <div class="form-group col-sm-6">
                 <label class="control-label">نوع فروش</label>
-                <select tf-selectize class="form-control disable-search" options="saleTypes" ng-model="inputs.type"></select>
+                <tf-select class="form-control disable-search" options="saleTypes" ng-model="inputs.type"></tf-select>
             </div>
         </div>
         <div class="row">
@@ -51,7 +51,7 @@
             </div>
             <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
                 <label class="control-label">دوره دریافت اجاره</label>
-                <select tf-selectize class="form-control disable-search" options="periodTypes" ng-model="inputs.period" placeholder="بازه زمانی دوره دریافت اجاره." required></select>
+                <tf-select class="form-control disable-search" options="periodTypes" ng-model="inputs.period" placeholder="بازه زمانی دوره دریافت اجاره." required></tf-select>
             </div>
             <div class="form-group col-sm-4" ng-if="inputs.type == 'rent'">
                 <label class="control-label">مبلغ اجاره</label>
@@ -60,7 +60,7 @@
         </div>
         <div class="row">
             <div class="form-group col-xs-12">
-                <button class="btn btn-primary btn-block" type="submit()"> ارسال </button>
+                <button class="btn btn-primary btn-md btn-block" type="submit()" ng-disabled="busy"> ارسال </button>
             </div>
         </div>
     </div>

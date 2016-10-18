@@ -685,6 +685,7 @@ module.exports.fetchSale = (id = 1, me = 0, getDetail = true) => {
 module.exports.newSale = (data = {}, cb = new Function()) => {
     let query = qc.new().insert('sales', data).val();
     db.query(query, (err, result) => {
+        //console.log(err)
         cb(err ? err : false, result ? result : false);
     });
 }

@@ -6,7 +6,6 @@ angular.module('app.controllers', [])
 
         $rootScope.desided = false;
         $rootScope.deside = function(loggedIn) {
-            //alert('im called and desided is ' + $rootScope.desided)
             if ($rootScope.desided) {
                 loggedIn(true);
             } else {
@@ -19,7 +18,7 @@ angular.module('app.controllers', [])
                         $rootScope.desided = true;
                         loggedIn(true);
                         $theFramework.loading(false);
-                        $theFramework.go('/sales/search');
+                        //$theFramework.go('/sales/search');
 
 
                     } else {
@@ -54,55 +53,75 @@ angular.module('app.controllers', [])
             { text: 'موبایل', value: 5 }
         ];
     })
-    .controller('SalesCtrl', function($scope, $rootScope, $routeParams, $tfHttp, $location, $window, $theFramework) {
+    .controller('SalesCtrl', function($scope, $rootScope, $routeParams, $tfHttp, $timeout, $window, $theFramework, items, filters, fetchMore) {
         $rootScope.deside(function() {
             $scope.sidebar = false;
+            $scope.bars = true;
 
-            $scope.inTimeline = ($routeParams.filters && $routeParams.filters.indexOf('timeline=true') !== -1);
-            $scope.title = $routeParams.title ? $routeParams.title : false;
-
-
-            $scope.items = [];
-            $scope.currentPage = 1;
-            $scope.btnVisible = false;
-
-            $scope.busy = false;
-            $scope.fetch = function(next) {
-                next = typeof next == 'undefined' ? false : next;
-                if ((next && !$scope.btnVisible) || $scope.busy) {
-                    return;
-                }
-                $theFramework.loading();
-                $scope.busy = true;
-
-                if (next) {
-                    $scope.currentPage++;
-                } else {
-                    $scope.items = [];
-                    $scope.currentPage = 1;
-                }
-                $tfHttp.get('/sales/search/' + $routeParams.filters + '/' + $scope.currentPage).then(function(res) {
-                    $theFramework.loading(false);
-                    $scope.busy = false;
-                    err = res.data.error;
-                    res = res.data.result;
-                    if (err) {
-                        return;
-                    }
-                    for (var i = 0; i < res.length; i++) {
-                        $scope.items.push(res[i]);
-                    }
-                    if (res.length == 0) {
-                        $scope.btnVisible = false;
-                    } else {
-                        $scope.btnVisible = true;
-                    }
-                });
+            $scope.goTimeline = function() {
+                filters.timeline = true;
+                delete filters.user;
+                $theFramework.go('/sales/search/' + $tfHttp.serialize(filters))
             }
 
 
+            $scope.goEntireSystem = function() {
+                delete filters.timeline;
+                delete filters.user;
+                $theFramework.go('/sales/search/' + $tfHttp.serialize(filters))
+            }
 
-            $scope.fetch(false);
+            //$scope.inTimeline = ($routeParams.filters && $routeParams.filters.indexOf('timeline=true') !== -1);
+            //$scope.title = $routeParams.filters ? $routeParams.title : false;
+
+            $scope.inTimeline = (filters.timeline == 'true');
+            $scope.inUser = (typeof filters.user != 'undefined');
+            $scope.searched = Object.keys(filters).length >= 2 || (Object.keys(filters).length == 1 && (typeof filters.timeline == 'undefined'));
+
+
+            $scope.items = items;
+
+            $scope.filters = filters;
+
+            $scope.title = '';
+            if ($scope.inUser) {
+                $tfHttp.get('/users/' + filters.user).then(function(res) {
+                    err = res.data.error;
+                    res = res.data.result;
+                    $scope.title = res.alias;
+                });
+            }
+
+            var busy = false;
+            var ended = false;
+            $scope.next = function() {
+                if (!ended) {
+                    $theFramework.loading(true);
+                    busy = true;
+                    fetchMore(function(newItems) {
+                        console.log('fetched')
+                        for (var i = 0; i < newItems.length; i++) {
+                            $scope.items.push(newItems[i]);
+                        }
+                        busy = false;
+                        $theFramework.loading(false);
+                    }, function(err) {
+                        console.log('err')
+                        $theFramework.loading(false);
+                        $theFramework.toast(err);
+                        busy = false;
+                        ended = true;
+                    });
+                    //$theFramework.go('/sales/search/' + $routeParams.filters + '/' + (page + 1));
+                }
+            }
+
+            $scope.first = function() {
+                if (!busy) {
+                    busy = true;
+                    $theFramework.go('/sales/search/' + $routeParams.filters + '/' + 1);
+                }
+            }
         });
     })
     .controller('SearchCtrl', function($scope, $rootScope, $tfHttp, $routeParams, $timeout, $location, $theFramework) {
@@ -110,20 +129,8 @@ angular.module('app.controllers', [])
             $scope.inputs = {};
 
             $scope.submit = function() {
-                var sp = '';
-                var searchObj = '';
-                for (var i in $scope.inputs) {
-                    if (i == 'timeline' && $scope.inputs[i] == false) {
-                        continue;
-                    }
-                    searchObj += sp + i + '=' + encodeURIComponent($scope.inputs[i]);
-                    sp = '&';
-                }
-                if (searchObj.length > 0) {
-                    $theFramework.go('/sales/search/' + searchObj + '/نتایج جست‌وجو');
-                } else {
-                    $theFramework.go('/sales/search');
-                }
+                var searchObj = $tfHttp.serialize($scope.inputs);
+                $theFramework.go('/sales/search/' + searchObj);
             }
         });
     })
@@ -166,7 +173,14 @@ angular.module('app.controllers', [])
             $scope.searched = false;
             $scope.searchContact = [];
             $scope.searchItems = [];
+
             $scope.search = function(num) {
+                if (num === '') {
+                    $scope.searchContact = $scope.contacts;
+                    $scope.searchItems = $scope.items;
+                    $scope.searched = false;
+                    return;
+                }
 
                 $scope.searchContacts = [];
                 $scope.searchItems = [];
@@ -192,20 +206,23 @@ angular.module('app.controllers', [])
                     err = res.data.error;
                     res = res.data.result;
                     $scope.items = res;
+                    $scope.searchItems = $scope.items;
                     if ($routeParams.id == $rootScope.me.id) {
                         var list = localStorage.getItem('contacts');
                         if (!list) {
                             contacts(function(list, needApply) {
                                 $theFramework.loading(false);
                                 $scope.contacts = list;
+                                $scope.searchContacts = $scope.contacts;
+
                                 localStorage.setItem('contacts', JSON.stringify(list));
                                 if (list.length > 0 && needApply) {
                                     $scope.$apply();
                                 }
                             });
                         } else {
-
                             $scope.contacts = JSON.parse(list);
+                            $scope.searchContacts = $scope.contacts;
                             $theFramework.loading(false);
                         }
                     } else {
@@ -329,6 +346,21 @@ angular.module('app.controllers', [])
             $scope.inputs = {};
             $scope.item = {};
             $scope.title = $routeParams.title ? $routeParams.title : false;
+            $scope.delete = function() {
+                if (!confirm('آیا از حذف این محصول مطمئنید؟')) {
+                    return;
+                }
+                $tfHttp.post('/sales/' + $routeParams.id + '/delete').then(function(res) {
+                    err = res.data.error;
+                    res = res.data.result;
+                    if (err) {
+                        $theFramework.toast('بروز اشکال در حذف محصول!');
+                    } else {
+                        $theFramework.toast('محصول شما با موفقیت حذف شد!');
+                        $theFramework.go('back');
+                    }
+                });
+            }
             $scope.fetch = function(next) {
                 $tfHttp.get('/sales/' + $routeParams.id).then(function(res) {
                     err = res.data.error;
@@ -345,24 +377,32 @@ angular.module('app.controllers', [])
         });
 
     })
-    .controller('NewSaleCtrl', function($scope, $rootScope, $tfHttp, $routeParams, $location, $theFramework) {
+    .controller('NewSaleCtrl', function($scope, $rootScope, $tfHttp, $routeParams, $timeout, $theFramework) {
         $rootScope.deside(function() {
             $scope.inputs = {};
             $scope.file = null;
-
+            $scope.busy = false;
 
             $scope.submit = function() {
+                $scope.busy = true;
                 $theFramework.loading();
                 $tfHttp.post('/sales/new', $scope.inputs).then(function(res) {
                     $theFramework.loading(false);
                     err = res.data.error;
                     res = res.data.result;
                     if (!err) {
+                        $theFramework.toast('با موفقیت اضافه شد!');
                         $theFramework.go('/sales/search/timeline=true');
                     } else {
                         $theFramework.toast(res);
                     }
                 });
+            }
+            $scope.imageClass = 'btn-default';
+            $scope.imageChanged = function() {
+                $timeout(function() {
+                    $scope.imageClass = 'btn-primary';
+                })
             }
         });
     })

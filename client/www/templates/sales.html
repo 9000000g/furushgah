@@ -3,46 +3,34 @@
         <i class="fa fa-shopping-cart"></i>
     </section>
     <section class="title">
-        <h4>فروشگاه</h4>
-        <p ng-if="title" ng-bind="title"></p>
+        <h4 ng-if="!title">فروشگاه</h4>
+        <h4 ng-if="title" ng-bind="title"></h4>
     </section>
-    <section class="icon button" tf-go="/search" ng-if="!title">
+    <section class="icon button" tf-go="/search" ng-if="!searched">
         <i class="fa fa-search"></i>
     </section>
-    <section class="icon button" tf-go="/sales/search" ng-if="title">
+    <section class="icon button" tf-go="/sales/search" ng-if="searched">
         <i class="fa fa-search-minus"></i>
     </section>
     <section class="icon button" tf-go="/users/{{me.id}}">
         <i class="fa fa-user"></i>
     </section>
 </nav>
-<div class="tf-container" tf-scroll-end="fetch(true)" style="overflow-y: scroll" ng-swipe-left="go('/sales/search/timeline=true')" ng-swipe-right="go('/sales/search')">
-    <div class="main-items full-width" ng-if="!title">
-        <div tf-go="/sales/search/timeline=true" ng-class="{selected: inTimeline}"> <i class="fa fa-users"></i> حلقه آشنایان من </div>
-        <div tf-go="/sales/search" ng-class="{selected: !inTimeline}"> <i class="fa fa-globe"></i> کل سیستم </div>
-    </div>
-    <div class="horizontal-padding vertical-padding">
-        <div class="half-width inline-block" ng-repeat="item in items">
+<ul class="tf-tabs" ng-if="!inUser">
+    <li ng-click="goTimeline()" ng-class="{active: inTimeline}"> <i class="fa fa-users"></i> حلقه آشنایان من </li>
+    <li ng-click="goEntireSystem()" ng-class="{active: !inTimeline}"> <i class="fa fa-globe"></i> کل سیستم </li>
+</ul>
+<div class="tf-container" tf-scroll tf-scroll-bottom="next()" tf-scroll-down="bars=false" tf-scroll-up="bars=true" ng-swipe-left="go('/sales/search/timeline=true')" ng-swipe-right="go('/sales/search')">
+
+    <div class="vertical-padding" ng-if="items.length != 0">
+        <div class="col-xs-6 col-sm-4 col-lg-3 no-margin no-padding" ng-repeat="item in items">
             <sale-directive details="false" item="item"></sale-directive>
         </div>
     </div>
-    <tf-floating-btn tf-go="/sales/new"><i class="fa fa-plus"></i></tf-floating-btn>
+    <div ng-if="items.length == 0" class="vertical-padding horizontal-padding">
+        <p>
+            چیزی پیدا نشد!
+        </p>
+    </div>
+    <tf-floating-btn ng-show="bars" tf-go="/sales/new"><i class="fa fa-plus"></i></tf-floating-btn>
 </div>
-
-<tf-sidebar open="sidebar" direction="left">
-    <ul class="list-group main-sidebar pointer">
-        <li class="list-group-item profile" tf-go="/users/me">
-            <i class="fa fa-user"></i><br>
-            <h5> {{ me.alias }} </h5>
-        </li>
-        <li class="list-group-item pointer" tf-go="/users/{{me.id}}/list">
-            <i class="fa fa-list"></i> افراد لیست من
-        </li>
-        <li class="list-group-item pointer" tf-go="/sales/search/user={{me.id}}/محصولات من">
-            <i class="fa fa-cubes"></i> محصولات من
-        </li>
-        <li class="list-group-item" ng-click="logout()">
-            <i class="fa fa-sign-out"></i> خروج
-        </li>
-    </ul>
-</tf-sidebar>

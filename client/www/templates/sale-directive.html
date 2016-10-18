@@ -1,20 +1,17 @@
-<div class="sale-directive" ng-class="{'loading': loading}">
+<div class="sale-directive">
     <div class=" panel panel-default post " ng-class="{'single': details}">
         <div class="panel-heading" ng-if="!details">
-            <div class="cell text-right ">
-                <span class="caption">
-					<a ng-click="$root.go( 'users/'+item.user) " class="caption text ">
-                        <i class="fa fa-user"></i> {{ item.user_alias || '@'+item.user }}
-                    </a>
-                    <div class="caption text rtl">
-                        {{ item.title }}, {{ item.date | pDate }}
-                    </div>
-                </span>
-            </div>
-            <div class="cell text-left" ng-if="item.trust.trust != -1">
-                <span class="badge monospace" ng-class="{'yellow': item.trust.direct}">
+            <div class="text-right ">
+                <span class="badge monospace pull-left" ng-if="item.trust.trust != -1" ng-class="{'yellow': item.trust.direct}">
                     {{item.trust.trust}}<i class="fa fa-star"></i> 
                 </span>
+                <a ng-click="$root.go( 'users/'+item.user) " class="caption text ">
+                    <i class="fa fa-user"></i> {{ item.user_alias || '@'+item.user }}
+                </a>
+                <div class="caption text rtl">
+                    {{ item.title }}, {{ item.date | pDate }}
+                </div>
+
             </div>
         </div>
         <div class="image pointer" ng-style="{ 'background-image': 'url('+item.thumbnail+')' }" ng-click="$root.go( 'sales/'+item.id) "></div>
@@ -24,7 +21,7 @@
         </div>
         <div style="clear: both;"></div>
         <div class="panel-footer text-center">
-            <i class="fa fa-credit-card "></i>
+            <i class="fa fa-money "></i>
             <span>{{ item | fPrice }} </span>
         </div>
     </div>

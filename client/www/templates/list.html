@@ -21,20 +21,12 @@
 </nav>
 <tf-searchbar open="searchbar" search="search($text)"></tf-searchbar>
 <div class="tf-container">
-    <ul class="list-group block" ng-show="searched === false">
-        <li class="list-group-item pointer" ng-repeat="item in items " tf-go="/users/{{item.user}}">
-            <span class="badge monospace"><span class="yellow"><i class="fa fa-star"></i>{{item.trust}}</span></span> {{item.alias}}
-        </li>
-        <li class="list-group-item pointer" ng-repeat="item in contacts" ng-click="checkExists(item.phone)">
-            <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
-        </li>
-    </ul>
-    <ul class="list-group block" ng-show="searched !== false">
+    <ul class="list-group block">
         <li class="list-group-item pointer" ng-repeat="item in searchItems " tf-go="/users/{{item.user}}">
             <span class="badge monospace"><span class="yellow"><i class="fa fa-star"></i>{{item.trust}}</span></span> {{item.alias}}
         </li>
         <li class="list-group-item pointer" ng-repeat="item in searchContacts" ng-click="checkExists(item.phone)">
-            <span class="badge monospace " ng-bind="item.phone "></span> {{item.name}}
+            <span class="pull-left gray monospace " ng-bind="item.phone "></span> {{item.name}}
         </li>
     </ul>
 </div>

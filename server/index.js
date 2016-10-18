@@ -42,21 +42,9 @@ app.use(function(req, res, next) {
     }
     next();
 });
-app.post('/file', upload.single('file'), (req, res) => {
-    let newPath = `${__dirname}/uploads/${funcs.uniqueName()}.jpg`;
-    res.json({ error: true, result: req.file.path });
 
-});
-app.get('/file/:name', (req, res) => {
-    let basedir = `${__dirname}/uploads`;
-    let file = `${basedir}/${req.params.name}`;
-    if (!funcs.checkExists(file, 'file')) {
-        file = `${basedir}/thumb-default.jpg`;
-    }
-    let content = fs.readFileSync(file);
-    res.writeHead(200, { 'Content-Type': 'image/jpg' });
-    res.end(content, 'file');
-});
+
+
 app.post('/login', upload.array(), (req, res) => {
     req.session.me = false;
     if (req.session == null) {
@@ -200,22 +188,7 @@ app.get('/users/:id/trusts', (req, res) => {
     });
 });
 
-app.get('/users/:id/checkFollow', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    let follower = req.session.me.id;
-    let following = req.params.id;
-    funcs.checkFollow(follower, following, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
+
 app.get('/users/:id/relation', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -330,6 +303,22 @@ app.get('/users/:id/trust/:id2', (req, res) => {
 });
 
 
+app.get('/users/:id/checkFollow', (req, res) => {
+    if (req.session == null) {
+        res.json({ error: true, result: 'Session Error!' });
+        return;
+    }
+    if (req.session.me === false) {
+        res.json({ error: true, result: 'Login First!' });
+        return;
+    }
+    let follower = req.session.me.id;
+    let following = req.params.id;
+    funcs.checkFollow(follower, following, (err, result) => {
+        res.json({ error: err, result: result });
+        return;
+    });
+});
 app.post('/users/:id/follow', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -362,10 +351,9 @@ app.post('/users/:id/unfollow', (req, res) => {
         return;
     });
 });
+
+
 app.post('/sales/new', upload.single('file'), (req, res) => {
-    //console.log(req.body)
-    //console.log(req.file.path)
-    //thumbnail, 
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
         return;
@@ -374,30 +362,31 @@ app.post('/sales/new', upload.single('file'), (req, res) => {
         res.json({ error: true, result: 'Login First!' });
         return;
     }
-    if (!req.file.path) {
-        res.json({ error: true, result: false });
-        return;
-    }
-    //console.log(req.body);
+
     if (!req.body.title) {
         res.json({ error: true, result: 'Data Error!' });
         return;
     }
     req.body.user = req.session.me.id;
     req.body.date = funcs.mysqlDate(new Date());
-
+    req.body.published = 0;
+    delete req.body.file;
     funcs.newSale(req.body, (err, result) => {
-        let path = `${__dirname}/uploads/thumb-${result.insertId}.jpg`;
-        jimp.read(req.file.path).then((lenna) => {
-            lenna.resize(800, jimp.AUTO)
-                .quality(50)
-                .write(path, () => {
-                    res.json({ error: false, result: result.insertId });
-                });
-        });
-
-        //fs.renameSync(req.file.path, path);
-
+        let endOfStory = function() {
+            res.json({ error: false, result: result.insertId });
+        }
+        if (!req.file || !req.file.path) {
+            endOfStory();
+        } else {
+            let path = `${__dirname}/uploads/thumb-${result.insertId}.jpg`;
+            jimp.read(req.file.path).then((lenna) => {
+                lenna.resize(400, jimp.AUTO)
+                    .quality(40)
+                    .write(path, () => {
+                        endOfStory();
+                    });
+            });
+        }
     });
 });
 app.get('/sales/:id', (req, res) => {
@@ -409,54 +398,7 @@ app.get('/sales/:id', (req, res) => {
         return;
     });
 });
-app.get('/sales/:id/checkFavorite', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    funcs.checkFavorite(req.session.me.id, req.params.id, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
-app.get('/sales/:id/favorites', (req, res) => {
-    funcs.fetchFavorites(req.params.id, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
-app.post('/sales/:id/favorites/new', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    funcs.newFavorite(req.session.me.id, req.params.id, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
-app.post('/sales/:id/favorites/delete', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    funcs.deleteFavorite(req.session.me.id, req.params.id, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
+
 app.post('/sales/:id/delete', (req, res) => {
     if (req.session == null) {
         res.json({ error: true, result: 'Session Error!' });
@@ -484,20 +426,9 @@ app.post('/sales/:id/delete', (req, res) => {
         });
     });
 });
-app.get('/sales/:id/checkComment', (req, res) => {
-    if (req.session == null) {
-        res.json({ error: true, result: 'Session Error!' });
-        return;
-    }
-    if (req.session.me === false) {
-        res.json({ error: true, result: 'Login First!' });
-        return;
-    }
-    funcs.checkComment(req.session.me.id, req.params.id, (err, result) => {
-        res.json({ error: err, result: result });
-        return;
-    });
-});
+
+
+
 app.get('/sales/:id/comments', (req, res) => {
     funcs.fetchComments(req.params.id, (err, result) => {
         res.json({ error: err, result: result });
@@ -524,20 +455,6 @@ app.post('/sales/:id/comments/new', (req, res) => {
 });
 
 
-app.get('/hi', (req, res) => {
-    res.json({ error: false, result: 'Hi Baby :-)' });
-    return;
-});
-
-app.post('/upload', upload.array(), (req, res) => {
-    let path = './out.jpg';
-    funcs.b64toFile(req.body.file, path).then(() => {
-        res.json({ error: false, result: true });
-    }).catch(() => {
-        res.json({ error: true, result: errj.code });
-    });
-});
-
 
 app.get('/nainemom/resize', (req, res) => {
 
@@ -546,8 +463,8 @@ app.get('/nainemom/resize', (req, res) => {
     let resize = function(file) {
         let newPath = `${path.dirname(file)}/${path.basename(file, path.extname(file))}.jpg`;
         jimp.read(file).then((lenna) => {
-            lenna.resize(800, jimp.AUTO)
-                .quality(50)
+            lenna.resize(400, jimp.AUTO)
+                .quality(40)
                 .write(newPath, () => {
                     if (newPath != file) {
                         fs.unlinkSync(file);

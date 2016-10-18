@@ -20,7 +20,7 @@
     <div class="row">
         <div class="form-group col-xs-12">
             <label class="control-label">نوع فروش</label>
-            <select tf-selectize class="form-control disable-search" options="saleTypes" ng-model="inputs.type"></select>
+            <tf-select class="form-control disable-search" options="saleTypes" ng-model="inputs.type"></tf-select>
         </div>
     </div>
     <div class="row" ng-if="inputs.type == 'sale'">
@@ -46,7 +46,7 @@
     <div class="row " ng-if="inputs.type=='rent' ">
         <div class="form-group col-xs-4 " ng-if="inputs.type=='rent' ">
             <label class="control-label ">دوره دریافت اجاره</label>
-            <select tf-selectize class="form-control disable-search" options="periodTypes " ng-model="inputs.period "></select>
+            <tf-select class="form-control disable-search" options="periodTypes " ng-model="inputs.period "></tf-select>
         </div>
         <div class="form-group col-xs-4 " ng-if="inputs.type=='rent' ">
             <label class="control-label ">حداقل مبلغ اجاره</label>
@@ -57,12 +57,7 @@
             <input type="number" class="form-control " ng-model="inputs.periodPriceMax " />
         </div>
     </div>
-    <div class="row ">
-        <div class="form-group col-xs-12 ">
-            <label class="control-label ">فقط در لیست من بگرد؟</label>
-            <tf-switch class="form-control " ng-model="inputs.timeline "></tf-switch>
-        </div>
-    </div>
+
     <div class="row">
         <div class="form-group col-xs-12">
             <button class="btn btn-primary btn-block " ng-click="submit() "> بگرد </button>
