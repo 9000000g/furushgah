@@ -9,7 +9,7 @@
         <i class="fa fa-arrow-left"></i>
     </section>
 </nav>
-<form class="tf-container vertical-padding horizontal-padding" ng-submit="submit()" style="overflow-y: scroll">
+<form class="tf-container vertical-padding horizontal-padding" ng-submit="submit()" tf-scroll tf-scroll-bottom="next()" tf-scroll-down="bars=false" tf-scroll-up="bars=true">
 
     <div class="row">
         <div class="form-group col-xs-12">
@@ -63,4 +63,6 @@
             <button class="btn btn-primary btn-block " ng-click="submit() "> بگرد </button>
         </div>
     </div>
+
+    <tf-floating-btn ng-show="bars" tf-go="/sales/new"><i class="fa fa-plus"></i></tf-floating-btn>
 </form>

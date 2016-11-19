@@ -40,8 +40,12 @@ angular.module('app.directives', [])
                         }
                     });
                 }
-
+                var commentBusy = false;
                 scope.newComment = function() {
+                    if( commentBusy || scope.inputs.body == '' ){
+                        return false;
+                    }
+                    commentBusy = true;
                     server.post('/sales/' + scope.item.id + '/comments/new', { body: scope.inputs.body }).then(function(res) {
                         err = res.data.error;
                         res = res.data.result;
@@ -51,6 +55,7 @@ angular.module('app.directives', [])
                                 user_alias: $rootScope.me.alias,
                                 body: scope.inputs.body
                             });
+                            commentBusy = false;
                             scope.inputs.body = '';
                         }
                     });

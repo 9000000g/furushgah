@@ -127,7 +127,7 @@ angular.module('app.controllers', [])
     .controller('SearchCtrl', function($scope, $rootScope, $tfHttp, $routeParams, $timeout, $location, $theFramework) {
         $rootScope.deside(function() {
             $scope.inputs = {};
-
+            $scope.bars = true;
             $scope.submit = function() {
                 var searchObj = $tfHttp.serialize($scope.inputs);
                 $theFramework.go('/sales/search/' + searchObj);
@@ -366,6 +366,7 @@ angular.module('app.controllers', [])
                     err = res.data.error;
                     res = res.data.result;
                     $scope.item = res;
+                    console.log(res);
                     $tfHttp.get('/sales/' + res.id + '/comments').then(function(res) {
                         err = res.data.error;
                         res = res.data.result;
@@ -386,6 +387,7 @@ angular.module('app.controllers', [])
             $scope.submit = function() {
                 $scope.busy = true;
                 $theFramework.loading();
+                console.log($scope.inputs);
                 $tfHttp.post('/sales/new', $scope.inputs).then(function(res) {
                     $theFramework.loading(false);
                     err = res.data.error;
